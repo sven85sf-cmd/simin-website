@@ -33,7 +33,7 @@ const testimonials: Testimonial[] = [];
       testimonials.length > 0 ? (
         <div class="testimonials__grid">
           {testimonials.map((t) => (
-            <blockquote class="testimonials__item reveal">
+            <blockquote class="testimonials__item" data-reveal="up">
               <p>&ldquo;{t.quote}&rdquo;</p>
               <footer>
                 <strong>{t.author}</strong>
@@ -43,7 +43,7 @@ const testimonials: Testimonial[] = [];
           ))}
         </div>
       ) : (
-        <div class="testimonials__empty reveal">
+        <div class="testimonials__empty" data-reveal="up">
           <p class="prose">
             Echte Kundenstimmen werden hier ergänzt, sobald sie freigegeben vorliegen. Einen
             aktuellen Eindruck erhalten Sie in der Zwischenzeit direkt über Google.

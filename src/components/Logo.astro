@@ -15,9 +15,15 @@ interface Props {
   variant?: "light" | "dark";
   size?: "header" | "footer" | "hero";
   class?: string;
+  "data-reveal"?: string;
 }
 
-const { variant = "dark", size = "header", class: className = "" } = Astro.props;
+const {
+  variant = "dark",
+  size = "header",
+  class: className = "",
+  "data-reveal": dataReveal,
+} = Astro.props;
 
 const logoImages = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/logo/simin-logo.{png,svg,webp}",
@@ -32,6 +38,7 @@ const logoEntry = Object.values(logoImages)[0];
       href={withBase("/")}
       class={`logo logo--badge logo--badge-${size} ${className}`}
       aria-label={`${company.name} – Startseite`}
+      data-reveal={dataReveal}
     >
       <Image src={logoEntry.default} alt={company.name} width={240} height={201} />
     </a>

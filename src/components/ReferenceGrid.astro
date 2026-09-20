@@ -37,7 +37,7 @@ const references: Reference[] = [];
       references.length > 0 ? (
         <div class="reference-grid__grid">
           {references.map((ref) => (
-            <figure class="reference-grid__item reveal">
+            <figure class="reference-grid__item" data-reveal="up">
               <ResponsiveImage
                 src={ref.image}
                 alt={`${ref.label} – ${ref.meta}`}
@@ -53,7 +53,7 @@ const references: Reference[] = [];
           ))}
         </div>
       ) : (
-        <div class="reference-grid__empty reveal">
+        <div class="reference-grid__empty" data-reveal="up">
           <p class="prose">
             Wir stellen an dieser Stelle in Kürze ausgewählte Einblicke aus unserer laufenden
             Arbeit zusammen. Bis dahin sprechen Sie uns gerne direkt an – wir informieren Sie

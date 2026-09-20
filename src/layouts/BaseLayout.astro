@@ -68,22 +68,80 @@ const {
     <Footer />
     {!hideStickyBar && <StickyMobileBar />}
     <script>
-      const revealElements = document.querySelectorAll<HTMLElement>(".reveal");
-      if ("IntersectionObserver" in window && revealElements.length) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
+      /**
+       * Zentrales Motion-/Reveal-System.
+       *
+       * Progressive Enhancement: [data-reveal]-Elemente sind ohne dieses
+       * Skript und ohne CSS-Unterstützung ganz normal sichtbar (siehe
+       * global.css - die unsichtbaren Ausgangszustände greifen erst unter
+       * html.motion-enabled). Bei prefers-reduced-motion wird die Klasse
+       * gar nicht erst gesetzt: keine Reveal-Sequenzen, Inhalt bleibt
+       * sofort vollständig sichtbar und bedienbar.
+       */
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+      if (!reduceMotion) {
+        document.documentElement.classList.add("motion-enabled");
+
+        // Stagger: Kindelemente mit [data-reveal] innerhalb eines
+        // [data-stagger]-Containers erhalten eine steigende Verzögerung
+        // (Default 80ms, überschreibbar via data-stagger="120").
+        document.querySelectorAll<HTMLElement>("[data-stagger]").forEach((group) => {
+          const step = Number(group.dataset.stagger) || 80;
+          const children = group.querySelectorAll<HTMLElement>(":scope > [data-reveal]");
+          children.forEach((child, index) => {
+            child.style.setProperty("--reveal-delay", String(index * step));
+          });
+        });
+
+        // Der Hero ist grundsätzlich beim Laden bereits im Viewport - seine
+        // Reveal-Sequenz ist eine Lade-Dramaturgie, kein Scroll-Reveal. Mit
+        // dem gemeinsamen Scroll-Observer (rootMargin -10% unten) verpasst
+        // ausgerechnet der Hero-CTA-Block (durch die bodenbündige Hero-
+        // Ausrichtung nah am unteren Viewport-Rand positioniert) auf
+        // vielen Bildschirmhöhen die Trigger-Zone dauerhaft und bliebe
+        // unsichtbar. Deshalb bekommt der Hero eine eigene, sofortige
+        // Reveal-Behandlung; alle übrigen Sektionen nutzen weiterhin einen
+        // einzigen gemeinsamen Scroll-IntersectionObserver.
+        const heroTargets = Array.from(document.querySelectorAll<HTMLElement>(".hero [data-reveal]"));
+        const revealTargets = Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]")).filter(
+          (el) => !heroTargets.includes(el),
         );
-        revealElements.forEach((el) => observer.observe(el));
-      } else {
-        revealElements.forEach((el) => el.classList.add("is-visible"));
+
+        function startObserving() {
+          heroTargets.forEach((el) => el.classList.add("is-visible"));
+
+          if ("IntersectionObserver" in window && revealTargets.length) {
+            const observer = new IntersectionObserver(
+              (entries) => {
+                entries.forEach((entry) => {
+                  if (entry.isIntersecting) {
+                    entry.target.classList.add("is-visible");
+                    observer.unobserve(entry.target);
+                  }
+                });
+              },
+              { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
+            );
+            revealTargets.forEach((el) => observer.observe(el));
+          } else {
+            revealTargets.forEach((el) => el.classList.add("is-visible"));
+          }
+        }
+
+        // Der Browser muss den unsichtbaren Ausgangszustand (opacity:0,
+        // siehe global.css) mindestens einmal gemalt haben, BEVOR
+        // "is-visible" gesetzt wird - sonst verschmelzen beide Zustände in
+        // einem Frame und Above-the-fold-Elemente (z. B. der Hero, dessen
+        // IntersectionObserver-Callback praktisch sofort feuert) erscheinen
+        // ohne jede sichtbare Animation. Ein doppeltes rAF bzw. ein
+        // erzwungener Reflow reichen dafür nachweislich nicht zuverlässig
+        // aus (der Browser kann Style-Berechnung und Paint weiterhin im
+        // selben Frame zusammenfassen) - ein echtes Makrotask-Delay über
+        // setTimeout garantiert dagegen einen abgeschlossenen Render-Zyklus
+        // dazwischen. Sehr kurz gehalten, damit der Reveal nicht spürbar
+        // verzögert wirkt.
+        window.setTimeout(startObserving, 32);
       }
     </script>
   </body>

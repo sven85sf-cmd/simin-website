@@ -25,6 +25,20 @@ const { step, legend, hidden = false } = Astro.props;
     gap: 20px;
   }
 
+  /* Step-Übergang: kurzer, ruhiger Slide + Fade beim Wechsel zwischen
+     Schritten (siehe QuoteWizard.astro-Skript). Kein Layout-Sprung, da
+     nur transform/opacity animiert werden. */
+  html.motion-enabled .quote-wizard__step {
+    transition:
+      opacity var(--motion-base) var(--ease-standard),
+      transform var(--motion-base) var(--ease-standard);
+  }
+
+  html.motion-enabled .quote-wizard__step--entering {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
   .quote-wizard__legend {
     font-family: var(--font-display);
     font-weight: 700;

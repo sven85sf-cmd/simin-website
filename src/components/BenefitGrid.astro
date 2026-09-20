@@ -28,9 +28,9 @@ const benefits = [
       headline="SAUBER. ZUVERLÄSSIG. PERSÖNLICH."
       text="Gebäudedienstleistungen funktionieren dann gut, wenn sie im Alltag unkompliziert funktionieren. Deshalb setzen wir auf persönliche Betreuung, klare Absprachen und Leistungen, die zum jeweiligen Objekt passen."
     />
-    <div class="benefit-grid__grid">
+    <div class="benefit-grid__grid" data-stagger="80">
       {benefits.map((benefit) => (
-        <div class="benefit-grid__item reveal">
+        <div class="benefit-grid__item" data-reveal="up">
           <h3 class="benefit-grid__title">{benefit.title}</h3>
           <p class="prose">{benefit.text}</p>
         </div>

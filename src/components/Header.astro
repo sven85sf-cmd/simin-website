@@ -116,6 +116,7 @@ const { transparentOnTop = false } = Astro.props;
   }
 
   .primary-nav__link {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -129,10 +130,28 @@ const { transparentOnTop = false } = Astro.props;
     text-decoration: none;
     cursor: pointer;
     letter-spacing: 0.01em;
+    transition: color var(--motion-fast) var(--ease-standard);
+  }
+
+  .primary-nav__link::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    height: 2px;
+    background: var(--color-orange);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--motion-base) var(--ease-standard);
   }
 
   .primary-nav__link:hover {
     color: var(--color-light-blue);
+  }
+
+  .primary-nav__link:hover::after {
+    transform: scaleX(1);
   }
 
   .nav-dropdown {
@@ -151,7 +170,7 @@ const { transparentOnTop = false } = Astro.props;
     padding: 8px;
     opacity: 0;
     visibility: hidden;
-    transform: translateY(-6px);
+    transform: translateY(-8px);
     transition:
       opacity var(--duration-fast) var(--ease-standard),
       transform var(--duration-fast) var(--ease-standard),

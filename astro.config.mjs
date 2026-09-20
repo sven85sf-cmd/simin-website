@@ -11,7 +11,13 @@ export default defineConfig({
   trailingSlash: "never",
   compressHTML: true,
   build: {
-    inlineStylesheets: "auto",
+    // "always" statt "auto": mit "auto" hat Vite/Astro einen Teil des
+    // globalen Reveal-System-CSS (aus global.css) in einen Chunk gepackt,
+    // der auf der Startseite gar nicht eingebunden wurde (nur z. B. auf
+    // /angebot) - das Reveal-System griff dadurch auf der Startseite
+    // lautlos nicht. "always" inlined jede Seite vollständig und macht
+    // dieses Chunking-Risiko strukturell unmöglich.
+    inlineStylesheets: "always",
   },
   image: {
     remotePatterns: [],

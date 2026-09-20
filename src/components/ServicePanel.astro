@@ -27,8 +27,8 @@ const {
 } = Astro.props;
 ---
 
-<article class:list={["service-panel", "reveal", { "service-panel--reversed": reversed }]}>
-  <div class="service-panel__media">
+<article class:list={["service-panel", { "service-panel--reversed": reversed }]}>
+  <div class="service-panel__media" data-reveal="up">
     <ResponsiveImage
       src={image}
       alt={imageAlt ?? `${title} durch Gebäudedienste SIMIN`}
@@ -39,7 +39,7 @@ const {
       objectPosition={imagePosition}
     />
   </div>
-  <div class:list={["service-panel__body", `service-panel__body--${accent}`]}>
+  <div class:list={["service-panel__body", `service-panel__body--${accent}`]} data-reveal="up">
     <h3 class="service-panel__title">{title}</h3>
     <p class="prose">{text}</p>
     <ul class="service-panel__list">
@@ -77,10 +77,23 @@ const {
     display: flex;
     flex-direction: column;
     gap: 14px;
+    transition: border-color var(--motion-base) var(--ease-standard);
+  }
+
+  html.motion-enabled .service-panel__body[data-reveal] {
+    transition-delay: 120ms;
   }
 
   .service-panel__body--orange {
     border-left-color: var(--color-orange);
+  }
+
+  .service-panel:hover .service-panel__body {
+    border-left-color: var(--color-light-blue);
+  }
+
+  .service-panel:hover .service-panel__body--orange {
+    border-left-color: #ffb35c;
   }
 
   .service-panel__title {

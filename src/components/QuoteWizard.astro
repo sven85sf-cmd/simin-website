@@ -25,7 +25,7 @@ const propertyOptions = [
 ---
 
 <section class="quote-wizard section--navy section" id="angebotsassistent">
-  <div class="container quote-wizard__container reveal">
+  <div class="container quote-wizard__container" data-reveal="up">
     <div class="quote-wizard__intro">
       <h2 class="quote-wizard__headline">WAS KÖNNEN WIR<br />FÜR IHRE IMMOBILIE TUN?</h2>
       <p class="quote-wizard__text">
@@ -190,6 +190,9 @@ const propertyOptions = [
     color: var(--color-simin-blue);
     font-weight: 700;
     font-size: 0.875rem;
+    transition:
+      background-color var(--motion-base) var(--ease-standard),
+      color var(--motion-base) var(--ease-standard);
   }
 
   .quote-wizard__progress li[aria-current="step"] span {
@@ -411,9 +414,21 @@ const propertyOptions = [
       form?.querySelectorAll<HTMLFieldSetElement>(".quote-wizard__step").forEach((fieldset) => {
         const isActive = Number(fieldset.dataset.step) === step;
         fieldset.hidden = !isActive;
-        if (isActive && focusLegend) {
-          const legend = fieldset.querySelector<HTMLElement>(".quote-wizard__legend");
-          legend?.focus();
+        if (isActive) {
+          // Kurzer Slide+Fade beim Eintritt: Startzustand setzen, dann im
+          // nächsten Frame entfernen, damit die CSS-Transition greift
+          // (kein Effekt, wenn html.motion-enabled fehlt oder reduced-motion
+          // aktiv ist - die Klasse bleibt dann folgenlos).
+          fieldset.classList.add("quote-wizard__step--entering");
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              fieldset.classList.remove("quote-wizard__step--entering");
+            });
+          });
+          if (focusLegend) {
+            const legend = fieldset.querySelector<HTMLElement>(".quote-wizard__legend");
+            legend?.focus();
+          }
         }
       });
 

@@ -7,8 +7,8 @@ import { withBase } from "@/lib/path";
 {
   seasonalCampaign.active && (
     <section class="seasonal section">
-      <div class="container seasonal__grid reveal">
-        <div class="seasonal__media">
+      <div class="container seasonal__grid">
+        <div class="seasonal__media" data-reveal="up">
           <ResponsiveImage
             src="/images/service-aussenanlagen.webp"
             alt="Herbstliche Laubbeseitigung auf einem gepflegten Grundstück"
@@ -17,7 +17,7 @@ import { withBase } from "@/lib/path";
             class="seasonal__image"
           />
         </div>
-        <div class="seasonal__body">
+        <div class="seasonal__body" data-reveal="up">
           <p class="eyebrow eyebrow--orange">{seasonalCampaign.eyebrow}</p>
           <h2 class="seasonal__headline" set:html={seasonalCampaign.headline.replace(/\n/g, "<br />")} />
           <p class="prose">{seasonalCampaign.text}</p>
@@ -56,6 +56,22 @@ import { withBase } from "@/lib/path";
 
   .seasonal__image {
     border-radius: var(--radius-lg);
+  }
+
+  /* Cinematisches Kampagnenmodul: Bild bekommt einen minimal stärkeren
+     Reveal (leichter Zoom aus 1.04 -> 1) als die übrigen Sections, Text
+     folgt leicht zeitversetzt. */
+  html.motion-enabled .seasonal__media[data-reveal] :global(img) {
+    transform: scale(1.04);
+    transition: transform var(--motion-slow) var(--ease-standard);
+  }
+
+  html.motion-enabled .seasonal__media[data-reveal].is-visible :global(img) {
+    transform: scale(1);
+  }
+
+  html.motion-enabled .seasonal__body[data-reveal] {
+    transition-delay: 140ms;
   }
 
   .seasonal__headline {

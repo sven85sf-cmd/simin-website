@@ -49,14 +49,26 @@
   --sticky-bar-height: 60px;
 
   /* Motion */
-  --ease-standard: cubic-bezier(0.2, 0.7, 0.3, 1);
-  --duration-fast: 200ms;
-  --duration-base: 300ms;
+  --motion-fast: 180ms;
+  --motion-base: 320ms;
+  --motion-medium: 480ms;
+  --motion-slow: 700ms;
+  --motion-cinematic: 1200ms;
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Legacy aliases (weiterhin an vielen Stellen im Einsatz) - an die
+     Motion-Tokens angeglichen, damit ein einheitlicher Rhythmus entsteht. */
+  --duration-fast: var(--motion-fast);
+  --duration-base: var(--motion-base);
 }
 
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-fast: 0ms;
     --duration-base: 0ms;
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-medium: 0ms;
+    --motion-slow: 0ms;
+    --motion-cinematic: 0ms;
   }
 }

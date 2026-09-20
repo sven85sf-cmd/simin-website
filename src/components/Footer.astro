@@ -9,9 +9,9 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
-      <div class="site-footer__brand-mark">
-        <Logo variant="light" size="footer" />
-        <p class="site-footer__claim">{company.claim}</p>
+      <div class="site-footer__brand-mark" data-stagger="120">
+        <Logo variant="light" size="footer" data-reveal="up" />
+        <p class="site-footer__claim" data-reveal="up">{company.claim}</p>
       </div>
       <address class="site-footer__contact">
         <span>{company.address.street}</span>

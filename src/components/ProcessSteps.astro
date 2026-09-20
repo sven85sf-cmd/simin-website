@@ -32,7 +32,7 @@ const steps = [
       eyebrow="UNSERE ZUSAMMENARBEIT"
       headline="VON DER ANFRAGE\nBIS ZUR LAUFENDEN BETREUUNG."
     />
-    <ol class="process__list reveal">
+    <ol class="process__list" data-reveal="up">
       {steps.map((step, index) => (
         <li class="process__item">
           <div class="process__marker">
@@ -86,6 +86,35 @@ const steps = [
     flex-shrink: 0;
   }
 
+  /* Stärkster Motion-Moment der Seite: die Linie "zeichnet" sich Schritt
+     für Schritt, jede Nummer aktiviert sich, sobald die Linie sie
+     erreicht. Einmalig, wenn die Section in den Viewport kommt. */
+  html.motion-enabled .process__number {
+    transform: scale(0.9);
+    opacity: 0.6;
+    transition:
+      transform var(--motion-base) var(--ease-standard),
+      opacity var(--motion-base) var(--ease-standard),
+      background-color var(--motion-base) var(--ease-standard);
+  }
+
+  html.motion-enabled .process__list.is-visible .process__number {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  html.motion-enabled .process__list.is-visible .process__item:nth-child(2) .process__number {
+    transition-delay: 0.6s;
+  }
+
+  html.motion-enabled .process__list.is-visible .process__item:nth-child(3) .process__number {
+    transition-delay: 1.2s;
+  }
+
+  html.motion-enabled .process__list.is-visible .process__item:nth-child(4) .process__number {
+    transition-delay: 1.8s;
+  }
+
   .process__line {
     width: 2px;
     flex: 1;
@@ -93,11 +122,23 @@ const steps = [
     margin-block: 4px;
     transform-origin: top;
     transform: scaleY(0);
-    transition: transform 0.8s var(--ease-standard);
+    transition: transform 0.6s var(--ease-standard);
   }
 
   .process__list.is-visible .process__line {
     transform: scaleY(1);
+  }
+
+  .process__list.is-visible .process__item:nth-child(1) .process__line {
+    transition-delay: 0.15s;
+  }
+
+  .process__list.is-visible .process__item:nth-child(2) .process__line {
+    transition-delay: 0.75s;
+  }
+
+  .process__list.is-visible .process__item:nth-child(3) .process__line {
+    transition-delay: 1.35s;
   }
 
   .process__body {

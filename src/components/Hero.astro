@@ -19,18 +19,18 @@ import { withBase } from "@/lib/path";
     <div class="hero__gradient" aria-hidden="true"></div>
   </div>
 
-  <div class="container hero__content">
-    <Logo size="hero" variant="light" class="hero__logo" />
-    <p class="eyebrow eyebrow--orange-on-dark hero__eyebrow">GEBÄUDEDIENSTE SIMIN · KÖLN</p>
-    <h1 class="hero__headline">
+  <div class="container hero__content" data-stagger="110">
+    <Logo size="hero" variant="light" class="hero__logo" data-reveal="up" />
+    <p class="eyebrow eyebrow--orange-on-dark hero__eyebrow" data-reveal="up">GEBÄUDEDIENSTE SIMIN · KÖLN</p>
+    <h1 class="hero__headline" data-reveal="up">
       GEPFLEGTE IMMOBILIEN.<br />
       ALLES AUS EINER HAND.
     </h1>
-    <p class="hero__text">
+    <p class="hero__text" data-reveal="up">
       Gebäudereinigung, Objektservice sowie Außenanlagen- und Winterdienst für Immobilien,
       Unternehmen und Verwaltungen in Köln und Umgebung.
     </p>
-    <div class="hero__actions">
+    <div class="hero__actions" data-reveal="up">
       <div class="hero__primary-action">
         <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
         <span class="micro-copy micro-copy--hero">Kostenlos & unverbindlich</span>
@@ -59,6 +59,23 @@ import { withBase } from "@/lib/path";
     height: 100%;
   }
 
+  /* Sehr subtiler Cinematic-Zoom: kein "bewegtes Hintergrundbild", sondern
+     eine kaum wahrnehmbare, langsame Tiefenwirkung über die gesamte
+     Betrachtungsdauer. Läuft nur unter html.motion-enabled (siehe
+     global.css) - ohne JS/mit reduced-motion bleibt das Bild ruhig. */
+  html.motion-enabled .hero__image {
+    animation: hero-cinematic-zoom 16s var(--ease-standard) forwards;
+  }
+
+  @keyframes hero-cinematic-zoom {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.035);
+    }
+  }
+
   .hero__gradient {
     position: absolute;
     inset: 0;
@@ -81,6 +98,17 @@ import { withBase } from "@/lib/path";
 
   .hero__logo {
     margin-bottom: 22px;
+  }
+
+  /* Markenreveal: "Marke tritt ruhig ins Bild" - dezenter als der
+     Standard-Reveal (kleinerer Versatz, minimal längere Dauer). */
+  html.motion-enabled .hero__logo[data-reveal] {
+    transform: scale(0.96) translateY(10px);
+    transition-duration: var(--motion-slow);
+  }
+
+  html.motion-enabled .hero__logo[data-reveal].is-visible {
+    transform: none;
   }
 
   .hero__eyebrow {

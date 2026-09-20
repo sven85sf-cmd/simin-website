@@ -9,11 +9,11 @@ const items = [
 ];
 ---
 
-<section class="trust-bar reveal" aria-label="Vertrauensmerkmale">
-  <ul class="container trust-bar__list">
+<section class="trust-bar" aria-label="Vertrauensmerkmale">
+  <ul class="container trust-bar__list" data-stagger="70">
     {
       items.map((item) => (
-        <li class="trust-bar__item">
+        <li class="trust-bar__item" data-reveal="up">
           {item.href ? (
             <a href={item.href} target="_blank" rel="noopener noreferrer" class="trust-bar__link">
               <span class="trust-bar__stars" aria-hidden="true">★★★★★</span>
