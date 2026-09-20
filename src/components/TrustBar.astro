@@ -1,0 +1,79 @@
+---
+import { googleReviewsUrl } from "@/config/site";
+
+const items = [
+  { icon: "star", label: "GOOGLE-BEWERTUNGEN", href: googleReviewsUrl },
+  { icon: "user", label: "PERSÖNLICHER ANSPRECHPARTNER" },
+  { icon: "pin", label: "KÖLN & UMGEBUNG" },
+  { icon: "layers", label: "MEHRERE LEISTUNGEN AUS EINER HAND" },
+];
+---
+
+<section class="trust-bar reveal" aria-label="Vertrauensmerkmale">
+  <ul class="container trust-bar__list">
+    {
+      items.map((item) => (
+        <li class="trust-bar__item">
+          {item.href ? (
+            <a href={item.href} target="_blank" rel="noopener noreferrer" class="trust-bar__link">
+              <span class="trust-bar__stars" aria-hidden="true">★★★★★</span>
+              <span>GOOGLE-BEWERTUNGEN ANSEHEN</span>
+            </a>
+          ) : (
+            <span class="trust-bar__text">{item.label}</span>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .trust-bar {
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+    padding-block: 24px;
+  }
+
+  .trust-bar__list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 16px 32px;
+    list-style: none;
+  }
+
+  .trust-bar__item {
+    display: flex;
+    align-items: center;
+  }
+
+  .trust-bar__text {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--color-navy);
+  }
+
+  .trust-bar__link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--color-navy);
+  }
+
+  .trust-bar__link:hover {
+    color: var(--color-simin-blue);
+  }
+
+  .trust-bar__stars {
+    color: var(--color-orange-accessible);
+    letter-spacing: 2px;
+  }
+</style>

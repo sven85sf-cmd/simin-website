@@ -1,0 +1,42 @@
+---
+interface Props {
+  step: number;
+  legend: string;
+  hidden?: boolean;
+}
+
+const { step, legend, hidden = false } = Astro.props;
+---
+
+<fieldset class="quote-wizard__step" data-step={step} hidden={hidden}>
+  <legend class="quote-wizard__legend" tabindex="-1">{legend}</legend>
+  <div class="quote-wizard__step-body">
+    <slot />
+  </div>
+</fieldset>
+
+<style>
+  .quote-wizard__step {
+    border: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .quote-wizard__legend {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.375rem;
+    color: var(--color-navy);
+    padding: 0;
+    outline: none;
+  }
+
+  .quote-wizard__step-body {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+</style>

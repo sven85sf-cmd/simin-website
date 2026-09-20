@@ -1,0 +1,33 @@
+---
+import { company } from "@/config/site";
+
+/**
+ * LocalBusiness Structured Data – ausschließlich echte, im Master-Brief
+ * bestätigte Angaben. Keine Öffnungszeiten, Preisspannen oder Bewertungen,
+ * da diese nicht belegt vorliegen.
+ */
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: company.name,
+  image: new URL("/images/og-default.png", company.url).toString(),
+  logo: new URL("/images/logo-simin.png", company.url).toString(),
+  url: company.url,
+  telephone: company.phone.e164,
+  email: company.email.display,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: company.address.street,
+    postalCode: company.address.postalCode,
+    addressLocality: company.address.city,
+    addressCountry: "DE",
+  },
+  areaServed: {
+    "@type": "City",
+    name: "Köln",
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

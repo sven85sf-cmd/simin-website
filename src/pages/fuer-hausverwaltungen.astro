@@ -1,0 +1,31 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHero from "@/components/PageHero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import BusinessSection from "@/components/BusinessSection.astro";
+import BenefitGrid from "@/components/BenefitGrid.astro";
+import ProcessSteps from "@/components/ProcessSteps.astro";
+import CTASection from "@/components/CTASection.astro";
+
+const title = "Gebäudedienstleistungen für Hausverwaltungen in Köln | Gebäudedienste SIMIN";
+const description =
+  "Ein Ansprechpartner für Reinigung, Objektservice und Außenanlagenpflege: SIMIN unterstützt Hausverwaltungen, Eigentümer und Unternehmen in Köln und Umgebung.";
+---
+
+<BaseLayout title={title} description={description} path="/fuer-hausverwaltungen">
+  <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: "Für Immobilien", href: "/fuer-hausverwaltungen" }]} />
+  <PageHero
+    eyebrow="FÜR IMMOBILIEN & VERWALTUNGEN"
+    headline="Gebäudedienstleistungen für Hausverwaltungen"
+    text="Ein Ansprechpartner. Mehrere Leistungen. Weniger Aufwand für Ihre verwalteten Objekte."
+    placeholderLabel="Verwaltete Wohnanlage — Originalfoto folgt"
+  />
+  <BusinessSection />
+  <BenefitGrid />
+  <ProcessSteps />
+  <CTASection
+    eyebrow="IHR PARTNER VOR ORT"
+    headline="IHRE OBJEKTE.\nUNSER SERVICE."
+    text="Sprechen Sie mit uns über die von Ihnen verwalteten Objekte und den passenden Leistungsumfang."
+  />
+</BaseLayout>

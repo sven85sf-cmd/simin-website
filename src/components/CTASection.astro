@@ -1,0 +1,86 @@
+---
+import ResponsiveImage from "@/components/ResponsiveImage.astro";
+import { company } from "@/config/site";
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+  text: string;
+  imageSrc?: string;
+}
+
+const { eyebrow, headline, text, imageSrc } = Astro.props;
+---
+
+<section class="cta-section reveal">
+  <ResponsiveImage
+    src={imageSrc}
+    alt="Gepflegte Immobilie, betreut von Gebäudedienste SIMIN"
+    width={1920}
+    height={900}
+    class="cta-section__image"
+    loading="lazy"
+    fill
+  />
+  <div class="cta-section__overlay"></div>
+  <div class="container cta-section__content">
+    <p class="eyebrow eyebrow--orange-on-dark">{eyebrow}</p>
+    <h2 class="cta-section__headline" set:html={headline.replace(/\n/g, "<br />")} />
+    <p class="cta-section__text">{text}</p>
+    <div class="cta-section__actions">
+      <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+      <a href={company.phone.href} class="btn btn-secondary btn-secondary--on-dark">
+        {company.phone.display}
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-section {
+    position: relative;
+    color: var(--color-white);
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+  }
+
+  .cta-section__image {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+  }
+
+  .cta-section__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(7, 53, 74, 0.92) 0%, rgba(7, 53, 74, 0.55) 70%);
+  }
+
+  .cta-section__content {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    padding-block: clamp(64px, 10vw, 120px);
+    max-width: 640px;
+  }
+
+  .cta-section__headline {
+    font-size: var(--fs-h2);
+    color: var(--color-white);
+    margin-top: 12px;
+  }
+
+  .cta-section__text {
+    margin-top: 20px;
+    font-size: var(--fs-lead);
+    max-width: 52ch;
+  }
+
+  .cta-section__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 32px;
+  }
+</style>

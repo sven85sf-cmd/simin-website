@@ -1,0 +1,58 @@
+---
+interface Props {
+  eyebrow: string;
+  headline: string;
+  text?: string;
+  align?: "left" | "center";
+  onDark?: boolean;
+  eyebrowAccent?: "blue" | "orange";
+  as?: "h2" | "h1";
+}
+
+const {
+  eyebrow,
+  headline,
+  text,
+  align = "left",
+  onDark = false,
+  eyebrowAccent = "blue",
+  as: Heading = "h2",
+} = Astro.props;
+
+const eyebrowClass = [
+  "eyebrow",
+  onDark && eyebrowAccent === "blue" ? "eyebrow--on-dark" : "",
+  eyebrowAccent === "orange" && !onDark ? "eyebrow--orange" : "",
+  eyebrowAccent === "orange" && onDark ? "eyebrow--orange-on-dark" : "",
+]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<div class:list={["section-header", { "section-header--center": align === "center" }]}>
+  <p class={eyebrowClass}>{eyebrow}</p>
+  <Heading class="section-header__headline" set:html={headline.replace(/\n/g, "<br />")} />
+  {text && <p class="lead section-header__text">{text}</p>}
+</div>
+
+<style>
+  .section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: clamp(32px, 5vw, 56px);
+  }
+
+  .section-header--center {
+    align-items: center;
+    text-align: center;
+  }
+
+  .section-header--center .section-header__text {
+    margin-inline: auto;
+  }
+
+  .section-header__headline {
+    font-size: var(--fs-h2);
+  }
+</style>

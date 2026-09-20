@@ -1,0 +1,97 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHero from "@/components/PageHero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import { company } from "@/config/site";
+
+const title = "Kontakt | Gebäudedienste SIMIN";
+const description =
+  "Kontaktieren Sie Gebäudedienste SIMIN in Köln – telefonisch, per E-Mail oder über den Angebotsassistenten. Wir melden uns persönlich bei Ihnen.";
+---
+
+<BaseLayout title={title} description={description} path="/kontakt">
+  <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: "Kontakt", href: "/kontakt" }]} />
+  <PageHero
+    eyebrow="KONTAKT"
+    headline="Sprechen Sie mit uns"
+    text="Wir melden uns persönlich bei Ihnen – telefonisch, per E-Mail oder über den Angebotsassistenten."
+    placeholderLabel="Ansprechpartner — Originalfoto folgt"
+  />
+
+  <section class="section">
+    <div class="container kontakt__grid">
+      <div class="kontakt__card">
+        <h2>Telefon</h2>
+        <a href={company.phone.href} class="kontakt__value">{company.phone.display}</a>
+      </div>
+      <div class="kontakt__card">
+        <h2>E-Mail</h2>
+        <a href={company.email.href} class="kontakt__value">{company.email.display}</a>
+      </div>
+      <div class="kontakt__card">
+        <h2>Adresse</h2>
+        <address class="kontakt__value">
+          {company.address.street}<br />
+          {company.address.postalCode} {company.address.city}
+        </address>
+      </div>
+      <div class="kontakt__card kontakt__card--cta">
+        <h2>Angebot anfragen</h2>
+        <p>Beschreiben Sie uns kurz Ihr Objekt und die gewünschte Leistung.</p>
+        <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .kontakt__grid {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 900px;
+  }
+
+  .kontakt__card {
+    min-width: 0;
+    background: var(--color-ice);
+    border-radius: var(--radius-md);
+    padding: 24px;
+  }
+
+  .kontakt__card h2 {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-simin-blue);
+    margin-bottom: 10px;
+  }
+
+  .kontakt__value {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-navy);
+    text-decoration: none;
+    font-style: normal;
+  }
+
+  .kontakt__card--cta {
+    background: var(--color-navy);
+    color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .kontakt__card--cta h2 {
+    color: var(--color-light-blue);
+  }
+
+  @media (min-width: 640px) {
+    .kontakt__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+</style>

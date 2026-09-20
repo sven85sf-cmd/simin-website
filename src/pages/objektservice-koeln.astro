@@ -1,0 +1,11 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import ServicePageContent from "@/components/ServicePageContent.astro";
+import { getServiceBySlug } from "@/data/services";
+
+const service = getServiceBySlug("objektservice-koeln")!;
+---
+
+<BaseLayout title={service.metaTitle} description={service.metaDescription} path="/objektservice-koeln">
+  <ServicePageContent service={service} />
+</BaseLayout>

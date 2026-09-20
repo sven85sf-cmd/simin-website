@@ -1,0 +1,226 @@
+---
+import PageHero from "@/components/PageHero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import FaqAccordion from "@/components/FaqAccordion.astro";
+import CTASection from "@/components/CTASection.astro";
+import type { Service } from "@/data/services";
+import { services } from "@/data/services";
+
+interface Props {
+  service: Service;
+}
+
+const { service } = Astro.props;
+const otherServices = services.filter((s) => s.id !== service.id);
+---
+
+<Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: service.navLabel, href: `/${service.slug}` }]} />
+
+<PageHero eyebrow={service.eyebrow} headline={service.heroH1} placeholderLabel={`${service.navLabel} — Originalfoto folgt`} />
+
+<section class="service-page section">
+  <div class="container service-page__grid">
+    <div class="service-page__main">
+      <p class="lead">{service.intro}</p>
+
+      <h2 class="service-page__heading">Leistungen im Überblick</h2>
+      <ul class="service-page__list">
+        {service.leistungen.map((item) => <li>{item}</li>)}
+      </ul>
+
+      <h2 class="service-page__heading">Ihr Nutzen</h2>
+      <ul class="service-page__list">
+        {service.nutzen.map((item) => <li>{item}</li>)}
+      </ul>
+
+      <h2 class="service-page__heading">Ablauf</h2>
+      <ol class="service-page__ablauf">
+        {service.ablauf.map((step, index) => (
+          <li>
+            <span class="service-page__ablauf-number">{index + 1}</span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ol>
+
+      <h2 class="service-page__heading">Häufige Fragen</h2>
+      <FaqAccordion items={service.faq} />
+    </div>
+
+    <aside class="service-page__sidebar">
+      <div class="service-page__card">
+        <h2 class="service-page__card-title">Objektarten</h2>
+        <ul class="service-page__tags">
+          {service.objektarten.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+
+      <div class="service-page__card service-page__card--cta">
+        <h2 class="service-page__card-title">Interesse an {service.navLabel}?</h2>
+        <p>Beschreiben Sie uns kurz Ihr Objekt – wir melden uns persönlich bei Ihnen.</p>
+        <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+        <span class="micro-copy">Kostenlos & unverbindlich</span>
+      </div>
+
+      <nav class="service-page__card" aria-label="Weitere Leistungen">
+        <h2 class="service-page__card-title">Weitere Leistungen</h2>
+        <ul class="service-page__links">
+          {otherServices.map((other) => (
+            <li><a href={`/${other.slug}`}>{other.navLabel}</a></li>
+          ))}
+          <li><a href="/fuer-hausverwaltungen">Für Hausverwaltungen</a></li>
+        </ul>
+      </nav>
+    </aside>
+  </div>
+</section>
+
+<CTASection
+  eyebrow="IHR PARTNER VOR ORT"
+  headline={`${service.navLabel.toUpperCase()}.\nAUS EINER HAND.`}
+  text="Sprechen Sie mit uns über Ihr Objekt und die Leistungen, die Sie benötigen."
+/>
+
+<style>
+  .service-page__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  .service-page__main,
+  .service-page__sidebar {
+    min-width: 0;
+  }
+
+  .service-page__main {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .service-page__heading {
+    font-size: var(--fs-h3);
+    margin-top: 24px;
+  }
+
+  .service-page__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .service-page__list li {
+    padding-left: 20px;
+    position: relative;
+  }
+
+  .service-page__list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-simin-blue);
+  }
+
+  .service-page__ablauf {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .service-page__ablauf li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .service-page__ablauf-number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-navy);
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.875rem;
+  }
+
+  .service-page__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-self: start;
+  }
+
+  .service-page__card {
+    background: var(--color-ice);
+    border-radius: var(--radius-md);
+    padding: 24px;
+  }
+
+  .service-page__card--cta {
+    background: var(--color-navy);
+    color: var(--color-white);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .service-page__card--cta .micro-copy {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .service-page__card-title {
+    font-size: 1.0625rem;
+    margin-bottom: 14px;
+  }
+
+  .service-page__tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .service-page__tags li {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: 6px 10px;
+  }
+
+  .service-page__links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .service-page__links a {
+    color: var(--color-simin-blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .service-page__links a:hover {
+    text-decoration: underline;
+  }
+
+  @media (min-width: 1024px) {
+    .service-page__grid {
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,124 @@
+---
+import ResponsiveImage from "@/components/ResponsiveImage.astro";
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  text: string;
+  items: string[];
+  href: string;
+  accent: "blue" | "orange";
+  reversed?: boolean;
+}
+
+const { eyebrow, title, text, items, href, accent, reversed = false } = Astro.props;
+---
+
+<article class:list={["service-panel", "reveal", { "service-panel--reversed": reversed }]}>
+  <div class="service-panel__media">
+    <ResponsiveImage
+      src={undefined}
+      alt={`${title} durch Gebäudedienste SIMIN`}
+      width={960}
+      height={720}
+      class="service-panel__image"
+      placeholderLabel={`${title} — Originalfoto folgt`}
+    />
+  </div>
+  <div class:list={["service-panel__body", `service-panel__body--${accent}`]}>
+    <p class:list={["eyebrow", { "eyebrow--orange": accent === "orange" }]}>{eyebrow}</p>
+    <h3 class="service-panel__title">{title}</h3>
+    <p class="prose">{text}</p>
+    <ul class="service-panel__list">
+      {items.map((item) => <li>{item}</li>)}
+    </ul>
+    <a href={href} class="btn-ghost service-panel__link">ALLE LEISTUNGEN ENTDECKEN</a>
+  </div>
+</article>
+
+<style>
+  .service-panel {
+    display: grid;
+    gap: 0;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-white);
+  }
+
+  .service-panel__image {
+    height: 100%;
+    transition: transform 0.6s var(--ease-standard);
+  }
+
+  .service-panel__media {
+    overflow: hidden;
+  }
+
+  .service-panel__media:hover .service-panel__image {
+    transform: scale(1.03);
+  }
+
+  .service-panel__body {
+    padding: clamp(28px, 4vw, 48px);
+    border-left: 4px solid var(--color-simin-blue);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .service-panel__body--orange {
+    border-left-color: var(--color-orange);
+  }
+
+  .service-panel__title {
+    font-size: var(--fs-h3);
+  }
+
+  .service-panel__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-block: 4px;
+  }
+
+  .service-panel__list li {
+    padding-left: 18px;
+    position: relative;
+    font-size: 0.9375rem;
+  }
+
+  .service-panel__list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    background: var(--color-simin-blue);
+    border-radius: 50%;
+  }
+
+  .service-panel__body--orange .service-panel__list li::before {
+    background: var(--color-orange-accessible);
+  }
+
+  .service-panel__link {
+    margin-top: 6px;
+  }
+
+  @media (min-width: 900px) {
+    .service-panel {
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      min-height: 420px;
+    }
+
+    .service-panel--reversed {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    }
+
+    .service-panel--reversed .service-panel__media {
+      order: 2;
+    }
+  }
+</style>

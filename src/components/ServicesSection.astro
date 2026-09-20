@@ -1,0 +1,59 @@
+---
+import SectionHeader from "@/components/SectionHeader.astro";
+import ServicePanel from "@/components/ServicePanel.astro";
+
+const panels = [
+  {
+    eyebrow: "GEBÄUDEREINIGUNG",
+    title: "Gebäudereinigung",
+    text: "Saubere und hygienisch gepflegte Räume für Wohn-, Büro-, Praxis- und Gewerbeobjekte.",
+    items: ["Büro- & Praxisreinigung", "Treppenhausreinigung", "Unterhaltsreinigung", "Glas- & Fensterreinigung"],
+    href: "/gebaeudereinigung-koeln",
+    accent: "blue" as const,
+  },
+  {
+    eyebrow: "OBJEKTSERVICE",
+    title: "Objektservice",
+    text: "Persönliche Betreuung und regelmäßige Kontrollen für gepflegte Allgemeinflächen und klare Abläufe im Objekt.",
+    items: [
+      "Objektbetreuung & Kontrollgänge",
+      "Kontrolle von Allgemeinflächen",
+      "Mülltonnenbereitstellung",
+      "Kleinreparaturen im vereinbarten Leistungsumfang",
+    ],
+    href: "/objektservice-koeln",
+    accent: "blue" as const,
+  },
+  {
+    eyebrow: "AUSSENANLAGEN & WINTERDIENST",
+    title: "Außenanlagen & Winterdienst",
+    text: "Gepflegte Außenbereiche im Jahresverlauf – von der Grünpflege bis zur Betreuung bei Schnee und Glätte.",
+    items: ["Grünflächenpflege", "Hof- & Wegepflege", "Laubbeseitigung", "Winterdienst"],
+    href: "/aussenanlagenpflege-koeln",
+    accent: "orange" as const,
+  },
+];
+---
+
+<section class="services-section section" id="leistungen">
+  <div class="container">
+    <SectionHeader
+      eyebrow="UNSERE LEISTUNGEN"
+      headline="ALLES, WAS IHRE IMMOBILIE GEPFLEGT HÄLT."
+      text="Ob regelmäßige Reinigung, laufende Objektbetreuung oder Pflege der Außenanlagen: Wir bündeln wichtige Gebäudedienstleistungen und schaffen klare Zuständigkeiten."
+    />
+    <div class="services-section__list">
+      {panels.map((panel, index) => (
+        <ServicePanel {...panel} reversed={index % 2 === 1} />
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .services-section__list {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+</style>

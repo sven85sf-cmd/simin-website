@@ -1,0 +1,40 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/Hero.astro";
+import TrustBar from "@/components/TrustBar.astro";
+import BrandPromise from "@/components/BrandPromise.astro";
+import ServicesSection from "@/components/ServicesSection.astro";
+import BusinessSection from "@/components/BusinessSection.astro";
+import BenefitGrid from "@/components/BenefitGrid.astro";
+import ReferenceGrid from "@/components/ReferenceGrid.astro";
+import Testimonials from "@/components/Testimonials.astro";
+import ProcessSteps from "@/components/ProcessSteps.astro";
+import SeasonalCampaign from "@/components/SeasonalCampaign.astro";
+import QuoteWizard from "@/components/QuoteWizard.astro";
+import CTASection from "@/components/CTASection.astro";
+import { seoDefaults } from "@/config/site";
+---
+
+<BaseLayout
+  title={seoDefaults.homeTitle}
+  description={seoDefaults.homeDescription}
+  path="/"
+  transparentHeader
+>
+  <Hero />
+  <TrustBar />
+  <BrandPromise />
+  <ServicesSection />
+  <BusinessSection />
+  <BenefitGrid />
+  <ReferenceGrid />
+  <Testimonials />
+  <ProcessSteps />
+  <SeasonalCampaign />
+  <QuoteWizard />
+  <CTASection
+    eyebrow="IHR PARTNER VOR ORT"
+    headline="IHRE IMMOBILIE.\nUNSER SERVICE."
+    text="Sie suchen einen zuverlässigen Partner für Reinigung, Objektservice oder Außenanlagen? Sprechen Sie mit uns über Ihr Objekt und die Leistungen, die Sie benötigen."
+  />
+</BaseLayout>

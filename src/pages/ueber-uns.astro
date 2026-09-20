@@ -1,0 +1,75 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHero from "@/components/PageHero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import BenefitGrid from "@/components/BenefitGrid.astro";
+import CTASection from "@/components/CTASection.astro";
+import { company } from "@/config/site";
+
+const title = "Über uns | Gebäudedienste SIMIN";
+const description =
+  "Gebäudedienste SIMIN steht für persönliche Betreuung, zuverlässige Abläufe und Gebäudedienstleistungen, die zum jeweiligen Objekt passen – in Köln und Umgebung.";
+---
+
+<BaseLayout title={title} description={description} path="/ueber-uns">
+  <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: "Über uns", href: "/ueber-uns" }]} />
+  <PageHero
+    eyebrow="ÜBER SIMIN"
+    headline={company.claim}
+    text="Gebäudedienste SIMIN übernimmt Leistungen rund um Reinigung, Objektbetreuung, Außenanlagen und saisonalen Winterdienst für Immobilien in Köln und Umgebung."
+    placeholderLabel="Team bei der Arbeit — Originalfoto folgt"
+  />
+
+  <section class="section">
+    <div class="container about__grid">
+      <div class="prose about__text">
+        <h2>Persönlich statt anonym</h2>
+        <p>
+          Gebäudedienstleistungen funktionieren dann gut, wenn sie im Alltag unkompliziert
+          funktionieren. Deshalb setzen wir auf direkte Kommunikation, klare Absprachen und
+          Leistungen, die wir passend zu Objekt, Nutzung und Anforderungen abstimmen – statt einer
+          Lösung von der Stange.
+        </p>
+        <h2>Aus einer Hand</h2>
+        <p>
+          Reinigung, Objektservice und Außenanlagenpflege lassen sich bei SIMIN sinnvoll
+          kombinieren. So haben Eigentümer, Hausverwaltungen und Unternehmen einen festen
+          Ansprechpartner für mehrere Leistungen rund um ihre Immobilie.
+        </p>
+        <h2>Regional in Köln</h2>
+        <p>
+          Wir betreuen Immobilien in Köln und Umgebung mit kurzen Kommunikationswegen und
+          persönlicher Nähe vor Ort.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <BenefitGrid />
+
+  <CTASection
+    eyebrow="IHR PARTNER VOR ORT"
+    headline="LERNEN SIE UNS\nKENNEN."
+    text="Sprechen Sie mit uns über Ihr Objekt und die Leistungen, die Sie benötigen."
+  />
+</BaseLayout>
+
+<style>
+  .about__grid {
+    max-width: 720px;
+  }
+
+  .about__text h2 {
+    font-size: var(--fs-h3);
+    margin-top: 28px;
+    margin-bottom: 10px;
+  }
+
+  .about__text h2:first-child {
+    margin-top: 0;
+  }
+
+  .about__text p + h2 {
+    margin-top: 32px;
+  }
+</style>

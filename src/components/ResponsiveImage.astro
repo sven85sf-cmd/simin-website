@@ -1,0 +1,110 @@
+---
+/**
+ * Zentrale Bildkomponente.
+ *
+ * Unterstützt echte Bilder (src) mit width/height/sizes/loading/fetchpriority
+ * zur Vermeidung von Layout Shifts. Ist noch kein echtes Bild vorhanden,
+ * wird ein neutraler, klar erkennbarer Bildplatzhalter gerendert (siehe
+ * Punkt 7 des Briefings: keine erfundenen Referenzfotos, keine
+ * Stockfoto-IDs als Produktionslösung).
+ */
+interface Props {
+  src?: string;
+  alt: string;
+  width: number;
+  height: number;
+  sizes?: string;
+  loading?: "lazy" | "eager";
+  fetchpriority?: "high" | "low" | "auto";
+  class?: string;
+  placeholderLabel?: string;
+  /** Bild füllt seinen (meist absolut positionierten) Container vollständig
+   * aus, statt sein eigenes width/height-Seitenverhältnis vorzugeben.
+   * Für Hintergrund-/Fläche-Bilder (Hero, PageHero, CTASection, ServicePanel). */
+  fill?: boolean;
+}
+
+const {
+  src,
+  alt,
+  width,
+  height,
+  sizes,
+  loading = "lazy",
+  fetchpriority = "auto",
+  class: className = "",
+  placeholderLabel = "Bildplatzhalter — Originalfoto folgt",
+  fill = false,
+} = Astro.props;
+
+const aspect = `${width} / ${height}`;
+const styleAttr = fill ? undefined : `aspect-ratio: ${aspect};`;
+---
+
+{
+  src ? (
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      sizes={sizes}
+      loading={loading}
+      fetchpriority={fetchpriority}
+      decoding="async"
+      class={`r-image ${fill ? "r-image--fill" : ""} ${className}`}
+      style={styleAttr}
+    />
+  ) : (
+    <div
+      class={`r-image r-image--placeholder ${fill ? "r-image--fill" : ""} ${className}`}
+      style={styleAttr}
+      role="img"
+      aria-label={alt}
+    >
+      <span class="r-image__label">{placeholderLabel}</span>
+    </div>
+  )
+}
+
+<style>
+  .r-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+  }
+
+  .r-image--fill {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .r-image--placeholder {
+    background:
+      repeating-linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.06) 0px,
+        rgba(255, 255, 255, 0.06) 2px,
+        transparent 2px,
+        transparent 14px
+      ),
+      linear-gradient(155deg, var(--color-navy), var(--color-simin-blue));
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+  }
+
+  .r-image__label {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(7, 53, 74, 0.55);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+  }
+</style>

@@ -1,0 +1,27 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHero from "@/components/PageHero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import ReferenceGrid from "@/components/ReferenceGrid.astro";
+import CTASection from "@/components/CTASection.astro";
+
+const title = "Referenzen | Gebäudedienste SIMIN";
+const description =
+  "Einblicke in die Arbeit von Gebäudedienste SIMIN: Gebäudereinigung, Objektservice und Außenanlagenpflege für Immobilien in Köln und Umgebung.";
+---
+
+<BaseLayout title={title} description={description} path="/referenzen">
+  <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: "Referenzen", href: "/referenzen" }]} />
+  <PageHero
+    eyebrow="EINBLICKE IN UNSERE ARBEIT"
+    headline="Referenzen"
+    text="Gepflegte Objekte sind die beste Referenz."
+    placeholderLabel="Referenzobjekt — Originalfoto folgt"
+  />
+  <ReferenceGrid />
+  <CTASection
+    eyebrow="IHR PARTNER VOR ORT"
+    headline="IHR OBJEKT.\nUNSER EINSATZ."
+    text="Sprechen Sie mit uns über Ihr Objekt und die Leistungen, die Sie benötigen."
+  />
+</BaseLayout>

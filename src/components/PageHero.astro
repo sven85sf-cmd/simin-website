@@ -1,0 +1,80 @@
+---
+import ResponsiveImage from "@/components/ResponsiveImage.astro";
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+  text?: string;
+  placeholderLabel?: string;
+}
+
+const { eyebrow, headline, text, placeholderLabel } = Astro.props;
+---
+
+<section class="page-hero">
+  <div class="page-hero__media">
+    <ResponsiveImage
+      alt={headline}
+      width={1600}
+      height={900}
+      loading="eager"
+      fetchpriority="high"
+      class="page-hero__image"
+      placeholderLabel={placeholderLabel ?? "Titelbild — Originalfoto folgt"}
+      fill
+    />
+    <div class="page-hero__gradient" aria-hidden="true"></div>
+  </div>
+  <div class="container page-hero__content">
+    <p class="eyebrow eyebrow--orange-on-dark">{eyebrow}</p>
+    <h1 class="page-hero__headline">{headline}</h1>
+    {text && <p class="page-hero__text">{text}</p>}
+  </div>
+</section>
+
+<style>
+  .page-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(320px, 46vw, 480px);
+    color: var(--color-white);
+    overflow: hidden;
+  }
+
+  .page-hero__media {
+    position: absolute;
+    inset: 0;
+  }
+
+  .page-hero__image {
+    height: 100%;
+  }
+
+  .page-hero__gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, rgba(7, 53, 74, 0.92) 0%, rgba(7, 53, 74, 0.55) 60%, rgba(7, 53, 74, 0.15) 100%);
+  }
+
+  .page-hero__content {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    padding-block: 48px;
+    max-width: 760px;
+  }
+
+  .page-hero__headline {
+    font-size: var(--fs-h1);
+    color: var(--color-white);
+    margin-top: 12px;
+  }
+
+  .page-hero__text {
+    margin-top: 18px;
+    font-size: var(--fs-lead);
+    max-width: 56ch;
+    color: rgba(255, 255, 255, 0.92);
+  }
+</style>

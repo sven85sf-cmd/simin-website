@@ -1,0 +1,71 @@
+---
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import MobileNavigation from "@/components/MobileNavigation.astro";
+import StickyMobileBar from "@/components/StickyMobileBar.astro";
+import SEOHead from "@/components/SEOHead.astro";
+import LocalBusinessSchema from "@/components/LocalBusinessSchema.astro";
+import "@/styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  ogImage?: string;
+  noindex?: boolean;
+  transparentHeader?: boolean;
+  hideStickyBar?: boolean;
+}
+
+const {
+  title,
+  description,
+  path,
+  ogImage,
+  noindex,
+  transparentHeader = false,
+  hideStickyBar = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07354a" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <SEOHead title={title} description={description} path={path} ogImage={ogImage} noindex={noindex} />
+    <LocalBusinessSchema />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Zum Inhalt springen</a>
+    <Header transparentOnTop={transparentHeader} />
+    <MobileNavigation />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+    {!hideStickyBar && <StickyMobileBar />}
+    <script>
+      const revealElements = document.querySelectorAll<HTMLElement>(".reveal");
+      if ("IntersectionObserver" in window && revealElements.length) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
+        );
+        revealElements.forEach((el) => observer.observe(el));
+      } else {
+        revealElements.forEach((el) => el.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

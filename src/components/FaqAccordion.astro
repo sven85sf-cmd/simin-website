@@ -1,0 +1,62 @@
+---
+import type { ServiceFaq } from "@/data/services";
+
+interface Props {
+  items: ServiceFaq[];
+  schemaEnabled?: boolean;
+}
+
+const { items, schemaEnabled = true } = Astro.props;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: items.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<div class="faq">
+  {
+    items.map((item, index) => (
+      <details class="faq__item" open={index === 0}>
+        <summary class="faq__question">{item.question}</summary>
+        <p class="faq__answer">{item.answer}</p>
+      </details>
+    ))
+  }
+</div>
+
+{schemaEnabled && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+
+<style>
+  .faq {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .faq__item {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+  }
+
+  .faq__question {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1.0625rem;
+    color: var(--color-navy);
+  }
+
+  .faq__answer {
+    margin-top: 12px;
+    color: var(--color-text);
+  }
+</style>

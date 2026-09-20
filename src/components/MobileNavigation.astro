@@ -1,0 +1,239 @@
+---
+import { visiblePrimaryNav as primaryNav, company } from "@/config/site";
+---
+
+<div class="mobile-nav" id="mobile-nav" hidden>
+  <div class="mobile-nav__panel">
+    <div class="mobile-nav__top">
+      <span class="mobile-nav__title">Menü</span>
+      <button type="button" class="mobile-nav__close" id="mobile-nav-close">
+        <span class="visually-hidden">Menü schließen</span>
+        <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+          <path d="M2 2l16 16M18 2L2 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <nav aria-label="Mobile Hauptnavigation">
+      <ul class="mobile-nav__list">
+        {
+          primaryNav.map((item) => (
+            <li class="mobile-nav__item">
+              {item.dropdown ? (
+                <details class="mobile-nav__group">
+                  <summary class="mobile-nav__link">{item.label}</summary>
+                  <ul class="mobile-nav__sublist">
+                    {item.dropdown.map((sub) => (
+                      <li>
+                        <a href={sub.href} class="mobile-nav__sublink">
+                          {sub.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ) : (
+                <a href={item.href} class="mobile-nav__link">
+                  {item.label}
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="mobile-nav__actions">
+      <a href="/angebot" class="btn btn-primary mobile-nav__cta">ANGEBOT ANFRAGEN</a>
+      <a href={company.phone.href} class="btn btn-secondary mobile-nav__cta">
+        {company.phone.display}
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(7, 53, 74, 0.32);
+  }
+
+  .mobile-nav[hidden] {
+    display: none;
+  }
+
+  .mobile-nav__panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(360px, 88vw);
+    background: var(--color-navy);
+    color: var(--color-white);
+    padding: 20px 24px 32px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .mobile-nav__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-nav__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+  }
+
+  .mobile-nav__close {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: var(--color-white);
+    cursor: pointer;
+  }
+
+  .mobile-nav__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-nav__item {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .mobile-nav__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 56px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 1.0625rem;
+    color: var(--color-white);
+    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-nav__link::-webkit-details-marker {
+    display: none;
+  }
+
+  .mobile-nav__group[open] > .mobile-nav__link::after {
+    transform: rotate(180deg);
+  }
+
+  .mobile-nav__link::after {
+    content: "";
+    width: 10px;
+    height: 6px;
+    flex-shrink: 0;
+    background: currentColor;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .mobile-nav__group > summary::after {
+    content: "";
+  }
+
+  a.mobile-nav__link::after {
+    display: none;
+  }
+
+  .mobile-nav__sublist {
+    list-style: none;
+    padding-bottom: 12px;
+  }
+
+  .mobile-nav__sublink {
+    display: block;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    color: var(--color-light-blue);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .mobile-nav__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: auto;
+  }
+
+  .mobile-nav__cta {
+    width: 100%;
+  }
+</style>
+
+<script>
+  const toggle = document.getElementById("nav-toggle");
+  const panel = document.getElementById("mobile-nav");
+  const closeBtn = document.getElementById("mobile-nav-close");
+
+  function openMenu() {
+    if (!panel || !toggle) return;
+    panel.hidden = false;
+    toggle.setAttribute("aria-expanded", "true");
+    document.body.style.overflow = "hidden";
+    closeBtn?.focus();
+  }
+
+  function closeMenu() {
+    if (!panel || !toggle) return;
+    panel.hidden = true;
+    toggle.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+    toggle.focus();
+  }
+
+  toggle?.addEventListener("click", () => {
+    const isOpen = toggle.getAttribute("aria-expanded") === "true";
+    if (isOpen) closeMenu();
+    else openMenu();
+  });
+
+  closeBtn?.addEventListener("click", closeMenu);
+
+  panel?.addEventListener("click", (event) => {
+    if (event.target === panel) closeMenu();
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && panel && !panel.hidden) {
+      closeMenu();
+    }
+  });
+
+  panel?.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab" || !panel) return;
+    const focusable = panel.querySelectorAll<HTMLElement>(
+      'a, button, summary, [tabindex]:not([tabindex="-1"])',
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+</script>

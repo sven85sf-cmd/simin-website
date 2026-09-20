@@ -1,0 +1,555 @@
+---
+import QuoteWizardStep from "@/components/QuoteWizardStep.astro";
+import InputField from "@/components/form/InputField.astro";
+import TextareaField from "@/components/form/TextareaField.astro";
+import FileUpload from "@/components/form/FileUpload.astro";
+import { company } from "@/config/site";
+
+const serviceOptions = [
+  { value: "gebaeudereinigung", label: "Gebäudereinigung" },
+  { value: "objektservice", label: "Objektservice" },
+  { value: "aussenanlagenpflege", label: "Außenanlagenpflege" },
+  { value: "winterdienst", label: "Winterdienst" },
+  { value: "mehrere-leistungen", label: "Mehrere Leistungen" },
+  { value: "noch-nicht-sicher", label: "Noch nicht sicher" },
+];
+
+const propertyOptions = [
+  { value: "wohnimmobilie", label: "Wohnimmobilie" },
+  { value: "buero", label: "Büro" },
+  { value: "praxis", label: "Praxis" },
+  { value: "gewerbeobjekt", label: "Gewerbeobjekt" },
+  { value: "sonstiges", label: "Sonstiges" },
+];
+---
+
+<section class="quote-wizard section--navy section" id="angebotsassistent">
+  <div class="container quote-wizard__container reveal">
+    <div class="quote-wizard__intro">
+      <h2 class="quote-wizard__headline">WAS KÖNNEN WIR<br />FÜR IHRE IMMOBILIE TUN?</h2>
+      <p class="quote-wizard__text">
+        Beantworten Sie uns einige kurze Fragen zu Ihrem Objekt. Wir melden uns anschließend
+        persönlich bei Ihnen.
+      </p>
+    </div>
+
+    <div class="quote-wizard__panel" id="quote-panel">
+      <ol class="quote-wizard__progress" id="quote-progress" aria-label="Fortschritt Angebotsassistent">
+        <li data-progress-step="1" aria-current="step"><span>1</span></li>
+        <li class="quote-wizard__progress-sep" aria-hidden="true">—</li>
+        <li data-progress-step="2"><span>2</span></li>
+        <li class="quote-wizard__progress-sep" aria-hidden="true">—</li>
+        <li data-progress-step="3"><span>3</span></li>
+        <li class="quote-wizard__progress-sep" aria-hidden="true">—</li>
+        <li data-progress-step="4"><span>4</span></li>
+      </ol>
+
+      <form id="quote-form" novalidate>
+        <div class="quote-wizard__honeypot" aria-hidden="true">
+          <label for="website">Bitte nicht ausfüllen</label>
+          <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <QuoteWizardStep step={1} legend="Welche Leistung benötigen Sie?">
+          <div class="quote-wizard__choices" role="radiogroup" aria-label="Welche Leistung benötigen Sie?">
+            {serviceOptions.map((option) => (
+              <div class="quote-choice">
+                <input type="radio" name="service" id={`service-${option.value}`} value={option.value} />
+                <label for={`service-${option.value}`}>{option.label}</label>
+              </div>
+            ))}
+          </div>
+          <p class="quote-wizard__step-error" role="alert" id="step1-error"></p>
+        </QuoteWizardStep>
+
+        <QuoteWizardStep step={2} legend="Um welche Art von Objekt geht es?" hidden>
+          <div class="quote-wizard__choices" role="radiogroup" aria-label="Um welche Art von Objekt geht es?">
+            {propertyOptions.map((option) => (
+              <div class="quote-choice">
+                <input type="radio" name="propertyType" id={`property-${option.value}`} value={option.value} />
+                <label for={`property-${option.value}`}>{option.label}</label>
+              </div>
+            ))}
+          </div>
+          <p class="quote-wizard__step-error" role="alert" id="step2-error"></p>
+        </QuoteWizardStep>
+
+        <QuoteWizardStep step={3} legend="Wo befindet sich das Objekt?" hidden>
+          <div class="quote-wizard__row">
+            <InputField id="postalCode" name="postalCode" label="PLZ" inputmode="numeric" autocomplete="postal-code" />
+            <InputField id="city" name="city" label="Ort" autocomplete="address-level2" />
+          </div>
+          <TextareaField
+            id="description"
+            name="description"
+            label="Kurze Beschreibung des Objekts oder der gewünschten Leistung"
+            placeholder="z. B. Mehrfamilienhaus mit 12 Wohneinheiten, Treppenhausreinigung und Außenanlagenpflege"
+          />
+          <FileUpload id="files" name="files" label="Fotos oder PDF hochladen" />
+        </QuoteWizardStep>
+
+        <QuoteWizardStep step={4} legend="WIE KÖNNEN WIR SIE ERREICHEN?" hidden>
+          <InputField id="name" name="name" label="Vor- und Nachname" autocomplete="name" />
+          <InputField
+            id="company"
+            name="company"
+            label="Unternehmen / Hausverwaltung"
+            autocomplete="organization"
+            optionalLabel
+          />
+          <div class="quote-wizard__row">
+            <InputField id="phone" name="phone" label="Telefon" type="tel" autocomplete="tel" />
+            <InputField id="email" name="email" label="E-Mail" type="email" autocomplete="email" />
+          </div>
+
+          <div class="quote-wizard__privacy">
+            <input type="checkbox" id="privacyAccepted" name="privacyAccepted" />
+            <label for="privacyAccepted">
+              Ich habe die <a href="/datenschutz">Datenschutzerklärung</a> zur Kenntnis genommen. Meine
+              Angaben werden ausschließlich zur Bearbeitung dieser Anfrage verwendet.
+            </label>
+          </div>
+          <p class="quote-wizard__step-error" role="alert" id="step4-error"></p>
+        </QuoteWizardStep>
+
+        <div class="quote-wizard__nav">
+          <button type="button" id="quote-back" class="btn btn-secondary" hidden>ZURÜCK</button>
+          <button type="button" id="quote-next" class="btn btn-primary">WEITER</button>
+          <button type="submit" id="quote-submit" class="btn btn-primary" hidden>
+            UNVERBINDLICHE ANFRAGE SENDEN
+          </button>
+        </div>
+
+        <p class="micro-copy quote-wizard__disclaimer">
+          Ihre Anfrage ist unverbindlich. Wir verwenden Ihre Angaben ausschließlich zur Bearbeitung
+          Ihrer Anfrage.
+        </p>
+
+        <div class="quote-wizard__banner quote-wizard__banner--error" id="quote-error-banner" role="alert" hidden></div>
+      </form>
+
+      <div class="quote-wizard__success" id="quote-success" role="status" tabindex="-1" hidden>
+        <h3>VIELEN DANK FÜR IHRE ANFRAGE.</h3>
+        <p>Wir haben Ihre Angaben erhalten und melden uns persönlich bei Ihnen.</p>
+        <p class="quote-wizard__success-alt">Sie möchten lieber direkt sprechen?</p>
+        <a href={company.phone.href} class="btn btn-primary">JETZT ANRUFEN — {company.phone.display}</a>
+        <a href="/" class="btn-ghost quote-wizard__success-home">ZUR STARTSEITE</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .quote-wizard__container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+  }
+
+  .quote-wizard__intro,
+  .quote-wizard__panel {
+    min-width: 0;
+  }
+
+  .quote-wizard__headline {
+    font-size: var(--fs-h2);
+    color: var(--color-white);
+  }
+
+  .quote-wizard__text {
+    margin-top: 16px;
+    max-width: 48ch;
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .quote-wizard__panel {
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: clamp(24px, 4vw, 48px);
+    max-width: 900px;
+    color: var(--color-text);
+  }
+
+  .quote-wizard__progress {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .quote-wizard__progress li[data-progress-step] span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-ice);
+    color: var(--color-simin-blue);
+    font-weight: 700;
+    font-size: 0.875rem;
+  }
+
+  .quote-wizard__progress li[aria-current="step"] span {
+    background: var(--color-orange);
+    color: var(--color-navy);
+  }
+
+  .quote-wizard__progress-sep {
+    color: var(--color-border);
+  }
+
+  .quote-wizard__honeypot {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .quote-wizard__choices {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .quote-choice {
+    min-width: 0;
+  }
+
+  .quote-choice input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  .quote-choice label {
+    display: block;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    padding: 0 18px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      border-color var(--duration-fast) var(--ease-standard),
+      background-color var(--duration-fast) var(--ease-standard);
+  }
+
+  .quote-choice input:checked + label {
+    border-color: var(--color-simin-blue);
+    background: var(--color-ice);
+    color: var(--color-simin-blue);
+    font-weight: 600;
+  }
+
+  .quote-choice input:focus-visible + label {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+
+  .quote-wizard__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .quote-wizard__row > * {
+    min-width: 0;
+  }
+
+  .quote-wizard__privacy {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 0.875rem;
+  }
+
+  .quote-wizard__privacy input {
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .quote-wizard__privacy a {
+    color: var(--color-simin-blue);
+  }
+
+  .quote-wizard__step-error {
+    font-size: 0.875rem;
+    color: var(--color-error);
+    min-height: 1em;
+  }
+
+  .quote-wizard__step-error:empty {
+    display: none;
+  }
+
+  .quote-wizard__nav {
+    display: flex;
+    gap: 16px;
+    margin-top: 28px;
+  }
+
+  .quote-wizard__disclaimer {
+    margin-top: 16px;
+  }
+
+  .quote-wizard__banner {
+    margin-top: 20px;
+    padding: 14px 18px;
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+  }
+
+  .quote-wizard__banner[hidden] {
+    display: none;
+  }
+
+  .quote-wizard__banner--error {
+    background: #fbeceb;
+    color: var(--color-error);
+    border: 1px solid #f3c9c6;
+  }
+
+  .quote-wizard__success {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .quote-wizard__success h3 {
+    font-size: var(--fs-h3);
+  }
+
+  .quote-wizard__success-alt {
+    margin-top: 8px;
+    font-weight: 600;
+  }
+
+  .quote-wizard__success-home {
+    margin-top: 4px;
+  }
+
+  @media (min-width: 640px) {
+    .quote-wizard__choices {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .quote-wizard__row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .quote-wizard__container {
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      align-items: start;
+    }
+  }
+</style>
+
+<script>
+  import { validateQuoteFormData, validateFiles } from "@/lib/forms/validate";
+  import { emptyQuoteFormData, type QuoteFormData } from "@/lib/forms/types";
+
+  const form = document.getElementById("quote-form") as HTMLFormElement | null;
+  const panel = document.getElementById("quote-panel");
+  const successEl = document.getElementById("quote-success");
+  const errorBanner = document.getElementById("quote-error-banner");
+  const backBtn = document.getElementById("quote-back") as HTMLButtonElement | null;
+  const nextBtn = document.getElementById("quote-next") as HTMLButtonElement | null;
+  const submitBtn = document.getElementById("quote-submit") as HTMLButtonElement | null;
+  const progressItems = document.querySelectorAll<HTMLLIElement>("[data-progress-step]");
+  const fileInput = document.getElementById("files") as HTMLInputElement | null;
+  const fileList = document.getElementById("files-filelist");
+  const fileError = document.getElementById("files-error");
+
+  if (form && panel && backBtn && nextBtn && submitBtn) {
+    let currentStep = 1;
+    const totalSteps = 4;
+
+    function getFieldData(): QuoteFormData {
+      const fd = new FormData(form as HTMLFormElement);
+      return {
+        ...emptyQuoteFormData,
+        service: String(fd.get("service") ?? "") as QuoteFormData["service"],
+        propertyType: String(fd.get("propertyType") ?? "") as QuoteFormData["propertyType"],
+        postalCode: String(fd.get("postalCode") ?? ""),
+        city: String(fd.get("city") ?? ""),
+        description: String(fd.get("description") ?? ""),
+        name: String(fd.get("name") ?? ""),
+        company: String(fd.get("company") ?? ""),
+        phone: String(fd.get("phone") ?? ""),
+        email: String(fd.get("email") ?? ""),
+        privacyAccepted: fd.get("privacyAccepted") === "on",
+      };
+    }
+
+    function setFieldError(id: string, message: string) {
+      const el = document.getElementById(`${id}-error`);
+      const input = document.getElementById(id);
+      if (el) el.textContent = message;
+      if (input) input.setAttribute("aria-invalid", message ? "true" : "false");
+    }
+
+    function clearAllErrors() {
+      document.querySelectorAll("[id$='-error']").forEach((el) => (el.textContent = ""));
+      document.querySelectorAll("[aria-invalid]").forEach((el) => el.setAttribute("aria-invalid", "false"));
+    }
+
+    function showStep(step: number) {
+      currentStep = step;
+      form?.querySelectorAll<HTMLFieldSetElement>(".quote-wizard__step").forEach((fieldset) => {
+        const isActive = Number(fieldset.dataset.step) === step;
+        fieldset.hidden = !isActive;
+        if (isActive) {
+          const legend = fieldset.querySelector<HTMLElement>(".quote-wizard__legend");
+          legend?.focus();
+        }
+      });
+
+      progressItems.forEach((item) => {
+        const itemStep = Number(item.dataset.progressStep);
+        if (itemStep === step) item.setAttribute("aria-current", "step");
+        else item.removeAttribute("aria-current");
+      });
+
+      backBtn!.hidden = step === 1;
+      nextBtn!.hidden = step === totalSteps;
+      submitBtn!.hidden = step !== totalSteps;
+    }
+
+    function validateStep(step: number): boolean {
+      const data = getFieldData();
+      let valid = true;
+
+      if (step === 1) {
+        const el = document.getElementById("step1-error");
+        if (!data.service) {
+          if (el) el.textContent = "Bitte wählen Sie eine Leistung aus.";
+          valid = false;
+        } else if (el) el.textContent = "";
+      }
+
+      if (step === 2) {
+        const el = document.getElementById("step2-error");
+        if (!data.propertyType) {
+          if (el) el.textContent = "Bitte wählen Sie eine Objektart aus.";
+          valid = false;
+        } else if (el) el.textContent = "";
+      }
+
+      if (step === 3) {
+        const errors = validateQuoteFormData({ ...data, name: "x", phone: "0123456", email: "a@b.de", privacyAccepted: true });
+        setFieldError("postalCode", errors.postalCode ?? "");
+        setFieldError("city", errors.city ?? "");
+        if (errors.postalCode || errors.city) valid = false;
+
+        if (fileInput?.files) {
+          const files = Array.from(fileInput.files);
+          const fileErrors = validateFiles(files);
+          if (fileError) fileError.textContent = fileErrors.map((e) => e.reason).join(" ");
+          if (fileErrors.length > 0) valid = false;
+        }
+      }
+
+      if (step === 4) {
+        const errors = validateQuoteFormData(data);
+        setFieldError("name", errors.name ?? "");
+        setFieldError("phone", errors.phone ?? "");
+        setFieldError("email", errors.email ?? "");
+        const step4Error = document.getElementById("step4-error");
+        if (errors.privacyAccepted) {
+          if (step4Error) step4Error.textContent = errors.privacyAccepted;
+          valid = false;
+        } else if (step4Error) step4Error.textContent = "";
+        if (errors.name || errors.phone || errors.email) valid = false;
+      }
+
+      return valid;
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (validateStep(currentStep) && currentStep < totalSteps) {
+        showStep(currentStep + 1);
+      }
+    });
+
+    backBtn.addEventListener("click", () => {
+      if (currentStep > 1) showStep(currentStep - 1);
+    });
+
+    fileInput?.addEventListener("change", () => {
+      if (!fileList) return;
+      fileList.innerHTML = "";
+      Array.from(fileInput.files ?? []).forEach((file) => {
+        const li = document.createElement("li");
+        li.textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+        fileList.appendChild(li);
+      });
+      const fileErrors = validateFiles(Array.from(fileInput.files ?? []));
+      if (fileError) fileError.textContent = fileErrors.map((e) => e.reason).join(" ");
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!validateStep(4)) return;
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "WIRD GESENDET …";
+      if (errorBanner) {
+        errorBanner.hidden = true;
+        errorBanner.textContent = "";
+      }
+
+      try {
+        const response = await fetch("/api/quote", {
+          method: "POST",
+          body: new FormData(form),
+        });
+        const result = await response.json();
+
+        if (response.ok && result.ok) {
+          form.hidden = true;
+          if (successEl) {
+            successEl.hidden = false;
+            successEl.focus();
+          }
+        } else {
+          if (result.fieldErrors) {
+            Object.entries(result.fieldErrors as Record<string, string>).forEach(([key, message]) => {
+              setFieldError(key, message);
+            });
+            showStep(1);
+          }
+          if (errorBanner) {
+            errorBanner.hidden = false;
+            errorBanner.textContent =
+              result.error ?? "Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.";
+            errorBanner.focus?.();
+          }
+        }
+      } catch {
+        if (errorBanner) {
+          errorBanner.hidden = false;
+          errorBanner.textContent =
+            "Ihre Anfrage konnte nicht gesendet werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.";
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "UNVERBINDLICHE ANFRAGE SENDEN";
+      }
+    });
+
+    clearAllErrors();
+    showStep(1);
+  }
+</script>

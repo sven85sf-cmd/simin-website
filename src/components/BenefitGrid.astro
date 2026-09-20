@@ -1,0 +1,79 @@
+---
+import SectionHeader from "@/components/SectionHeader.astro";
+
+const benefits = [
+  {
+    number: "01",
+    title: "PERSÖNLICHER ANSPRECHPARTNER",
+    text: "Direkte Kommunikation statt anonymer Zuständigkeiten. Sie wissen, an wen Sie sich wenden können.",
+  },
+  {
+    number: "02",
+    title: "LEISTUNGEN NACH BEDARF",
+    text: "Keine Lösung von der Stange. Der Leistungsumfang wird passend zu Objekt, Nutzung und Anforderungen abgestimmt.",
+  },
+  {
+    number: "03",
+    title: "MEHRERE LEISTUNGEN AUS EINER HAND",
+    text: "Reinigung, Objektservice und Außenanlagen können sinnvoll miteinander kombiniert werden.",
+  },
+  {
+    number: "04",
+    title: "REGIONAL VOR ORT",
+    text: "SIMIN betreut Immobilien in Köln und Umgebung mit kurzen Kommunikationswegen und persönlicher Nähe.",
+  },
+];
+---
+
+<section class="benefit-grid section">
+  <div class="container">
+    <SectionHeader
+      eyebrow="WARUM SIMIN"
+      headline="SAUBER. ZUVERLÄSSIG. PERSÖNLICH."
+      text="Gebäudedienstleistungen funktionieren dann gut, wenn sie im Alltag unkompliziert funktionieren. Deshalb setzen wir auf persönliche Betreuung, klare Absprachen und Leistungen, die zum jeweiligen Objekt passen."
+    />
+    <div class="benefit-grid__grid">
+      {benefits.map((benefit) => (
+        <div class="benefit-grid__item reveal">
+          <span class="benefit-grid__number">{benefit.number}</span>
+          <h3 class="benefit-grid__title">{benefit.title}</h3>
+          <p class="prose">{benefit.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .benefit-grid__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px 48px;
+  }
+
+  .benefit-grid__item {
+    padding-top: 20px;
+    border-top: 2px solid var(--color-border);
+  }
+
+  .benefit-grid__number {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 2.5rem;
+    color: var(--color-orange);
+    line-height: 1;
+  }
+
+  .benefit-grid__title {
+    font-size: 1.25rem;
+    margin-top: 12px;
+    margin-bottom: 10px;
+  }
+
+  @media (min-width: 768px) {
+    .benefit-grid__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+</style>

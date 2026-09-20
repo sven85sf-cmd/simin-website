@@ -1,0 +1,60 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import { company, fullAddress } from "@/config/site";
+
+const title = "Impressum | Gebäudedienste SIMIN";
+const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 51149 Köln.";
+---
+
+<BaseLayout title={title} description={description} path="/impressum" noindex>
+  <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: "Impressum", href: "/impressum" }]} />
+
+  <section class="section legal">
+    <div class="container legal__content prose">
+      <p class="legal__notice" role="note">
+        RECHTSTEXT VOR LIVEGANG PRÜFEN — Dieser Inhalt enthält ausschließlich die bestätigten
+        Unternehmensangaben. Vor Veröffentlichung ist er durch eine rechtlich geprüfte,
+        vollständige Impressumsfassung zu ersetzen bzw. zu ergänzen (u. a. um ggf. erforderliche
+        Angaben zu Handelsregister, Umsatzsteuer-ID oder Aufsichtsbehörde, sofern zutreffend).
+      </p>
+
+      <h1>Impressum</h1>
+
+      <h2>Angaben gemäß § 5 TMG</h2>
+      <p>
+        {company.legalName}<br />
+        {company.address.street}<br />
+        {company.address.postalCode} {company.address.city}
+      </p>
+
+      <h2>Kontakt</h2>
+      <p>
+        Telefon: <a href={company.phone.href}>{company.phone.display}</a><br />
+        E-Mail: <a href={company.email.href}>{company.email.display}</a>
+      </p>
+
+      <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
+      <p>{fullAddress}</p>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal__notice {
+    background: var(--color-cream);
+    border: 1px solid var(--color-orange);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-orange-accessible);
+    margin-bottom: 32px;
+  }
+
+  .legal__content h2 {
+    font-size: var(--fs-h3);
+    margin-top: 28px;
+    margin-bottom: 8px;
+  }
+</style>

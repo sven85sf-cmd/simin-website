@@ -1,0 +1,63 @@
+---
+import SectionHeader from "@/components/SectionHeader.astro";
+---
+
+<section class="brand-promise section--tight">
+  <div class="container brand-promise__grid reveal">
+    <SectionHeader
+      eyebrow="GEBÄUDEDIENSTLEISTUNGEN MIT PERSÖNLICHER BETREUUNG"
+      headline="DAMIT IHRE IMMOBILIE\nDAUERHAFT EINEN GEPFLEGTEN\nEINDRUCK MACHT."
+    />
+    <div class="brand-promise__body">
+      <p class="prose">
+        Eine gepflegte Immobilie entsteht nicht durch einzelne Leistungen, sondern durch
+        zuverlässige Abläufe und einen Ansprechpartner, der den Überblick behält.
+      </p>
+      <p class="prose">
+        Gebäudedienste SIMIN übernimmt Leistungen rund um Reinigung, Objektbetreuung,
+        Außenanlagen und saisonalen Winterdienst – abgestimmt auf Ihr Objekt und Ihren
+        tatsächlichen Bedarf.
+      </p>
+      <a href="/ueber-uns" class="btn-ghost brand-promise__link">SIMIN KENNENLERNEN</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .brand-promise {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .brand-promise__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+
+  .brand-promise__grid > * {
+    min-width: 0;
+  }
+
+  .brand-promise :global(.section-header) {
+    margin-bottom: 0;
+  }
+
+  .brand-promise__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .brand-promise__link {
+    margin-top: 4px;
+  }
+
+  @media (min-width: 1024px) {
+    .brand-promise__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 64px;
+      align-items: start;
+    }
+  }
+</style>

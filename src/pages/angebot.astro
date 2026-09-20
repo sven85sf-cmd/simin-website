@@ -1,0 +1,14 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import QuoteWizard from "@/components/QuoteWizard.astro";
+
+const title = "Angebot anfragen | Gebäudedienste SIMIN";
+const description =
+  "Fordern Sie unverbindlich ein Angebot für Gebäudereinigung, Objektservice, Außenanlagenpflege oder Winterdienst an. Kostenlos & unverbindlich.";
+---
+
+<BaseLayout title={title} description={description} path="/angebot" hideStickyBar>
+  <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: "Angebot anfragen", href: "/angebot" }]} />
+  <QuoteWizard />
+</BaseLayout>

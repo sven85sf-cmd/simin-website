@@ -1,0 +1,92 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  type?: "text" | "email" | "tel";
+  required?: boolean;
+  autocomplete?: string;
+  placeholder?: string;
+  inputmode?: "text" | "numeric" | "tel" | "email";
+  optionalLabel?: boolean;
+}
+
+const {
+  id,
+  name,
+  label,
+  type = "text",
+  required = false,
+  autocomplete,
+  placeholder,
+  inputmode,
+  optionalLabel = false,
+} = Astro.props;
+---
+
+<div class="field">
+  <label for={id} class="field__label">
+    {label}
+    {optionalLabel && <span class="field__optional"> (optional)</span>}
+  </label>
+  <input
+    id={id}
+    name={name}
+    type={type}
+    required={required}
+    autocomplete={autocomplete}
+    placeholder={placeholder}
+    inputmode={inputmode}
+    class="field__input"
+    aria-describedby={`${id}-error`}
+  />
+  <p id={`${id}-error`} class="field__error" role="alert"></p>
+</div>
+
+<style>
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .field__optional {
+    font-weight: 400;
+    color: var(--color-simin-blue);
+  }
+
+  .field__input {
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    color: var(--color-text);
+    background: var(--color-white);
+  }
+
+  .field__input:focus-visible {
+    border-color: var(--color-simin-blue);
+  }
+
+  .field__input[aria-invalid="true"] {
+    border-color: var(--color-error);
+  }
+
+  .field__error {
+    font-size: 0.8125rem;
+    color: var(--color-error);
+    min-height: 1em;
+  }
+
+  .field__error:empty {
+    display: none;
+  }
+</style>

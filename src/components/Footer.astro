@@ -1,0 +1,164 @@
+---
+import Logo from "@/components/Logo.astro";
+import { company, footerNav } from "@/config/site";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <Logo variant="light" />
+      <p class="site-footer__claim">{company.claim}</p>
+      <address class="site-footer__contact">
+        <span>{company.address.street}</span>
+        <span>{company.address.postalCode} {company.address.city}</span>
+        <a href={company.phone.href}>{company.phone.display}</a>
+        <a href={company.email.href}>{company.email.display}</a>
+        <a href={company.url} rel="noopener">www.gebaeudedienste-simin.de</a>
+      </address>
+    </div>
+
+    <nav class="site-footer__col" aria-label="Leistungen">
+      <h2 class="site-footer__heading">Leistungen</h2>
+      <ul>
+        {footerNav.leistungen.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Unternehmen">
+      <h2 class="site-footer__heading">Unternehmen</h2>
+      <ul>
+        {footerNav.unternehmen.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav class="site-footer__col" aria-label="Service">
+      <h2 class="site-footer__heading">Service</h2>
+      <ul>
+        {footerNav.service.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+
+  <div class="site-footer__bottom container">
+    <span>&copy; {year} {company.name.toUpperCase()}</span>
+    <ul class="site-footer__legal">
+      {footerNav.legal.map((item) => (
+        <li><a href={item.href}>{item.label}</a></li>
+      ))}
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--color-navy);
+    color: var(--color-white);
+    padding-top: clamp(48px, 6vw, 80px);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  }
+
+  .site-footer__grid > * {
+    min-width: 0;
+  }
+
+  .site-footer__claim {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    color: var(--color-light-blue);
+    margin-top: 16px;
+  }
+
+  .site-footer__contact {
+    font-style: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 20px;
+    font-size: 0.9375rem;
+  }
+
+  .site-footer__contact a {
+    color: var(--color-white);
+    text-decoration: none;
+  }
+
+  .site-footer__contact a:hover {
+    color: var(--color-orange);
+  }
+
+  .site-footer__heading {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-light-blue);
+    margin-bottom: 16px;
+  }
+
+  .site-footer__col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .site-footer__col a {
+    color: rgba(255, 255, 255, 0.88);
+    text-decoration: none;
+    font-size: 0.9375rem;
+  }
+
+  .site-footer__col a:hover {
+    color: var(--color-orange);
+  }
+
+  .site-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: space-between;
+    align-items: center;
+    padding-block: 20px;
+    font-size: 0.8125rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .site-footer__legal {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+
+  .site-footer__legal a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+  }
+
+  .site-footer__legal a:hover {
+    color: var(--color-orange);
+  }
+
+  @media (min-width: 768px) {
+    .site-footer__grid {
+      grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

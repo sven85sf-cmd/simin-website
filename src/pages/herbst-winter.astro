@@ -1,0 +1,114 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PageHero from "@/components/PageHero.astro";
+import Breadcrumbs from "@/components/Breadcrumbs.astro";
+import CTASection from "@/components/CTASection.astro";
+import { seasonalCampaign } from "@/config/site";
+
+const title = "Herbst & Winter | Laubbeseitigung & Winterdienst Köln | Gebäudedienste SIMIN";
+const description =
+  "Laubbeseitigung, Winterdienst und Außenanlagenpflege für Immobilien in Köln und Umgebung – gut gerüstet für Herbst und Winter.";
+
+const topics = [
+  {
+    title: "Laubbeseitigung",
+    text: "Regelmäßige Beseitigung von Laub auf Wegen, Höfen und Grünflächen im Herbst.",
+    href: "/aussenanlagenpflege-koeln",
+  },
+  {
+    title: "Winterdienst",
+    text: "Betreuung Ihrer Immobilie bei Schnee und Glätte im vereinbarten Leistungsumfang.",
+    href: "/winterdienst-koeln",
+  },
+  {
+    title: "Außenanlagenpflege",
+    text: "Gepflegte Außenbereiche im Jahresverlauf – abgestimmt auf die Saison.",
+    href: "/aussenanlagenpflege-koeln",
+  },
+];
+---
+
+<BaseLayout title={title} description={description} path="/herbst-winter">
+  <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: "Herbst & Winter", href: "/herbst-winter" }]} />
+  <PageHero
+    eyebrow={seasonalCampaign.eyebrow}
+    headline={seasonalCampaign.headline.replace(/\n/g, " ")}
+    text={seasonalCampaign.text}
+    placeholderLabel="Herbst-/Winterfotografie — Originalfoto folgt"
+  />
+
+  <section class="section">
+    <div class="container">
+      <p class="seasonal-claim" set:html={seasonalCampaign.claim.replace(/\n/g, "<br />")} />
+      <div class="seasonal-topics">
+        {topics.map((topic) => (
+          <a href={topic.href} class="seasonal-topics__card">
+            <h2>{topic.title}</h2>
+            <p>{topic.text}</p>
+            <span class="btn-ghost">MEHR ERFAHREN</span>
+          </a>
+        ))}
+      </div>
+      <div class="seasonal-actions">
+        <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+        <span class="micro-copy">Kostenlos & unverbindlich</span>
+      </div>
+    </div>
+  </section>
+
+  <CTASection
+    eyebrow={seasonalCampaign.eyebrow}
+    headline={seasonalCampaign.claim}
+    text={seasonalCampaign.text}
+  />
+</BaseLayout>
+
+<style>
+  .seasonal-claim {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: var(--fs-h3);
+    color: var(--color-orange-accessible);
+    margin-bottom: 32px;
+  }
+
+  .seasonal-topics {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .seasonal-topics__card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    text-decoration: none;
+    min-width: 0;
+    background: var(--color-ice);
+    border-radius: var(--radius-md);
+    padding: 24px;
+  }
+
+  .seasonal-topics__card h2 {
+    font-size: 1.25rem;
+  }
+
+  .seasonal-topics__card p {
+    color: var(--color-text);
+  }
+
+  .seasonal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+    margin-top: 32px;
+  }
+
+  @media (min-width: 768px) {
+    .seasonal-topics {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

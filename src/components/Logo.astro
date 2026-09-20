@@ -1,0 +1,99 @@
+---
+/**
+ * Logo-Komponente.
+ *
+ * WICHTIG: Im Projekt liegt aktuell keine Original-Logodatei vor
+ * (z. B. 05_SIMIN_LOGO_ORIGINAL.png). Es wurde bewusst KEIN Ersatzlogo
+ * gezeichnet oder generiert. Stattdessen wird ein einfacher, typografischer
+ * Marken-Schriftzug auf Basis der definierten Markentypografie (Barlow
+ * Condensed) und Markenfarben verwendet – klar erkennbar als Platzhalter,
+ * nicht als gestaltetes Logo.
+ *
+ * Sobald die Originaldatei verfügbar ist: unter
+ * src/assets/logo/simin-logo.png (oder .svg) ablegen. Diese Komponente
+ * bindet die Datei dann automatisch ein.
+ */
+import { Image } from "astro:assets";
+import { company } from "@/config/site";
+
+interface Props {
+  variant?: "light" | "dark";
+  class?: string;
+}
+
+const { variant = "dark", class: className = "" } = Astro.props;
+
+const logoImages = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/logo/simin-logo.{png,svg,webp}",
+  { eager: true },
+);
+const logoEntry = Object.values(logoImages)[0];
+---
+
+{
+  logoEntry ? (
+    <a href="/" class={`logo ${className}`} aria-label={`${company.name} – Startseite`}>
+      <Image src={logoEntry.default} alt={company.name} width={165} height={56} />
+    </a>
+  ) : (
+    <a
+      href="/"
+      class={`logo logo--type logo--${variant} ${className}`}
+      aria-label={`${company.name} – Startseite`}
+    >
+      <span class="logo__mark">SIMIN</span>
+      <span class="logo__sub">Gebäudedienste</span>
+    </a>
+  )
+}
+
+<style>
+  .logo {
+    display: inline-flex;
+    flex-direction: column;
+    line-height: 1;
+    text-decoration: none;
+    gap: 2px;
+  }
+
+  .logo :global(img) {
+    height: auto;
+    width: clamp(130px, 12vw, 165px);
+  }
+
+  .logo__mark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.85rem;
+    letter-spacing: 0.02em;
+    color: var(--color-navy);
+  }
+
+  .logo--light .logo__mark {
+    color: var(--color-white);
+  }
+
+  .logo__mark::after {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 6px;
+    border-radius: 50%;
+    background: var(--color-orange);
+    vertical-align: middle;
+  }
+
+  .logo__sub {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.625rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-simin-blue);
+  }
+
+  .logo--light .logo__sub {
+    color: var(--color-light-blue);
+  }
+</style>

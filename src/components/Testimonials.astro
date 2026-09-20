@@ -1,0 +1,90 @@
+---
+import SectionHeader from "@/components/SectionHeader.astro";
+import { googleReviewsUrl } from "@/config/site";
+
+/**
+ * Kundenstimmen.
+ *
+ * WICHTIG: Es liegen aktuell keine echten, freigegebenen Kundenbewertungen
+ * als strukturierte Daten vor. Es werden deshalb bewusst KEINE Fake-Zitate
+ * angezeigt. Sobald echte Bewertungen vorliegen (manuell gepflegt oder aus
+ * einer seriösen Quelle übernommen), können sie hier in `testimonials`
+ * ergänzt werden. KEIN Review/AggregateRating-Schema für SIMIN verwenden,
+ * solange die Daten nicht echt und aktuell sind.
+ */
+type Testimonial = {
+  quote: string;
+  author: string;
+  context: string;
+};
+
+const testimonials: Testimonial[] = [];
+---
+
+<section class="testimonials section">
+  <div class="container">
+    <SectionHeader
+      eyebrow="ERFAHRUNGEN MIT SIMIN"
+      headline="WAS UNSERE KUNDEN SAGEN."
+      text="Zuverlässigkeit zeigt sich nicht in Versprechen, sondern im täglichen Einsatz."
+    />
+
+    {
+      testimonials.length > 0 ? (
+        <div class="testimonials__grid">
+          {testimonials.map((t) => (
+            <blockquote class="testimonials__item reveal">
+              <p>&ldquo;{t.quote}&rdquo;</p>
+              <footer>
+                <strong>{t.author}</strong>
+                <span>{t.context}</span>
+              </footer>
+            </blockquote>
+          ))}
+        </div>
+      ) : (
+        <div class="testimonials__empty reveal">
+          <p class="prose">
+            Echte Kundenstimmen werden hier ergänzt, sobald sie freigegeben vorliegen. Einen
+            aktuellen Eindruck erhalten Sie in der Zwischenzeit direkt über Google.
+          </p>
+          <a href={googleReviewsUrl} target="_blank" rel="noopener noreferrer" class="btn-ghost">
+            GOOGLE-BEWERTUNGEN ANSEHEN
+          </a>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .testimonials__grid {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  }
+
+  .testimonials__item {
+    background: var(--color-ice);
+    border-radius: var(--radius-md);
+    padding: 28px;
+  }
+
+  .testimonials__item footer {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+  }
+
+  .testimonials__empty {
+    background: var(--color-ice);
+    border-radius: var(--radius-md);
+    padding: clamp(32px, 5vw, 56px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    max-width: 640px;
+  }
+</style>

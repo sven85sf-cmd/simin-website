@@ -1,0 +1,110 @@
+---
+import SectionHeader from "@/components/SectionHeader.astro";
+import ResponsiveImage from "@/components/ResponsiveImage.astro";
+
+/**
+ * Referenzen / echte Arbeit.
+ *
+ * WICHTIG: Aktuell liegen noch keine freigegebenen Referenzfotos oder
+ * Objektbeschreibungen vor. Die Sektion ist deshalb strukturell fertig
+ * vorbereitet, zeigt aber ausschließlich einen ehrlichen Platzhalterzustand
+ * statt erfundener Projekte. Sobald echte Bilder vorliegen, hier die
+ * Einträge in `references` ergänzen (label = neutrale Objektart, keine
+ * Kundennamen ohne Freigabe).
+ */
+type Reference = {
+  label: string;
+  meta: string;
+};
+
+const references: Reference[] = [];
+---
+
+<section class="reference-grid section--ice section">
+  <div class="container">
+    <SectionHeader
+      eyebrow="EINBLICKE IN UNSERE ARBEIT"
+      headline="GEPFLEGTE OBJEKTE\nSIND DIE BESTE REFERENZ."
+      text="Von der regelmäßigen Reinigung bis zur Pflege von Außenanlagen: Hier zeigen wir ausgewählte Arbeiten und Einblicke aus unserem Alltag."
+    />
+
+    {
+      references.length > 0 ? (
+        <div class="reference-grid__grid">
+          {references.map((ref) => (
+            <figure class="reference-grid__item reveal">
+              <ResponsiveImage
+                alt={`${ref.label} – ${ref.meta}`}
+                width={800}
+                height={600}
+                class="reference-grid__image"
+              />
+              <figcaption>
+                <strong>{ref.label}</strong>
+                <span>{ref.meta}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      ) : (
+        <div class="reference-grid__empty reveal">
+          <p class="prose">
+            Wir stellen an dieser Stelle in Kürze ausgewählte Einblicke aus unserer laufenden
+            Arbeit zusammen. Bis dahin sprechen Sie uns gerne direkt an – wir informieren Sie
+            persönlich über unsere Leistungen.
+          </p>
+          <a href="/angebot" class="btn-ghost">ANGEBOT ANFRAGEN</a>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .reference-grid__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+
+  .reference-grid__item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .reference-grid__image {
+    border-radius: var(--radius-md);
+  }
+
+  .reference-grid__item figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.9375rem;
+  }
+
+  .reference-grid__empty {
+    background: var(--color-white);
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-md);
+    padding: clamp(32px, 5vw, 56px);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    max-width: 640px;
+  }
+
+  @media (min-width: 900px) {
+    .reference-grid__grid {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      grid-template-rows: 1fr 1fr;
+    }
+
+    .reference-grid__item:first-child {
+      grid-row: 1 / span 2;
+    }
+  }
+</style>

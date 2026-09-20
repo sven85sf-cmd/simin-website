@@ -1,0 +1,79 @@
+---
+import { ALLOWED_FILE_EXTENSIONS, MAX_FILES, MAX_FILE_SIZE_BYTES } from "@/lib/forms/types";
+
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+}
+
+const { id, name, label } = Astro.props;
+const maxSizeMb = Math.round(MAX_FILE_SIZE_BYTES / (1024 * 1024));
+---
+
+<div class="field">
+  <label for={id} class="field__label">
+    {label} <span class="field__optional">(optional)</span>
+  </label>
+  <input
+    id={id}
+    name={name}
+    type="file"
+    multiple
+    accept={ALLOWED_FILE_EXTENSIONS.join(",")}
+    class="field__file"
+    aria-describedby={`${id}-hint ${id}-error`}
+  />
+  <p id={`${id}-hint`} class="field__hint">
+    Fotos (JPG, PNG, WEBP) oder PDF, je max. {maxSizeMb} MB, bis zu {MAX_FILES} Dateien.
+  </p>
+  <ul id={`${id}-filelist`} class="field__filelist"></ul>
+  <p id={`${id}-error`} class="field__error" role="alert"></p>
+</div>
+
+<style>
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field__label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .field__optional {
+    font-weight: 400;
+    color: var(--color-simin-blue);
+  }
+
+  .field__file {
+    font-family: var(--font-body);
+    font-size: 0.9375rem;
+  }
+
+  .field__hint {
+    font-size: 0.8125rem;
+    color: var(--color-simin-blue);
+  }
+
+  .field__filelist {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8125rem;
+  }
+
+  .field__error {
+    font-size: 0.8125rem;
+    color: var(--color-error);
+    min-height: 1em;
+  }
+
+  .field__error:empty {
+    display: none;
+  }
+</style>
