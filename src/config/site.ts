@@ -64,8 +64,8 @@ export const primaryNav: NavItem[] = [
 
 /** Feature-Flags zur Steuerung sichtbarer Module ohne Code-Änderung. */
 export const features = {
-  /** Referenzen-Seite im Hauptmenü zeigen, sobald genug echtes Material vorhanden ist. */
-  referencesPage: true,
+  /** Referenzen-Seite im Hauptmenü zeigen, sobald echte, dokumentierte Kundenreferenzfotos vorliegen. */
+  referencesPage: false,
   /** Kundenstimmen-Sektion aktiv (zeigt aktuell einen ehrlichen Leer-/Hinweiszustand). */
   testimonials: true,
 } as const;

@@ -84,33 +84,41 @@ Texte, Claim und Keywords des Moduls werden ebenfalls dort gepflegt.
 
 ## Referenzen-Seite im Hauptmenü aktivieren
 
-Der Menüpunkt „Referenzen“ ist per Feature-Flag steuerbar (aktuell aktiv,
-da echte Arbeitsfotos vorliegen):
+Solange keine echten, dokumentierten Kundenreferenzfotos vorliegen, ist der
+Menüpunkt „Referenzen“ per Feature-Flag ausgeblendet (die Seite selbst
+bleibt unter `/referenzen` erreichbar, z. B. über den Footer, zeigt aber
+einen hochwertig gestalteten Leerzustand statt erfundener Referenzen):
 
 ```ts
 // src/config/site.ts
 export const features = {
-  referencesPage: true, // false blendet den Menüpunkt aus; Seite bleibt unter /referenzen erreichbar
+  referencesPage: false, // erst auf true setzen, wenn echte Kundenreferenzfotos vorliegen
   ...
 };
 ```
 
 ## Bilder austauschen
 
-Das Original-Logo und drei echte, SIMIN-markenrechtlich freigegebene
-Arbeitsfotos sowie das Flyer-Titelmotiv wurden aus dem offiziellen
-Herbst/Winter-Flyer-PDF extrahiert und liegen unter `public/images/`:
+Das Original-Logo sowie vier freigegebene SIMIN-**Marketingmotive** (kein
+dokumentiertes Referenzmaterial, siehe Hinweis unten) wurden aus dem
+offiziellen Herbst/Winter-Flyer-PDF extrahiert und liegen unter
+`public/images/`:
 
 - `hero-immobilie.webp` — Immobilie im Herbst-/Winter-Look (Flyer-Titelmotiv)
-- `service-gebaeudereinigung.webp` — Mitarbeiterin bei der Fensterreinigung
-- `service-winterdienst.webp` — Mitarbeiter beim Schneeräumen
-- `service-aussenanlagen.webp` — Mitarbeiter bei der Laubbeseitigung
+- `service-gebaeudereinigung.webp` — Motiv Fensterreinigung
+- `service-winterdienst.webp` — Motiv Schneeräumen
+- `service-aussenanlagen.webp` — Motiv Laubbeseitigung
 
-Diese werden in `Hero.astro`, `PageHero.astro` (`src`-Prop, pro Seite),
-`ServicePanel.astro`/`ServicesSection.astro`, `ReferenceGrid.astro`,
-`SeasonalCampaign.astro` und `CTASection.astro` (`imageSrc`-Prop) verwendet.
-Für „Objektservice“ und weitere generische Seiten (Über uns, Kontakt,
-Hausverwaltungen) existiert kein dediziertes Foto — dort wird bewusst das
+**Wichtiger Hinweis zur Verwendung:** Diese vier Motive sind freigegebene
+SIMIN-Marketingmotive aus dem Flyer, aber **keine dokumentierten echten
+Kundenreferenzen, Vorher-/Nachher-Belege oder Mitarbeiterporträts**. Sie
+werden deshalb bewusst nur für allgemeine Marken-/Marketingflächen
+eingesetzt — `Hero.astro`, `PageHero.astro` (`src`-Prop, pro Seite),
+`ServicePanel.astro`/`ServicesSection.astro`, `SeasonalCampaign.astro` und
+`CTASection.astro` (`imageSrc`-Prop) — **nicht** in der Referenzen-Sektion
+(`ReferenceGrid.astro`), die deshalb weiterhin einen ehrlichen Leerzustand
+zeigt. Für „Objektservice“ und weitere generische Seiten (Über uns,
+Kontakt, Hausverwaltungen) existiert kein dediziertes Motiv — dort wird das
 Immobilien-Titelmotiv wiederverwendet statt ein Motiv zu erfinden.
 
 Alle Bildflächen laufen über die zentrale `src/components/ResponsiveImage.astro`
@@ -202,6 +210,12 @@ genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
 - **Kundenstimmen**: Sektion ist vorbereitet, zeigt aber bewusst keinen
   erfundenen Inhalt. Echte, freigegebene Bewertungen in `Testimonials.astro`
   (`testimonials`-Array) ergänzen, sobald verfügbar.
+- **Referenzen**: Es liegen aktuell keine echten, dokumentierten
+  Kundenreferenzfotos vor (die Flyer-Motive sind allgemeine Marketingmotive,
+  keine Projektbelege). Sektion zeigt deshalb einen Leerzustand, Menüpunkt
+  ist ausgeblendet (`features.referencesPage`). Sobald echte Referenzfotos
+  freigegeben sind: in `ReferenceGrid.astro` (`references`-Array) ergänzen
+  und Flag auf `true` setzen.
 - Analytics/Tracking ist bewusst **nicht** eingebunden (siehe Master-Brief
   Punkt 46). Bei Bedarf datenschutzkonform ergänzen und Datenschutzerklärung
   entsprechend erweitern.
@@ -211,7 +225,7 @@ genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
 **DESIGN**
 - Mobile: BESTANDEN (390/375/360px geprüft, kein horizontales Scrollen, Sticky-Bar korrekt aus-/eingeblendet)
 - Desktop: BESTANDEN (1440/1280/1024/768px geprüft)
-- Branding: BESTANDEN (Original-Logo und echte Arbeitsfotos aus dem Flyer-PDF durchgängig eingebunden)
+- Branding: BESTANDEN (Original-Logo und freigegebene Marketingmotive aus dem Flyer-PDF durchgängig eingebunden; keine als Kundenreferenzen deklariert)
 
 **CONTENT**
 - Kontaktangaben: BESTANDEN (zentral in `site.ts`, überall referenziert)

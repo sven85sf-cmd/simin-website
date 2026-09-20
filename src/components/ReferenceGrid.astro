@@ -5,10 +5,15 @@ import ResponsiveImage from "@/components/ResponsiveImage.astro";
 /**
  * Referenzen / echte Arbeit.
  *
- * Zeigt echte, SIMIN-markenrechtlich freigegebene Arbeitsfotos (Mitarbeiter
- * in SIMIN-Arbeitskleidung im Einsatz, aus dem offiziellen Flyer-Material).
- * Keine Kundennamen oder konkreten Objektadressen, da diese nicht
- * freigegeben vorliegen — nur neutrale Leistungsbezeichnungen.
+ * WICHTIG: Die im Projekt vorhandenen Flyer-Motive (Fensterreinigung,
+ * Winterdienst, Laubbeseitigung) sind freigegebene SIMIN-Marketingmotive,
+ * aber KEINE dokumentierten echten Kundenreferenzen, Vorher-/Nachher-
+ * Belege oder Mitarbeiterporträts. Sie dürfen deshalb hier NICHT als
+ * Referenzprojekte gezeigt werden. Diese Sektion zeigt bewusst einen
+ * ehrlichen, hochwertig gestalteten Leerzustand, bis echte, dokumentierte
+ * Referenzfotos (reale Kundenobjekte, freigegeben) vorliegen. Dann hier
+ * Einträge in `references` ergänzen (label = neutrale Objektart, keine
+ * Kundennamen ohne Freigabe).
  */
 type Reference = {
   label: string;
@@ -16,23 +21,7 @@ type Reference = {
   image: string;
 };
 
-const references: Reference[] = [
-  {
-    label: "Gebäudereinigung",
-    meta: "Glas- & Fensterreinigung · Köln",
-    image: "/images/service-gebaeudereinigung.webp",
-  },
-  {
-    label: "Winterdienst",
-    meta: "Räum- & Streudienst · Köln",
-    image: "/images/service-winterdienst.webp",
-  },
-  {
-    label: "Außenanlagenpflege",
-    meta: "Laubbeseitigung · Köln",
-    image: "/images/service-aussenanlagen.webp",
-  },
-];
+const references: Reference[] = [];
 ---
 
 <section class="reference-grid section--ice section">
