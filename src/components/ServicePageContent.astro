@@ -12,6 +12,15 @@ interface Props {
 
 const { service } = Astro.props;
 const otherServices = services.filter((s) => s.id !== service.id);
+
+/** Abschluss-CTA nutzt bewusst ein anderes Motiv als der eigene PageHero,
+ * um Bildwiederholungen auf derselben Seite zu vermeiden. */
+const ctaImageByService: Record<Service["id"], string> = {
+  gebaeudereinigung: "/images/service-winterdienst.webp",
+  objektservice: "/images/service-gebaeudereinigung.webp",
+  aussenanlagen: "/images/service-objektservice.webp",
+  winterdienst: "/images/service-aussenanlagen-gruen.webp",
+};
 ---
 
 <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: service.navLabel, href: `/${service.slug}` }]} />
@@ -27,6 +36,15 @@ const otherServices = services.filter((s) => s.id !== service.id);
       <ul class="service-page__list">
         {service.leistungen.map((item) => <li>{item}</li>)}
       </ul>
+
+      {service.leistungsDetails?.map((block) => (
+        <div class="service-page__detail-block">
+          <h3 class="service-page__subheading">{block.title}</h3>
+          <ul class="service-page__list">
+            {block.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </div>
+      ))}
 
       <h2 class="service-page__heading">Ihr Nutzen</h2>
       <ul class="service-page__list">
@@ -79,7 +97,7 @@ const otherServices = services.filter((s) => s.id !== service.id);
   eyebrow="IHR PARTNER VOR ORT"
   headline={`${service.navLabel.toUpperCase()}.\nAUS EINER HAND.`}
   text="Sprechen Sie mit uns über Ihr Objekt und die Leistungen, die Sie benötigen."
-  imageSrc="/images/hero-immobilie.webp"
+  imageSrc={ctaImageByService[service.id]}
 />
 
 <style>
@@ -103,6 +121,21 @@ const otherServices = services.filter((s) => s.id !== service.id);
   .service-page__heading {
     font-size: var(--fs-h3);
     margin-top: 24px;
+  }
+
+  .service-page__detail-block {
+    margin-top: 16px;
+    padding: 20px 24px;
+    background: var(--color-ice);
+    border-radius: var(--radius-md);
+  }
+
+  .service-page__subheading {
+    font-size: 1.0625rem;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-navy);
+    margin-bottom: 12px;
   }
 
   .service-page__list {

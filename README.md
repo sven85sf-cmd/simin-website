@@ -1,7 +1,12 @@
-# Gebäudedienste SIMIN — Website V1
+# Gebäudedienste SIMIN — Website V2
 
 Neu aufgebaute Website für Gebäudedienste SIMIN (Köln) auf Basis von
 **Astro** + **TypeScript**, statisch-first mit minimalem JavaScript.
+
+V2 korrigiert die Leistungsarchitektur (vier gleichwertige Leistungssäulen
+statt Winterdienst-Schwerpunkt), ergänzt zwei neue Bildmotive für
+Objektservice und Außenanlagen/Grünflächen und entfernt die Empty-State-
+Sektionen (Referenzen/Kundenstimmen) von der produktiven Startseite.
 
 ## Inhalt
 
@@ -15,6 +20,7 @@ Neu aufgebaute Website für Gebäudedienste SIMIN (Köln) auf Basis von
 - [Logo austauschen](#logo-austauschen)
 - [SEO-Meta ändern](#seo-meta-ändern)
 - [Formularbackend (Angebotsassistent) konfigurieren](#formularbackend-angebotsassistent-konfigurieren)
+- [GitHub-Pages-Vorschau](#github-pages-vorschau)
 - [Accessibility-Hinweise](#accessibility-hinweise)
 - [Offene Punkte vor Livegang](#offene-punkte-vor-livegang)
 - [Finaler Selbstaudit](#finaler-selbstaudit)
@@ -99,27 +105,34 @@ export const features = {
 
 ## Bilder austauschen
 
-Das Original-Logo sowie vier freigegebene SIMIN-**Marketingmotive** (kein
+Das Original-Logo sowie sechs freigegebene SIMIN-**Marketingmotive** (kein
 dokumentiertes Referenzmaterial, siehe Hinweis unten) wurden aus dem
-offiziellen Herbst/Winter-Flyer-PDF extrahiert und liegen unter
-`public/images/`:
+offiziellen Herbst/Winter-Flyer-PDF sowie zwei weiteren SIMIN-Flyern
+extrahiert und liegen unter `public/images/`:
 
 - `hero-immobilie.webp` — Immobilie im Herbst-/Winter-Look (Flyer-Titelmotiv)
 - `service-gebaeudereinigung.webp` — Motiv Fensterreinigung
+- `service-objektservice.webp` — Motiv Kleinreparatur/Hausmeisterdienst
+- `service-aussenanlagen-gruen.webp` — Motiv Heckenschnitt (nicht-saisonal, primäres Motiv für Außenanlagenpflege)
+- `service-aussenanlagen.webp` — Motiv Laubbeseitigung (herbstlich, reserviert für Saisonmodul/„Herbst & Winter“)
 - `service-winterdienst.webp` — Motiv Schneeräumen
-- `service-aussenanlagen.webp` — Motiv Laubbeseitigung
 
-**Wichtiger Hinweis zur Verwendung:** Diese vier Motive sind freigegebene
-SIMIN-Marketingmotive aus dem Flyer, aber **keine dokumentierten echten
-Kundenreferenzen, Vorher-/Nachher-Belege oder Mitarbeiterporträts**. Sie
-werden deshalb bewusst nur für allgemeine Marken-/Marketingflächen
-eingesetzt — `Hero.astro`, `PageHero.astro` (`src`-Prop, pro Seite),
-`ServicePanel.astro`/`ServicesSection.astro`, `SeasonalCampaign.astro` und
-`CTASection.astro` (`imageSrc`-Prop) — **nicht** in der Referenzen-Sektion
-(`ReferenceGrid.astro`), die deshalb weiterhin einen ehrlichen Leerzustand
-zeigt. Für „Objektservice“ und weitere generische Seiten (Über uns,
-Kontakt, Hausverwaltungen) existiert kein dediziertes Motiv — dort wird das
-Immobilien-Titelmotiv wiederverwendet statt ein Motiv zu erfinden.
+**Wichtiger Hinweis zur Verwendung:** Diese Motive sind freigegebene
+SIMIN-Marketingmotive aus Flyern, aber **keine dokumentierten echten
+Kundenreferenzen, Vorher-/Nachher-Belege oder Mitarbeiterporträts**. Alt-Texte
+beschreiben deshalb die dargestellte Leistung, nicht „echte SIMIN-Mitarbeiter“
+oder ein bestimmtes Projekt. Die Motive werden bewusst nur für allgemeine
+Marken-/Marketingflächen eingesetzt — `Hero.astro`, `PageHero.astro`
+(`src`-Prop, pro Seite), `ServicePanel.astro`/`ServicesSection.astro`,
+`SeasonalCampaign.astro` und `CTASection.astro` (`imageSrc`-Prop) —
+**nicht** in der Referenzen-Sektion (`ReferenceGrid.astro`), die weiterhin
+einen ehrlichen Leerzustand zeigt. Für generische Seiten ohne eigenes Motiv
+(Über uns, Kontakt, Hausverwaltungen) wird sinnvoll ein bestehendes Motiv
+wiederverwendet statt eines erfunden. Die zwei extrahierten Motive für
+Objektservice und Außenanlagen/Grünflächen stammen aus kleinen, kreisförmig
+zugeschnittenen Flyer-Grafiken — die Bildschärfe ist entsprechend begrenzt;
+höher aufgelöste Originaldateien können jederzeit unter denselben
+Dateinamen ersetzt werden.
 
 Alle Bildflächen laufen über die zentrale `src/components/ResponsiveImage.astro`
 -Komponente. Liegt (z. B. für eine neue Seite) noch kein Foto vor, zeigt sie
@@ -185,6 +198,34 @@ Rate-Limiting ist aktuell In-Memory (ausreichend für eine einzelne
 Serverinstanz) — bei horizontaler Skalierung durch einen gemeinsam
 genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
 
+## GitHub-Pages-Vorschau
+
+Für eine schnelle, unbeworbene Vorschau (z. B. für internes Feedback) kann
+die Seite zusätzlich statisch auf GitHub Pages veröffentlicht werden, unter
+`https://sven85sf-cmd.github.io/simin-website/` (Branch `gh-pages`).
+
+Da GitHub Pages dieses Repository unter einem Unterordner-Pfad ausliefert,
+unterstützt die Website einen konfigurierbaren `base`-Pfad:
+
+```bash
+PREVIEW_BASE_PATH=/simin-website npm run build
+```
+
+`astro.config.mjs` liest `PREVIEW_BASE_PATH` nur für diesen Sonderfall;
+ohne die Variable bleibt `base` immer `"/"` — die Produktionsseite unter
+`https://www.gebaeudedienste-simin.de/` ist davon nicht betroffen. Ein
+kleines, in `BaseLayout.astro` eingebettetes Skript schreibt beim Laden alle
+root-relativen internen Links/Bilder (`a[href^="/"]`, `img[src^="/"]`,
+Favicon-Links) auf den korrekten Unterordner-Pfad um; bei `base = "/"` ist
+dieses Skript ein reines No-op.
+
+**Einschränkung:** Der Angebotsassistent kann auf dieser statischen Vorschau
+keine Anfrage absenden (kein Node-Server für `/api/quote` auf GitHub Pages).
+
+Um die Vorschau nach Änderungen zu aktualisieren: `dist/client` mit
+`PREVIEW_BASE_PATH` bauen, den Inhalt in den `gh-pages`-Branch committen
+und pushen (siehe Kommentare in `astro.config.mjs`/`BaseLayout.astro`).
+
 ## Accessibility-Hinweise
 
 - Skip-Link, sichtbarer Fokusring, semantisches HTML, Formular-Labels
@@ -203,10 +244,10 @@ genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
   sind deutlich mit „RECHTSTEXT VOR LIVEGANG PRÜFEN“ markiert. Vor
   Veröffentlichung durch rechtlich geprüfte Fassungen ersetzen/ergänzen.
 - **Formularbackend** produktiv konfigurieren (siehe oben).
-- **Weitere/aktuellere Fotografie** ergänzen, sobald vorhanden (aktuell
-  werden 4 aus dem Flyer-PDF extrahierte Motive mehrfach wiederverwendet,
-  z. B. für „Objektservice“, das kein eigenes Foto hat) — siehe „Bilder
-  austauschen“.
+- **Höher aufgelöste Fotografie** für Objektservice und Außenanlagen/
+  Grünflächen ergänzen, sobald vorhanden — die aktuellen Motive stammen aus
+  kleinen, kreisförmigen Flyer-Ausschnitten mit begrenzter Schärfe (siehe
+  „Bilder austauschen“).
 - **Kundenstimmen**: Sektion ist vorbereitet, zeigt aber bewusst keinen
   erfundenen Inhalt. Echte, freigegebene Bewertungen in `Testimonials.astro`
   (`testimonials`-Array) ergänzen, sobald verfügbar.
@@ -224,23 +265,26 @@ genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
 
 **DESIGN**
 - Mobile: BESTANDEN (390/375/360px geprüft, kein horizontales Scrollen, Sticky-Bar korrekt aus-/eingeblendet)
-- Desktop: BESTANDEN (1440/1280/1024/768px geprüft)
-- Branding: BESTANDEN (Original-Logo und freigegebene Marketingmotive aus dem Flyer-PDF durchgängig eingebunden; keine als Kundenreferenzen deklariert)
+- Desktop: BESTANDEN (1440/1280/768px geprüft)
+- Branding: BESTANDEN (Original-Logo und freigegebene Marketingmotive durchgängig eingebunden; keine als Kundenreferenzen deklariert)
+- Vier gleichwertige Leistungssäulen auf der Startseite (statt Winterdienst-Schwerpunkt): BESTANDEN
 
 **CONTENT**
 - Kontaktangaben: BESTANDEN (zentral in `site.ts`, überall referenziert)
 - Adresse: BESTANDEN (ausschließlich Gilgaustraße 64, 51149 Köln)
-- Leistungen: BESTANDEN (nur die im Brief definierten Leistungen)
-- Keine erfundenen Claims: BESTANDEN (keine Bewertungen/Referenzen/Zahlen erfunden; Platzhalterzustände dokumentiert)
+- Leistungen: BESTANDEN (vollständiges, bestätigtes Leistungspaket je Bereich abgebildet)
+- Keine erfundenen Claims: BESTANDEN (keine Bewertungen/Referenzen/Zahlen erfunden; alte 15%-Kampagne nicht übernommen)
+- Keine Empty-State-Sektionen auf produktiver Startseite (Referenzen/Kundenstimmen ausgeblendet): BESTANDEN
 
 **TECHNIK**
-- Build: BESTANDEN (`npm run build` inkl. Typecheck fehlerfrei)
+- Build: BESTANDEN (`npm run build` inkl. Typecheck fehlerfrei, Produktions- und Preview-Konfiguration)
 - Responsive: BESTANDEN
 - Formular: BESTANDEN (Validierung, Honeypot, Rate-Limit, Erfolg-/Fehlerzustand end-to-end getestet)
 - Accessibility: BESTANDEN (Grundprüfung; echter Screenreader-/Kontrasttest vor Livegang empfohlen)
 - SEO: BESTANDEN (Title/Description/Canonical/OG/Schema/Sitemap/Robots vorhanden)
 - Performance: BESTANDEN (Fonts self-hosted als WOFF2, kein Tracking, LCP-Bild `fetchpriority="high"`, keine schweren Libraries)
-- Console Errors: 0
-- Broken Links: 0 (alle internen Links automatisiert geprüft)
+- Console Errors: 0 (6 Viewports × 14 Seiten geprüft)
+- Broken Links: 0 (alle internen Links automatisiert geprüft, lokal unter Produktions- und GitHub-Pages-Basispfad)
+- GitHub-Pages-Vorschau: Lokal unter simuliertem Unterordner-Pfad vollständig verifiziert (alle Seiten HTTP 200, keine 404-Assets, Navigation funktioniert). Das eigentliche Live-Deployment unter `https://sven85sf-cmd.github.io/simin-website/` konnte **nicht** aus dieser Sandbox getestet werden, da `*.github.io` durch die Netzwerk-Policy der Ausführungsumgebung blockiert ist — bitte einmal manuell im Browser gegenprüfen.
 
 **P0/P1-Blocker laut Master-Brief**: keine identifiziert.

@@ -10,6 +10,11 @@ export type ServiceFaq = {
   answer: string;
 };
 
+export type ServiceDetailBlock = {
+  title: string;
+  items: string[];
+};
+
 export type Service = {
   id: ServiceId;
   slug: string;
@@ -24,6 +29,8 @@ export type Service = {
   homeItems: string[];
   intro: string;
   leistungen: string[];
+  /** Zusätzliche, im Flyer bestätigte Detailpunkte zu einzelnen Leistungen. */
+  leistungsDetails?: ServiceDetailBlock[];
   nutzen: string[];
   ablauf: string[];
   objektarten: string[];
@@ -57,6 +64,27 @@ export const services: Service[] = [
       "Treppenhausreinigung",
       "Unterhaltsreinigung",
       "Glas- & Fensterreinigung",
+      "Grund- & Bauendreinigung",
+      "Reinigung von Einfahrten, Terrassen & Wintergärten",
+    ],
+    leistungsDetails: [
+      {
+        title: "Treppenhausreinigung im Detail",
+        items: [
+          "Reinigung von Stufen, Geländern und Handläufen",
+          "Säuberung von Briefkästen, Lichtschaltern und Fußmatten",
+          "Wischen & Kehren aller Etagen inkl. Keller, Aufzug und Dachgeschoss",
+        ],
+      },
+      {
+        title: "Unterhaltsreinigung im Detail",
+        items: [
+          "Regelmäßige Reinigung von Böden, Flächen und Mobiliar",
+          "Hygienische Reinigung von Sanitäranlagen und Küchenbereichen",
+          "Leeren von Papierkörben und Auffüllen von Verbrauchsmaterialien",
+          "Individuell abgestimmte Reinigungsintervalle für Ihr Objekt",
+        ],
+      },
     ],
     nutzen: [
       "Ein fester Ansprechpartner für alle Reinigungsleistungen",
@@ -98,7 +126,7 @@ export const services: Service[] = [
     metaDescription:
       "Objektbetreuung, Kontrollgänge, Mülltonnenbereitstellung und Kleinreparaturen für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
     eyebrow: "OBJEKTSERVICE",
-    heroImage: "/images/hero-immobilie.webp",
+    heroImage: "/images/service-objektservice.webp",
     shortText:
       "Persönliche Betreuung und regelmäßige Kontrollen für gepflegte Allgemeinflächen und klare Abläufe im Objekt.",
     homeItems: [
@@ -112,8 +140,10 @@ export const services: Service[] = [
     leistungen: [
       "Objektbetreuung & Kontrollgänge",
       "Kontrolle von Allgemeinflächen",
-      "Mülltonnenbereitstellung",
       "Kleinreparaturen im vereinbarten Leistungsumfang",
+      "Mülltonnenbereitstellung",
+      "Leuchtmittelwechsel",
+      "Pflege der Außenanlage",
     ],
     nutzen: [
       "Regelmäßige Kontrollen statt reaktivem Einzeleinsatz",
@@ -143,6 +173,11 @@ export const services: Service[] = [
         answer:
           "Die Frequenz der Kontrollgänge richtet sich nach Größe und Bedarf des Objekts und wird individuell festgelegt.",
       },
+      {
+        question: "Ist Winterdienst Teil des Objektservice?",
+        answer:
+          "Winter- und Streudienst führen wir als eigene Leistung durch – Details dazu finden Sie auf unserer Winterdienst-Seite und können mit dem Objektservice kombiniert werden.",
+      },
     ],
   },
   {
@@ -155,13 +190,21 @@ export const services: Service[] = [
     metaDescription:
       "Grünflächenpflege, Hof- und Wegepflege sowie Laubbeseitigung für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
     eyebrow: "AUSSENANLAGENPFLEGE",
-    heroImage: "/images/service-aussenanlagen.webp",
+    heroImage: "/images/service-aussenanlagen-gruen.webp",
     shortText:
       "Gepflegte Außenbereiche im Jahresverlauf – von der Grünpflege bis zur Betreuung bei Schnee und Glätte.",
     homeItems: ["Grünflächenpflege", "Hof- & Wegepflege", "Laubbeseitigung", "Winterdienst"],
     intro:
       "Gepflegte Außenanlagen prägen den ersten Eindruck einer Immobilie. SIMIN übernimmt die Pflege von Grünflächen, Höfen und Wegen für Ihr Objekt in Köln und Umgebung – abgestimmt auf die Jahreszeit und den tatsächlichen Pflegebedarf.",
-    leistungen: ["Grünflächenpflege", "Hof- & Wegepflege", "Laubbeseitigung"],
+    leistungen: [
+      "Rasenmähen & Rasenkanten schneiden",
+      "Heckenschnitt",
+      "Unkrautentfernung",
+      "Laubbeseitigung",
+      "Saisonale Gartenpflege",
+      "Hof- & Wegepflege",
+      "Pflege der Außenanlage",
+    ],
     nutzen: [
       "Gepflegte Außenbereiche im Jahresverlauf",
       "Leistungsumfang passend zu Größe und Nutzung der Außenanlage",

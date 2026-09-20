@@ -40,6 +40,31 @@ const {
     <LocalBusinessSchema />
   </head>
   <body>
+    <script is:inline define:vars={{ base: import.meta.env.BASE_URL }}>
+      /* Nur aktiv, wenn base !== "/" (GitHub-Pages-Preview unter Unterordner-Pfad).
+         In Produktion (base = "/") ist dieses Skript ein No-op. */
+      if (base && base !== "/") {
+        const prefix = base.replace(/\/$/, "");
+        const fix = (el, attr) => {
+          const val = el.getAttribute(attr);
+          if (val && val.startsWith("/") && !val.startsWith(prefix + "/") && val !== prefix) {
+            el.setAttribute(attr, prefix + val);
+          }
+        };
+        const rewriteAll = () => {
+          document.querySelectorAll('a[href^="/"]').forEach((el) => fix(el, "href"));
+          document.querySelectorAll('img[src^="/"]').forEach((el) => fix(el, "src"));
+          document
+            .querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]')
+            .forEach((el) => fix(el, "href"));
+        };
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", rewriteAll);
+        } else {
+          rewriteAll();
+        }
+      }
+    </script>
     <a href="#main-content" class="skip-link">Zum Inhalt springen</a>
     <Header transparentOnTop={transparentHeader} />
     <MobileNavigation />

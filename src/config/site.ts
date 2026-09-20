@@ -83,7 +83,7 @@ export const footerNav = {
   ],
   unternehmen: [
     { label: "Über uns", href: "/ueber-uns" },
-    { label: "Referenzen", href: "/referenzen" },
+    ...(features.referencesPage ? [{ label: "Referenzen", href: "/referenzen" }] : []),
     { label: "Kontakt", href: "/kontakt" },
   ],
   service: [
