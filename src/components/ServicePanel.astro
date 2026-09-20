@@ -10,16 +10,17 @@ interface Props {
   accent: "blue" | "orange";
   reversed?: boolean;
   image?: string;
+  imageAlt?: string;
 }
 
-const { eyebrow, title, text, items, href, accent, reversed = false, image } = Astro.props;
+const { eyebrow, title, text, items, href, accent, reversed = false, image, imageAlt } = Astro.props;
 ---
 
 <article class:list={["service-panel", "reveal", { "service-panel--reversed": reversed }]}>
   <div class="service-panel__media">
     <ResponsiveImage
       src={image}
-      alt={`${title} durch Gebäudedienste SIMIN`}
+      alt={imageAlt ?? `${title} durch Gebäudedienste SIMIN`}
       width={960}
       height={720}
       class="service-panel__image"
