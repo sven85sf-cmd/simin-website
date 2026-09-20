@@ -406,12 +406,12 @@ const propertyOptions = [
       document.querySelectorAll("[aria-invalid]").forEach((el) => el.setAttribute("aria-invalid", "false"));
     }
 
-    function showStep(step: number) {
+    function showStep(step: number, focusLegend = true) {
       currentStep = step;
       form?.querySelectorAll<HTMLFieldSetElement>(".quote-wizard__step").forEach((fieldset) => {
         const isActive = Number(fieldset.dataset.step) === step;
         fieldset.hidden = !isActive;
-        if (isActive) {
+        if (isActive && focusLegend) {
           const legend = fieldset.querySelector<HTMLElement>(".quote-wizard__legend");
           legend?.focus();
         }
@@ -551,6 +551,9 @@ const propertyOptions = [
     });
 
     clearAllErrors();
-    showStep(1);
+    /* Beim initialen Seitenaufbau NICHT fokussieren: legend.focus() würde
+       sonst die Seite ungewollt zum (weit unten liegenden) Angebotsassistenten
+       scrollen, sobald das Skript lädt – auch ohne Hash/Anker in der URL. */
+    showStep(1, false);
   }
 </script>

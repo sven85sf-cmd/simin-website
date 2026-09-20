@@ -32,6 +32,24 @@ const {
 <!doctype html>
 <html lang="de">
   <head>
+    <script is:inline>
+      /* Verhindert, dass der Browser beim Laden/Zurück-Navigieren eine
+         frühere Scroll-Position automatisch wiederherstellt. Muss so früh
+         wie möglich laufen, daher als erstes inline Skript im <head>.
+         Betrifft nur die Browser-eigene History-Scroll-Restauration –
+         gezielte #Anker-Links (z. B. #kontakt) funktionieren unverändert
+         weiter, da diese vom Browser unabhängig davon behandelt werden. */
+      if ("scrollRestoration" in history) {
+        history.scrollRestoration = "manual";
+      }
+      function simScrollTopIfNoHash() {
+        if (!window.location.hash) {
+          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        }
+      }
+      simScrollTopIfNoHash();
+      window.addEventListener("pageshow", simScrollTopIfNoHash);
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#07354a" />
