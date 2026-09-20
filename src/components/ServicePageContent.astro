@@ -16,7 +16,7 @@ const otherServices = services.filter((s) => s.id !== service.id);
 
 <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: service.navLabel, href: `/${service.slug}` }]} />
 
-<PageHero eyebrow={service.eyebrow} headline={service.heroH1} placeholderLabel={`${service.navLabel} — Originalfoto folgt`} />
+<PageHero eyebrow={service.eyebrow} headline={service.heroH1} src={service.heroImage} />
 
 <section class="service-page section">
   <div class="container service-page__grid">
@@ -79,6 +79,7 @@ const otherServices = services.filter((s) => s.id !== service.id);
   eyebrow="IHR PARTNER VOR ORT"
   headline={`${service.navLabel.toUpperCase()}.\nAUS EINER HAND.`}
   text="Sprechen Sie mit uns über Ihr Objekt und die Leistungen, die Sie benötigen."
+  imageSrc="/images/hero-immobilie.webp"
 />
 
 <style>

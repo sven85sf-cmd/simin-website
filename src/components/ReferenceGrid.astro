@@ -5,19 +5,34 @@ import ResponsiveImage from "@/components/ResponsiveImage.astro";
 /**
  * Referenzen / echte Arbeit.
  *
- * WICHTIG: Aktuell liegen noch keine freigegebenen Referenzfotos oder
- * Objektbeschreibungen vor. Die Sektion ist deshalb strukturell fertig
- * vorbereitet, zeigt aber ausschließlich einen ehrlichen Platzhalterzustand
- * statt erfundener Projekte. Sobald echte Bilder vorliegen, hier die
- * Einträge in `references` ergänzen (label = neutrale Objektart, keine
- * Kundennamen ohne Freigabe).
+ * Zeigt echte, SIMIN-markenrechtlich freigegebene Arbeitsfotos (Mitarbeiter
+ * in SIMIN-Arbeitskleidung im Einsatz, aus dem offiziellen Flyer-Material).
+ * Keine Kundennamen oder konkreten Objektadressen, da diese nicht
+ * freigegeben vorliegen — nur neutrale Leistungsbezeichnungen.
  */
 type Reference = {
   label: string;
   meta: string;
+  image: string;
 };
 
-const references: Reference[] = [];
+const references: Reference[] = [
+  {
+    label: "Gebäudereinigung",
+    meta: "Glas- & Fensterreinigung · Köln",
+    image: "/images/service-gebaeudereinigung.webp",
+  },
+  {
+    label: "Winterdienst",
+    meta: "Räum- & Streudienst · Köln",
+    image: "/images/service-winterdienst.webp",
+  },
+  {
+    label: "Außenanlagenpflege",
+    meta: "Laubbeseitigung · Köln",
+    image: "/images/service-aussenanlagen.webp",
+  },
+];
 ---
 
 <section class="reference-grid section--ice section">
@@ -34,9 +49,10 @@ const references: Reference[] = [];
           {references.map((ref) => (
             <figure class="reference-grid__item reveal">
               <ResponsiveImage
+                src={ref.image}
                 alt={`${ref.label} – ${ref.meta}`}
-                width={800}
-                height={600}
+                width={1200}
+                height={1566}
                 class="reference-grid__image"
               />
               <figcaption>

@@ -2,10 +2,10 @@
 import { googleReviewsUrl } from "@/config/site";
 
 const items = [
-  { icon: "star", label: "GOOGLE-BEWERTUNGEN", href: googleReviewsUrl },
-  { icon: "user", label: "PERSÖNLICHER ANSPRECHPARTNER" },
-  { icon: "pin", label: "KÖLN & UMGEBUNG" },
-  { icon: "layers", label: "MEHRERE LEISTUNGEN AUS EINER HAND" },
+  { label: "GOOGLE-BEWERTUNGEN ANSEHEN", href: googleReviewsUrl, stars: true },
+  { label: "PERSÖNLICHER ANSPRECHPARTNER" },
+  { label: "KÖLN & UMGEBUNG" },
+  { label: "MEHRERE LEISTUNGEN AUS EINER HAND" },
 ];
 ---
 
@@ -17,7 +17,7 @@ const items = [
           {item.href ? (
             <a href={item.href} target="_blank" rel="noopener noreferrer" class="trust-bar__link">
               <span class="trust-bar__stars" aria-hidden="true">★★★★★</span>
-              <span>GOOGLE-BEWERTUNGEN ANSEHEN</span>
+              <span>{item.label}</span>
             </a>
           ) : (
             <span class="trust-bar__text">{item.label}</span>
@@ -30,22 +30,38 @@ const items = [
 
 <style>
   .trust-bar {
-    background: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
-    padding-block: 24px;
+    background: var(--color-navy);
+    padding-block: 22px;
   }
 
   .trust-bar__list {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: 16px 32px;
+    gap: 14px 0;
     list-style: none;
   }
 
   .trust-bar__item {
     display: flex;
     align-items: center;
+    position: relative;
+    padding-inline: 24px;
+  }
+
+  .trust-bar__item:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .trust-bar__item:first-child {
+    padding-left: 0;
   }
 
   .trust-bar__text {
@@ -53,7 +69,7 @@ const items = [
     font-weight: 600;
     font-size: 0.8125rem;
     letter-spacing: 0.06em;
-    color: var(--color-navy);
+    color: var(--color-white);
   }
 
   .trust-bar__link {
@@ -65,15 +81,25 @@ const items = [
     font-weight: 600;
     font-size: 0.8125rem;
     letter-spacing: 0.06em;
-    color: var(--color-navy);
+    color: var(--color-white);
   }
 
   .trust-bar__link:hover {
-    color: var(--color-simin-blue);
+    color: var(--color-light-blue);
   }
 
   .trust-bar__stars {
-    color: var(--color-orange-accessible);
+    color: var(--color-orange);
     letter-spacing: 2px;
+  }
+
+  @media (max-width: 767px) {
+    .trust-bar__item {
+      padding-inline: 0 20px;
+    }
+
+    .trust-bar__item::after {
+      display: none;
+    }
   }
 </style>

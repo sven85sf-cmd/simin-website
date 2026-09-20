@@ -3,6 +3,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PageHero from "@/components/PageHero.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import CTASection from "@/components/CTASection.astro";
+import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import { seasonalCampaign } from "@/config/site";
 
 const title = "Herbst & Winter | Laubbeseitigung & Winterdienst Köln | Gebäudedienste SIMIN";
@@ -14,16 +15,19 @@ const topics = [
     title: "Laubbeseitigung",
     text: "Regelmäßige Beseitigung von Laub auf Wegen, Höfen und Grünflächen im Herbst.",
     href: "/aussenanlagenpflege-koeln",
+    image: "/images/service-aussenanlagen.webp",
   },
   {
     title: "Winterdienst",
     text: "Betreuung Ihrer Immobilie bei Schnee und Glätte im vereinbarten Leistungsumfang.",
     href: "/winterdienst-koeln",
+    image: "/images/service-winterdienst.webp",
   },
   {
     title: "Außenanlagenpflege",
     text: "Gepflegte Außenbereiche im Jahresverlauf – abgestimmt auf die Saison.",
     href: "/aussenanlagenpflege-koeln",
+    image: "/images/hero-immobilie.webp",
   },
 ];
 ---
@@ -34,7 +38,7 @@ const topics = [
     eyebrow={seasonalCampaign.eyebrow}
     headline={seasonalCampaign.headline.replace(/\n/g, " ")}
     text={seasonalCampaign.text}
-    placeholderLabel="Herbst-/Winterfotografie — Originalfoto folgt"
+    src="/images/hero-immobilie.webp"
   />
 
   <section class="section">
@@ -43,9 +47,18 @@ const topics = [
       <div class="seasonal-topics">
         {topics.map((topic) => (
           <a href={topic.href} class="seasonal-topics__card">
-            <h2>{topic.title}</h2>
-            <p>{topic.text}</p>
-            <span class="btn-ghost">MEHR ERFAHREN</span>
+            <ResponsiveImage
+              src={topic.image}
+              alt={topic.title}
+              width={1200}
+              height={1566}
+              class="seasonal-topics__image"
+            />
+            <div class="seasonal-topics__body">
+              <h2>{topic.title}</h2>
+              <p>{topic.text}</p>
+              <span class="btn-ghost">MEHR ERFAHREN</span>
+            </div>
           </a>
         ))}
       </div>
@@ -60,6 +73,7 @@ const topics = [
     eyebrow={seasonalCampaign.eyebrow}
     headline={seasonalCampaign.claim}
     text={seasonalCampaign.text}
+    imageSrc="/images/service-winterdienst.webp"
   />
 </BaseLayout>
 
@@ -81,12 +95,32 @@ const topics = [
   .seasonal-topics__card {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    align-items: flex-start;
     text-decoration: none;
     min-width: 0;
     background: var(--color-ice);
     border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+
+  .seasonal-topics__card:hover {
+    transform: translateY(-4px);
+  }
+
+  .seasonal-topics__image {
+    aspect-ratio: 4 / 3;
+    transition: transform 0.6s var(--ease-standard);
+  }
+
+  .seasonal-topics__card:hover .seasonal-topics__image {
+    transform: scale(1.03);
+  }
+
+  .seasonal-topics__body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
     padding: 24px;
   }
 

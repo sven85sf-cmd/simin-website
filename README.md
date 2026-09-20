@@ -84,47 +84,61 @@ Texte, Claim und Keywords des Moduls werden ebenfalls dort gepflegt.
 
 ## Referenzen-Seite im Hauptmenü aktivieren
 
-Solange keine ausreichenden echten Referenzfotos vorliegen, ist der
-Menüpunkt „Referenzen“ per Feature-Flag ausgeblendet (die Seite selbst
-bleibt unter `/referenzen` erreichbar, z. B. über den Footer):
+Der Menüpunkt „Referenzen“ ist per Feature-Flag steuerbar (aktuell aktiv,
+da echte Arbeitsfotos vorliegen):
 
 ```ts
 // src/config/site.ts
 export const features = {
-  referencesPage: false, // auf true setzen, sobald genug Material vorhanden ist
+  referencesPage: true, // false blendet den Menüpunkt aus; Seite bleibt unter /referenzen erreichbar
   ...
 };
 ```
 
 ## Bilder austauschen
 
-Es liegen aktuell **keine echten Projekt-/Objektfotos** vor. Alle
-Bildflächen (Hero, Leistungs-Panels, Referenzen, Saisonmodul, Abschluss-CTA)
-verwenden die zentrale `src/components/ResponsiveImage.astro`-Komponente und
-zeigen, solange keine `src` übergeben wird, einen klar erkennbaren, neutralen
-Bildplatzhalter (kein Fake-/Stockfoto).
+Das Original-Logo und drei echte, SIMIN-markenrechtlich freigegebene
+Arbeitsfotos sowie das Flyer-Titelmotiv wurden aus dem offiziellen
+Herbst/Winter-Flyer-PDF extrahiert und liegen unter `public/images/`:
 
-So wird ein echtes Bild eingebunden:
+- `hero-immobilie.webp` — Immobilie im Herbst-/Winter-Look (Flyer-Titelmotiv)
+- `service-gebaeudereinigung.webp` — Mitarbeiterin bei der Fensterreinigung
+- `service-winterdienst.webp` — Mitarbeiter beim Schneeräumen
+- `service-aussenanlagen.webp` — Mitarbeiter bei der Laubbeseitigung
 
-1. Bilddatei nach `src/assets/` oder `public/images/` legen.
-2. In der jeweiligen Komponente/Seite den `src`-Prop von `ResponsiveImage`
-   setzen (z. B. `src="/images/hero-immobilie.jpg"`).
+Diese werden in `Hero.astro`, `PageHero.astro` (`src`-Prop, pro Seite),
+`ServicePanel.astro`/`ServicesSection.astro`, `ReferenceGrid.astro`,
+`SeasonalCampaign.astro` und `CTASection.astro` (`imageSrc`-Prop) verwendet.
+Für „Objektservice“ und weitere generische Seiten (Über uns, Kontakt,
+Hausverwaltungen) existiert kein dediziertes Foto — dort wird bewusst das
+Immobilien-Titelmotiv wiederverwendet statt ein Motiv zu erfinden.
+
+Alle Bildflächen laufen über die zentrale `src/components/ResponsiveImage.astro`
+-Komponente. Liegt (z. B. für eine neue Seite) noch kein Foto vor, zeigt sie
+automatisch einen klar erkennbaren, neutralen Platzhalter statt eines
+Fake-/Stockfotos.
+
+Ein Bild austauschen/ergänzen:
+
+1. Bilddatei nach `public/images/` legen (idealerweise als komprimiertes WebP).
+2. In der jeweiligen Komponente/Seite den `src`- bzw. `imageSrc`-Prop setzen.
 3. `width`/`height` passend zur Originaldatei anpassen (verhindert Layout Shift).
-
-Betroffene Stellen: `Hero.astro`, `PageHero.astro` (pro Seite über
-`placeholderLabel`/`src`), `ServicePanel.astro`, `ReferenceGrid.astro`,
-`SeasonalCampaign.astro`, `CTASection.astro`.
 
 ## Logo austauschen
 
-Es liegt aktuell **keine Original-Logodatei** im Projekt vor. Es wurde
-bewusst **kein Ersatzlogo** gestaltet — stattdessen zeigt
-`src/components/Logo.astro` einen einfachen, typografischen
-Marken-Schriftzug (Barlow Condensed, Markenfarben) als Platzhalter.
+Das Original-SIMIN-Logo (`src/assets/logo/simin-logo.png`, freigestellt,
+extrahiert aus dem offiziellen Flyer-PDF) wird automatisch von
+`src/components/Logo.astro` in Header, Footer und als Wasserzeichen in
+„Markenversprechen“ eingebunden — inklusive automatischer Bildoptimierung
+über `astro:assets`. `public/favicon.ico`/`apple-touch-icon.png` und das
+Social-Preview-Bild (`public/images/og-default.jpg`) basieren ebenfalls auf
+diesem Logo.
 
-Sobald die Originaldatei vorliegt: als `simin-logo.png` (oder `.svg`/`.webp`)
-unter `src/assets/logo/` ablegen — die Komponente bindet sie dann automatisch
-anstelle des Schriftzugs ein, ohne Codeänderung.
+Um eine noch höher aufgelöste oder finale Vektor-Version einzusetzen: Datei
+unter `src/assets/logo/simin-logo.{png,svg,webp}` ersetzen — keine
+Codeänderung nötig. Liegt gar keine Datei vor, fällt die Komponente auf
+einen einfachen typografischen Marken-Schriftzug zurück (kein gestaltetes
+Ersatzlogo).
 
 ## SEO-Meta ändern
 
@@ -181,13 +195,13 @@ genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
   sind deutlich mit „RECHTSTEXT VOR LIVEGANG PRÜFEN“ markiert. Vor
   Veröffentlichung durch rechtlich geprüfte Fassungen ersetzen/ergänzen.
 - **Formularbackend** produktiv konfigurieren (siehe oben).
-- **Echte Fotografie** ergänzen (Hero, Leistungen, Referenzen, Saisonmodul) —
-  siehe „Bilder austauschen“.
-- **Original-Logo** ergänzen, sobald verfügbar — siehe „Logo austauschen“.
-- **Kundenstimmen/Referenzen**: Sektionen sind vorbereitet, zeigen aber
-  bewusst keine erfundenen Inhalte. Echte, freigegebene Inhalte in
-  `Testimonials.astro` (`testimonials`-Array) bzw. `ReferenceGrid.astro`
-  (`references`-Array) ergänzen.
+- **Weitere/aktuellere Fotografie** ergänzen, sobald vorhanden (aktuell
+  werden 4 aus dem Flyer-PDF extrahierte Motive mehrfach wiederverwendet,
+  z. B. für „Objektservice“, das kein eigenes Foto hat) — siehe „Bilder
+  austauschen“.
+- **Kundenstimmen**: Sektion ist vorbereitet, zeigt aber bewusst keinen
+  erfundenen Inhalt. Echte, freigegebene Bewertungen in `Testimonials.astro`
+  (`testimonials`-Array) ergänzen, sobald verfügbar.
 - Analytics/Tracking ist bewusst **nicht** eingebunden (siehe Master-Brief
   Punkt 46). Bei Bedarf datenschutzkonform ergänzen und Datenschutzerklärung
   entsprechend erweitern.
@@ -197,7 +211,7 @@ genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
 **DESIGN**
 - Mobile: BESTANDEN (390/375/360px geprüft, kein horizontales Scrollen, Sticky-Bar korrekt aus-/eingeblendet)
 - Desktop: BESTANDEN (1440/1280/1024/768px geprüft)
-- Branding: BESTANDEN (Markenfarben/-typografie konsequent umgesetzt; Logo als dokumentierter Platzhalter)
+- Branding: BESTANDEN (Original-Logo und echte Arbeitsfotos aus dem Flyer-PDF durchgängig eingebunden)
 
 **CONTENT**
 - Kontaktangaben: BESTANDEN (zentral in `site.ts`, überall referenziert)

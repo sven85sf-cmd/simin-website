@@ -20,6 +20,7 @@ export type Service = {
   metaDescription: string;
   eyebrow: string;
   shortText: string;
+  heroImage: string;
   homeItems: string[];
   intro: string;
   leistungen: string[];
@@ -40,6 +41,7 @@ export const services: Service[] = [
     metaDescription:
       "Büro-, Praxis-, Treppenhaus- und Unterhaltsreinigung sowie Glas- und Fensterreinigung für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
     eyebrow: "GEBÄUDEREINIGUNG",
+    heroImage: "/images/service-gebaeudereinigung.webp",
     shortText:
       "Saubere und hygienisch gepflegte Räume für Wohn-, Büro-, Praxis- und Gewerbeobjekte.",
     homeItems: [
@@ -96,6 +98,7 @@ export const services: Service[] = [
     metaDescription:
       "Objektbetreuung, Kontrollgänge, Mülltonnenbereitstellung und Kleinreparaturen für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
     eyebrow: "OBJEKTSERVICE",
+    heroImage: "/images/hero-immobilie.webp",
     shortText:
       "Persönliche Betreuung und regelmäßige Kontrollen für gepflegte Allgemeinflächen und klare Abläufe im Objekt.",
     homeItems: [
@@ -152,6 +155,7 @@ export const services: Service[] = [
     metaDescription:
       "Grünflächenpflege, Hof- und Wegepflege sowie Laubbeseitigung für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
     eyebrow: "AUSSENANLAGENPFLEGE",
+    heroImage: "/images/service-aussenanlagen.webp",
     shortText:
       "Gepflegte Außenbereiche im Jahresverlauf – von der Grünpflege bis zur Betreuung bei Schnee und Glätte.",
     homeItems: ["Grünflächenpflege", "Hof- & Wegepflege", "Laubbeseitigung", "Winterdienst"],
@@ -193,6 +197,7 @@ export const services: Service[] = [
     metaDescription:
       "Winterdienst für Gehwege, Höfe und Zufahrten von Immobilien in Köln und Umgebung. Vereinbarte Leistungen bei Schnee und Glätte. Jetzt anfragen.",
     eyebrow: "WINTERDIENST",
+    heroImage: "/images/service-winterdienst.webp",
     shortText: "Betreuung Ihrer Immobilie bei Schnee und Glätte im vereinbarten Leistungsumfang.",
     homeItems: ["Schnee- und Glättebeseitigung", "Gehwege & Zufahrten", "Streudienst"],
     intro:

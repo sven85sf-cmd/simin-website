@@ -1,8 +1,27 @@
 ---
 import SectionHeader from "@/components/SectionHeader.astro";
+import { Image } from "astro:assets";
+
+const logoImages = import.meta.glob<{ default: ImageMetadata }>(
+  "/src/assets/logo/simin-logo.{png,svg,webp}",
+  { eager: true },
+);
+const logoEntry = Object.values(logoImages)[0];
 ---
 
 <section class="brand-promise section--tight">
+  {
+    logoEntry && (
+      <Image
+        src={logoEntry.default}
+        alt=""
+        width={900}
+        height={753}
+        class="brand-promise__seal"
+        aria-hidden="true"
+      />
+    )
+  }
   <div class="container brand-promise__grid reveal">
     <SectionHeader
       eyebrow="GEBÄUDEDIENSTLEISTUNGEN MIT PERSÖNLICHER BETREUUNG"
@@ -27,6 +46,23 @@ import SectionHeader from "@/components/SectionHeader.astro";
   .brand-promise {
     position: relative;
     overflow: hidden;
+  }
+
+  .brand-promise__seal {
+    position: absolute;
+    top: 50%;
+    right: -6%;
+    transform: translateY(-50%);
+    width: clamp(360px, 42vw, 620px);
+    height: auto;
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .brand-promise__grid {
+    position: relative;
+    z-index: 1;
   }
 
   .brand-promise__grid {

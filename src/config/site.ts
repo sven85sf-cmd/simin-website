@@ -65,7 +65,7 @@ export const primaryNav: NavItem[] = [
 /** Feature-Flags zur Steuerung sichtbarer Module ohne Code-Änderung. */
 export const features = {
   /** Referenzen-Seite im Hauptmenü zeigen, sobald genug echtes Material vorhanden ist. */
-  referencesPage: false,
+  referencesPage: true,
   /** Kundenstimmen-Sektion aktiv (zeigt aktuell einen ehrlichen Leer-/Hinweiszustand). */
   testimonials: true,
 } as const;
@@ -117,6 +117,6 @@ export const seoDefaults = {
   ogTitle: "Gebäudedienste SIMIN – Gepflegte Immobilien. Alles aus einer Hand.",
   ogDescription:
     "Gebäudereinigung, Objektservice und Außenanlagenpflege für Immobilien in Köln und Umgebung.",
-  defaultOgImage: "/images/og-default.png",
+  defaultOgImage: "/images/og-default.jpg",
   locale: "de_DE",
 } as const;

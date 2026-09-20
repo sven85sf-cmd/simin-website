@@ -6,14 +6,16 @@ interface Props {
   headline: string;
   text?: string;
   placeholderLabel?: string;
+  src?: string;
 }
 
-const { eyebrow, headline, text, placeholderLabel } = Astro.props;
+const { eyebrow, headline, text, placeholderLabel, src } = Astro.props;
 ---
 
 <section class="page-hero">
   <div class="page-hero__media">
     <ResponsiveImage
+      src={src}
       alt={headline}
       width={1600}
       height={900}
@@ -49,6 +51,7 @@ const { eyebrow, headline, text, placeholderLabel } = Astro.props;
 
   .page-hero__image {
     height: 100%;
+    object-position: center 22%;
   }
 
   .page-hero__gradient {
