@@ -43,9 +43,9 @@
   --radius-lg: 6px;
 
   /* Header */
-  --header-height: 88px;
-  --header-height-scrolled: 72px;
-  --header-height-mobile: 68px;
+  --header-height: 104px;
+  --header-height-scrolled: 84px;
+  --header-height-mobile: 80px;
   --sticky-bar-height: 60px;
 
   /* Motion */

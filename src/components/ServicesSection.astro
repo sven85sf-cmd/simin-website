@@ -1,6 +1,7 @@
 ---
 import SectionHeader from "@/components/SectionHeader.astro";
 import ServicePanel from "@/components/ServicePanel.astro";
+import { imagePositions } from "@/lib/imagePositions";
 
 const panels = [
   {
@@ -11,6 +12,7 @@ const panels = [
     href: "/gebaeudereinigung-koeln",
     accent: "blue" as const,
     image: "/images/service-gebaeudereinigung.webp",
+    imagePosition: imagePositions["/images/service-gebaeudereinigung.webp"],
   },
   {
     eyebrow: "OBJEKTSERVICE",
@@ -26,6 +28,7 @@ const panels = [
     accent: "blue" as const,
     image: "/images/service-objektservice.webp",
     imageAlt: "Kleinreparatur und Objektservice an einer Immobilie",
+    imagePosition: imagePositions["/images/service-objektservice.webp"],
   },
   {
     eyebrow: "AUSSENANLAGEN & GRÜNFLÄCHEN",
@@ -36,6 +39,7 @@ const panels = [
     accent: "orange" as const,
     image: "/images/service-aussenanlagen-gruen.webp",
     imageAlt: "Grünpflege und Außenanlagenpflege an einem gepflegten Objekt",
+    imagePosition: imagePositions["/images/service-aussenanlagen-gruen.webp"],
   },
   {
     eyebrow: "WINTERDIENST",
@@ -45,6 +49,7 @@ const panels = [
     href: "/winterdienst-koeln",
     accent: "orange" as const,
     image: "/images/service-winterdienst.webp",
+    imagePosition: imagePositions["/images/service-winterdienst.webp"],
   },
 ];
 ---

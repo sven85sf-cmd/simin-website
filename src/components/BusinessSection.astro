@@ -92,7 +92,7 @@ const objectTypes = ["Wohnanlagen", "Büro & Praxis", "Gewerbeimmobilien"];
     background: rgba(255, 255, 255, 0.06);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: var(--radius-md);
-    padding: 24px;
+    padding: 18px;
   }
 
   .business-section__list-card h3 {
@@ -114,7 +114,13 @@ const objectTypes = ["Wohnanlagen", "Büro & Praxis", "Gewerbeimmobilien"];
     font-weight: 500;
   }
 
-  @media (min-width: 560px) {
+  @media (min-width: 420px) {
+    .business-section__list-card {
+      padding: 24px;
+    }
+  }
+
+  @media (min-width: 640px) {
     .business-section__lists {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }

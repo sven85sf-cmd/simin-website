@@ -9,8 +9,10 @@ const year = new Date().getFullYear();
 <footer class="site-footer">
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
-      <Logo variant="light" />
-      <p class="site-footer__claim">{company.claim}</p>
+      <div class="site-footer__brand-mark">
+        <Logo variant="light" size="footer" />
+        <p class="site-footer__claim">{company.claim}</p>
+      </div>
       <address class="site-footer__contact">
         <span>{company.address.street}</span>
         <span>{company.address.postalCode} {company.address.city}</span>
@@ -77,21 +79,31 @@ const year = new Date().getFullYear();
     min-width: 0;
   }
 
+  .site-footer__brand-mark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
   .site-footer__claim {
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.125rem;
     letter-spacing: 0.04em;
     color: var(--color-light-blue);
-    margin-top: 16px;
+    max-width: 26ch;
   }
 
   .site-footer__contact {
     font-style: normal;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 6px;
-    margin-top: 20px;
+    margin-top: 24px;
     font-size: 0.9375rem;
   }
 

@@ -7,9 +7,10 @@ interface Props {
   text?: string;
   placeholderLabel?: string;
   src?: string;
+  imagePosition?: string;
 }
 
-const { eyebrow, headline, text, placeholderLabel, src } = Astro.props;
+const { eyebrow, headline, text, placeholderLabel, src, imagePosition } = Astro.props;
 ---
 
 <section class="page-hero">
@@ -24,6 +25,7 @@ const { eyebrow, headline, text, placeholderLabel, src } = Astro.props;
       class="page-hero__image"
       placeholderLabel={placeholderLabel ?? "Titelbild — Originalfoto folgt"}
       fill
+      objectPosition={imagePosition}
     />
     <div class="page-hero__gradient" aria-hidden="true"></div>
   </div>

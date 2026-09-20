@@ -4,6 +4,7 @@ import PageHero from "@/components/PageHero.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import ReferenceGrid from "@/components/ReferenceGrid.astro";
 import CTASection from "@/components/CTASection.astro";
+import { imagePositions } from "@/lib/imagePositions";
 
 const title = "Referenzen | Gebäudedienste SIMIN";
 const description =
@@ -17,6 +18,7 @@ const description =
     headline="Referenzen"
     text="Gepflegte Objekte sind die beste Referenz."
     src="/images/service-winterdienst.webp"
+    imagePosition={imagePositions["/images/service-winterdienst.webp"]}
   />
   <ReferenceGrid />
   <CTASection

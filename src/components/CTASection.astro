@@ -8,9 +8,10 @@ interface Props {
   headline: string;
   text: string;
   imageSrc?: string;
+  imagePosition?: string;
 }
 
-const { eyebrow, headline, text, imageSrc } = Astro.props;
+const { eyebrow, headline, text, imageSrc, imagePosition } = Astro.props;
 ---
 
 <section class="cta-section reveal">
@@ -22,6 +23,7 @@ const { eyebrow, headline, text, imageSrc } = Astro.props;
     class="cta-section__image"
     loading="lazy"
     fill
+    objectPosition={imagePosition}
   />
   <div class="cta-section__overlay"></div>
   <div class="container cta-section__content">

@@ -6,6 +6,7 @@ import CTASection from "@/components/CTASection.astro";
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import { seasonalCampaign } from "@/config/site";
 import { withBase } from "@/lib/path";
+import { imagePositions } from "@/lib/imagePositions";
 
 const title = "Herbst & Winter | Laubbeseitigung & Winterdienst Köln | Gebäudedienste SIMIN";
 const description =
@@ -54,6 +55,7 @@ const topics = [
               width={1200}
               height={1566}
               class="seasonal-topics__image"
+              objectPosition={imagePositions[topic.image]}
             />
             <div class="seasonal-topics__body">
               <h2>{topic.title}</h2>
@@ -75,6 +77,7 @@ const topics = [
     headline={seasonalCampaign.claim}
     text={seasonalCampaign.text}
     imageSrc="/images/service-winterdienst.webp"
+    imagePosition={imagePositions["/images/service-winterdienst.webp"]}
   />
 </BaseLayout>
 

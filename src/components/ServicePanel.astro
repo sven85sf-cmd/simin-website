@@ -12,9 +12,21 @@ interface Props {
   reversed?: boolean;
   image?: string;
   imageAlt?: string;
+  imagePosition?: string;
 }
 
-const { eyebrow, title, text, items, href, accent, reversed = false, image, imageAlt } = Astro.props;
+const {
+  eyebrow,
+  title,
+  text,
+  items,
+  href,
+  accent,
+  reversed = false,
+  image,
+  imageAlt,
+  imagePosition,
+} = Astro.props;
 ---
 
 <article class:list={["service-panel", "reveal", { "service-panel--reversed": reversed }]}>
@@ -26,6 +38,7 @@ const { eyebrow, title, text, items, href, accent, reversed = false, image, imag
       height={720}
       class="service-panel__image"
       placeholderLabel={`${title} — Originalfoto folgt`}
+      objectPosition={imagePosition}
     />
   </div>
   <div class:list={["service-panel__body", `service-panel__body--${accent}`]}>

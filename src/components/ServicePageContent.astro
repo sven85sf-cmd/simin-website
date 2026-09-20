@@ -6,6 +6,7 @@ import CTASection from "@/components/CTASection.astro";
 import type { Service } from "@/data/services";
 import { services } from "@/data/services";
 import { withBase } from "@/lib/path";
+import { imagePositions } from "@/lib/imagePositions";
 
 interface Props {
   service: Service;
@@ -26,7 +27,12 @@ const ctaImageByService: Record<Service["id"], string> = {
 
 <Breadcrumbs items={[{ label: "Startseite", href: "/" }, { label: service.navLabel, href: `/${service.slug}` }]} />
 
-<PageHero eyebrow={service.eyebrow} headline={service.heroH1} src={service.heroImage} />
+<PageHero
+  eyebrow={service.eyebrow}
+  headline={service.heroH1}
+  src={service.heroImage}
+  imagePosition={imagePositions[service.heroImage]}
+/>
 
 <section class="service-page section">
   <div class="container service-page__grid">
@@ -99,6 +105,7 @@ const ctaImageByService: Record<Service["id"], string> = {
   headline={`${service.navLabel.toUpperCase()}.\nAUS EINER HAND.`}
   text="Sprechen Sie mit uns über Ihr Objekt und die Leistungen, die Sie benötigen."
   imageSrc={ctaImageByService[service.id]}
+  imagePosition={imagePositions[ctaImageByService[service.id]]}
 />
 
 <style>

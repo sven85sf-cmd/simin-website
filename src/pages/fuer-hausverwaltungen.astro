@@ -6,6 +6,7 @@ import BusinessSection from "@/components/BusinessSection.astro";
 import BenefitGrid from "@/components/BenefitGrid.astro";
 import ProcessSteps from "@/components/ProcessSteps.astro";
 import CTASection from "@/components/CTASection.astro";
+import { imagePositions } from "@/lib/imagePositions";
 
 const title = "Gebäudedienstleistungen für Hausverwaltungen in Köln | Gebäudedienste SIMIN";
 const description =
@@ -28,5 +29,6 @@ const description =
     headline="IHRE OBJEKTE.\nUNSER SERVICE."
     text="Sprechen Sie mit uns über die von Ihnen verwalteten Objekte und den passenden Leistungsumfang."
     imageSrc="/images/service-gebaeudereinigung.webp"
+    imagePosition={imagePositions["/images/service-gebaeudereinigung.webp"]}
   />
 </BaseLayout>

@@ -4,6 +4,7 @@ import PageHero from "@/components/PageHero.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import { company } from "@/config/site";
 import { withBase } from "@/lib/path";
+import { imagePositions } from "@/lib/imagePositions";
 
 const title = "Kontakt | Gebäudedienste SIMIN";
 const description =
@@ -17,6 +18,7 @@ const description =
     headline="Sprechen Sie mit uns"
     text="Wir melden uns persönlich bei Ihnen – telefonisch, per E-Mail oder über den Angebotsassistenten."
     src="/images/service-objektservice.webp"
+    imagePosition={imagePositions["/images/service-objektservice.webp"]}
   />
 
   <section class="section">

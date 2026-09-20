@@ -24,6 +24,10 @@ interface Props {
    * aus, statt sein eigenes width/height-Seitenverhältnis vorzugeben.
    * Für Hintergrund-/Fläche-Bilder (Hero, PageHero, CTASection, ServicePanel). */
   fill?: boolean;
+  /** Individueller Bildausschnitt (CSS object-position), z. B. "center 10%",
+   * damit bei Personenmotiven in stark beschnittenen Containern der Kopf
+   * nicht abgeschnitten wird. Überschreibt den Komponenten-Default. */
+  objectPosition?: string;
 }
 
 const {
@@ -37,10 +41,15 @@ const {
   class: className = "",
   placeholderLabel = "Bildplatzhalter — Originalfoto folgt",
   fill = false,
+  objectPosition,
 } = Astro.props;
 
 const aspect = `${width} / ${height}`;
-const styleAttr = fill ? undefined : `aspect-ratio: ${aspect};`;
+const styleParts = [
+  fill ? null : `aspect-ratio: ${aspect}`,
+  objectPosition ? `object-position: ${objectPosition}` : null,
+].filter(Boolean);
+const styleAttr = styleParts.length ? `${styleParts.join("; ")};` : undefined;
 ---
 
 {

@@ -13,10 +13,11 @@ import { withBase } from "@/lib/path";
 
 interface Props {
   variant?: "light" | "dark";
+  size?: "header" | "footer";
   class?: string;
 }
 
-const { variant = "dark", class: className = "" } = Astro.props;
+const { variant = "dark", size = "header", class: className = "" } = Astro.props;
 
 const logoImages = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/logo/simin-logo.{png,svg,webp}",
@@ -27,7 +28,11 @@ const logoEntry = Object.values(logoImages)[0];
 
 {
   logoEntry ? (
-    <a href={withBase("/")} class={`logo logo--badge ${className}`} aria-label={`${company.name} – Startseite`}>
+    <a
+      href={withBase("/")}
+      class={`logo logo--badge logo--badge-${size} ${className}`}
+      aria-label={`${company.name} – Startseite`}
+    >
       <Image src={logoEntry.default} alt={company.name} width={240} height={201} />
     </a>
   ) : (
@@ -58,7 +63,15 @@ const logoEntry = Object.values(logoImages)[0];
 
   .logo--badge :global(img) {
     width: auto;
-    height: clamp(46px, 8vw, 60px);
+    display: block;
+  }
+
+  .logo--badge-header :global(img) {
+    height: clamp(58px, 8.5vw, 76px);
+  }
+
+  .logo--badge-footer :global(img) {
+    height: clamp(96px, 14vw, 160px);
   }
 
   .logo__mark {

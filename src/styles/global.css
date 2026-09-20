@@ -34,7 +34,12 @@ body {
   color: var(--color-text);
   background: var(--color-white);
   -webkit-font-smoothing: antialiased;
-  overflow-wrap: break-word;
+  /* "normal" statt "break-word": lange deutsche Wörter (z. B. "Gewerbeimmobilien")
+     springen als Ganzes in die nächste Zeile, statt an beliebiger Stelle
+     mitten im Wort umgebrochen zu werden (Effekt sonst: einzelne
+     Buchstaben als eigene Zeile). */
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 html,
