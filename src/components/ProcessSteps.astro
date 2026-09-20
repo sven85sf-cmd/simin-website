@@ -1,5 +1,6 @@
 ---
 import SectionHeader from "@/components/SectionHeader.astro";
+import { withBase } from "@/lib/path";
 
 const steps = [
   {
@@ -46,7 +47,7 @@ const steps = [
       ))}
     </ol>
     <div class="process__cta">
-      <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+      <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
     </div>
   </div>
 </section>

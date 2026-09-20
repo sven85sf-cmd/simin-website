@@ -4,6 +4,7 @@ import InputField from "@/components/form/InputField.astro";
 import TextareaField from "@/components/form/TextareaField.astro";
 import FileUpload from "@/components/form/FileUpload.astro";
 import { company } from "@/config/site";
+import { withBase } from "@/lib/path";
 
 const serviceOptions = [
   { value: "gebaeudereinigung", label: "Gebäudereinigung" },
@@ -105,7 +106,7 @@ const propertyOptions = [
           <div class="quote-wizard__privacy">
             <input type="checkbox" id="privacyAccepted" name="privacyAccepted" />
             <label for="privacyAccepted">
-              Ich habe die <a href="/datenschutz">Datenschutzerklärung</a> zur Kenntnis genommen. Meine
+              Ich habe die <a href={withBase("/datenschutz")}>Datenschutzerklärung</a> zur Kenntnis genommen. Meine
               Angaben werden ausschließlich zur Bearbeitung dieser Anfrage verwendet.
             </label>
           </div>
@@ -133,7 +134,7 @@ const propertyOptions = [
         <p>Wir haben Ihre Angaben erhalten und melden uns persönlich bei Ihnen.</p>
         <p class="quote-wizard__success-alt">Sie möchten lieber direkt sprechen?</p>
         <a href={company.phone.href} class="btn btn-primary">JETZT ANRUFEN — {company.phone.display}</a>
-        <a href="/" class="btn-ghost quote-wizard__success-home">ZUR STARTSEITE</a>
+        <a href={withBase("/")} class="btn-ghost quote-wizard__success-home">ZUR STARTSEITE</a>
       </div>
     </div>
   </div>

@@ -1,5 +1,6 @@
 ---
 import { company } from "@/config/site";
+import { withBase } from "@/lib/path";
 ---
 
 <div class="sticky-bar" id="sticky-mobile-bar">
@@ -12,7 +13,7 @@ import { company } from "@/config/site";
     </svg>
     ANRUFEN
   </a>
-  <a href="/angebot" class="sticky-bar__btn sticky-bar__btn--quote">ANGEBOT ANFRAGEN</a>
+  <a href={withBase("/angebot")} class="sticky-bar__btn sticky-bar__btn--quote">ANGEBOT ANFRAGEN</a>
 </div>
 
 <style>

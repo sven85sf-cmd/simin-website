@@ -1,5 +1,6 @@
 ---
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
+import { withBase } from "@/lib/path";
 
 interface Props {
   eyebrow: string;
@@ -34,7 +35,7 @@ const { eyebrow, title, text, items, href, accent, reversed = false, image, imag
     <ul class="service-panel__list">
       {items.map((item) => <li>{item}</li>)}
     </ul>
-    <a href={href} class="btn-ghost service-panel__link">ALLE LEISTUNGEN ENTDECKEN</a>
+    <a href={withBase(href)} class="btn-ghost service-panel__link">ALLE LEISTUNGEN ENTDECKEN</a>
   </div>
 </article>
 

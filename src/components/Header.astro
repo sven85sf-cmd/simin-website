@@ -1,6 +1,7 @@
 ---
 import Logo from "@/components/Logo.astro";
 import { visiblePrimaryNav as primaryNav } from "@/config/site";
+import { withBase } from "@/lib/path";
 
 interface Props {
   transparentOnTop?: boolean;
@@ -45,7 +46,7 @@ const { transparentOnTop = false } = Astro.props;
                   <ul class="nav-dropdown__menu">
                     {item.dropdown.map((sub) => (
                       <li>
-                        <a href={sub.href} class="nav-dropdown__link">
+                        <a href={withBase(sub.href)} class="nav-dropdown__link">
                           {sub.label}
                         </a>
                       </li>
@@ -53,7 +54,7 @@ const { transparentOnTop = false } = Astro.props;
                   </ul>
                 </div>
               ) : (
-                <a href={item.href} class="primary-nav__link">
+                <a href={withBase(item.href)} class="primary-nav__link">
                   {item.label}
                 </a>
               )}
@@ -63,7 +64,7 @@ const { transparentOnTop = false } = Astro.props;
       </ul>
     </nav>
 
-    <a href="/angebot" class="btn btn-primary site-header__cta">ANGEBOT ANFRAGEN</a>
+    <a href={withBase("/angebot")} class="btn btn-primary site-header__cta">ANGEBOT ANFRAGEN</a>
   </div>
 </header>
 

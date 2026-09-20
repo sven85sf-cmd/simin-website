@@ -8,6 +8,8 @@
  * Punkt 7 des Briefings: keine erfundenen Referenzfotos, keine
  * Stockfoto-IDs als Produktionslösung).
  */
+import { withBase } from "@/lib/path";
+
 interface Props {
   src?: string;
   alt: string;
@@ -44,7 +46,7 @@ const styleAttr = fill ? undefined : `aspect-ratio: ${aspect};`;
 {
   src ? (
     <img
-      src={src}
+      src={withBase(src)}
       alt={alt}
       width={width}
       height={height}

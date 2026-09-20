@@ -1,5 +1,6 @@
 ---
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
+import { withBase } from "@/lib/path";
 ---
 
 <section class="hero">
@@ -29,7 +30,7 @@ import ResponsiveImage from "@/components/ResponsiveImage.astro";
     </p>
     <div class="hero__actions">
       <div class="hero__primary-action">
-        <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+        <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
         <span class="micro-copy micro-copy--hero">Kostenlos & unverbindlich</span>
       </div>
       <a href="#leistungen" class="btn-ghost btn-ghost--on-dark hero__secondary">LEISTUNGEN ENTDECKEN</a>

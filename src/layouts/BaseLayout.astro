@@ -5,6 +5,7 @@ import MobileNavigation from "@/components/MobileNavigation.astro";
 import StickyMobileBar from "@/components/StickyMobileBar.astro";
 import SEOHead from "@/components/SEOHead.astro";
 import LocalBusinessSchema from "@/components/LocalBusinessSchema.astro";
+import { withBase } from "@/lib/path";
 import "@/styles/global.css";
 
 interface Props {
@@ -34,37 +35,12 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#07354a" />
-    <link rel="icon" href="/favicon.ico" sizes="any" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href={withBase("/favicon.ico")} sizes="any" />
+    <link rel="apple-touch-icon" href={withBase("/apple-touch-icon.png")} />
     <SEOHead title={title} description={description} path={path} ogImage={ogImage} noindex={noindex} />
     <LocalBusinessSchema />
   </head>
   <body>
-    <script is:inline define:vars={{ base: import.meta.env.BASE_URL }}>
-      /* Nur aktiv, wenn base !== "/" (GitHub-Pages-Preview unter Unterordner-Pfad).
-         In Produktion (base = "/") ist dieses Skript ein No-op. */
-      if (base && base !== "/") {
-        const prefix = base.replace(/\/$/, "");
-        const fix = (el, attr) => {
-          const val = el.getAttribute(attr);
-          if (val && val.startsWith("/") && !val.startsWith(prefix + "/") && val !== prefix) {
-            el.setAttribute(attr, prefix + val);
-          }
-        };
-        const rewriteAll = () => {
-          document.querySelectorAll('a[href^="/"]').forEach((el) => fix(el, "href"));
-          document.querySelectorAll('img[src^="/"]').forEach((el) => fix(el, "src"));
-          document
-            .querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]')
-            .forEach((el) => fix(el, "href"));
-        };
-        if (document.readyState === "loading") {
-          document.addEventListener("DOMContentLoaded", rewriteAll);
-        } else {
-          rewriteAll();
-        }
-      }
-    </script>
     <a href="#main-content" class="skip-link">Zum Inhalt springen</a>
     <Header transparentOnTop={transparentHeader} />
     <MobileNavigation />

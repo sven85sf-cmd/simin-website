@@ -1,6 +1,7 @@
 ---
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import { seasonalCampaign } from "@/config/site";
+import { withBase } from "@/lib/path";
 ---
 
 {
@@ -27,8 +28,8 @@ import { seasonalCampaign } from "@/config/site";
           </ul>
           <p class="seasonal__claim" set:html={seasonalCampaign.claim.replace(/\n/g, "<br />")} />
           <div class="seasonal__actions">
-            <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
-            <a href={seasonalCampaign.href} class="btn-ghost">MEHR ERFAHREN</a>
+            <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+            <a href={withBase(seasonalCampaign.href)} class="btn-ghost">MEHR ERFAHREN</a>
           </div>
         </div>
       </div>

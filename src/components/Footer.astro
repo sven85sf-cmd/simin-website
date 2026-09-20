@@ -1,6 +1,7 @@
 ---
 import Logo from "@/components/Logo.astro";
 import { company, footerNav } from "@/config/site";
+import { withBase } from "@/lib/path";
 
 const year = new Date().getFullYear();
 ---
@@ -23,7 +24,7 @@ const year = new Date().getFullYear();
       <h2 class="site-footer__heading">Leistungen</h2>
       <ul>
         {footerNav.leistungen.map((item) => (
-          <li><a href={item.href}>{item.label}</a></li>
+          <li><a href={withBase(item.href)}>{item.label}</a></li>
         ))}
       </ul>
     </nav>
@@ -32,7 +33,7 @@ const year = new Date().getFullYear();
       <h2 class="site-footer__heading">Unternehmen</h2>
       <ul>
         {footerNav.unternehmen.map((item) => (
-          <li><a href={item.href}>{item.label}</a></li>
+          <li><a href={withBase(item.href)}>{item.label}</a></li>
         ))}
       </ul>
     </nav>
@@ -41,7 +42,7 @@ const year = new Date().getFullYear();
       <h2 class="site-footer__heading">Service</h2>
       <ul>
         {footerNav.service.map((item) => (
-          <li><a href={item.href}>{item.label}</a></li>
+          <li><a href={withBase(item.href)}>{item.label}</a></li>
         ))}
       </ul>
     </nav>
@@ -51,7 +52,7 @@ const year = new Date().getFullYear();
     <span>&copy; {year} {company.name.toUpperCase()}</span>
     <ul class="site-footer__legal">
       {footerNav.legal.map((item) => (
-        <li><a href={item.href}>{item.label}</a></li>
+        <li><a href={withBase(item.href)}>{item.label}</a></li>
       ))}
     </ul>
   </div>

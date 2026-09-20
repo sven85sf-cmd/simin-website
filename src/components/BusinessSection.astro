@@ -1,4 +1,6 @@
 ---
+import { withBase } from "@/lib/path";
+
 const audiences = ["Hausverwaltungen", "Eigentümer", "Unternehmen"];
 const objectTypes = ["Wohnanlagen", "Büro & Praxis", "Gewerbeimmobilien"];
 ---
@@ -22,8 +24,8 @@ const objectTypes = ["Wohnanlagen", "Büro & Praxis", "Gewerbeimmobilien"];
         zu Ihren Anforderungen vereinbart.
       </p>
       <div class="business-section__actions">
-        <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
-        <a href="/fuer-hausverwaltungen" class="btn-ghost btn-ghost--on-dark">FÜR HAUSVERWALTUNGEN</a>
+        <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+        <a href={withBase("/fuer-hausverwaltungen")} class="btn-ghost btn-ghost--on-dark">FÜR HAUSVERWALTUNGEN</a>
       </div>
     </div>
 

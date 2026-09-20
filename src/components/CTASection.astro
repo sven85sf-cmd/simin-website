@@ -1,6 +1,7 @@
 ---
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import { company } from "@/config/site";
+import { withBase } from "@/lib/path";
 
 interface Props {
   eyebrow: string;
@@ -28,7 +29,7 @@ const { eyebrow, headline, text, imageSrc } = Astro.props;
     <h2 class="cta-section__headline" set:html={headline.replace(/\n/g, "<br />")} />
     <p class="cta-section__text">{text}</p>
     <div class="cta-section__actions">
-      <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+      <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
       <a href={company.phone.href} class="btn btn-secondary btn-secondary--on-dark">
         {company.phone.display}
       </a>

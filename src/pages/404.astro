@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { withBase } from "@/lib/path";
 
 const title = "Seite nicht gefunden | Gebäudedienste SIMIN";
 const description = "Diese Seite ist nicht mehr hier. Zurück zu Gebäudedienste SIMIN.";
@@ -12,8 +13,8 @@ const description = "Diese Seite ist nicht mehr hier. Zurück zu Gebäudedienste
       <h1>DIESE SEITE IST NICHT MEHR HIER.</h1>
       <p class="lead">Zurück zu Gebäudedienste SIMIN.</p>
       <div class="not-found__actions">
-        <a href="/" class="btn btn-primary">ZUR STARTSEITE</a>
-        <a href="/angebot" class="btn-ghost">ANGEBOT ANFRAGEN</a>
+        <a href={withBase("/")} class="btn btn-primary">ZUR STARTSEITE</a>
+        <a href={withBase("/angebot")} class="btn-ghost">ANGEBOT ANFRAGEN</a>
       </div>
     </div>
   </section>

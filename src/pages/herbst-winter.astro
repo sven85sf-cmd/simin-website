@@ -5,6 +5,7 @@ import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import CTASection from "@/components/CTASection.astro";
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import { seasonalCampaign } from "@/config/site";
+import { withBase } from "@/lib/path";
 
 const title = "Herbst & Winter | Laubbeseitigung & Winterdienst Köln | Gebäudedienste SIMIN";
 const description =
@@ -46,7 +47,7 @@ const topics = [
       <p class="seasonal-claim" set:html={seasonalCampaign.claim.replace(/\n/g, "<br />")} />
       <div class="seasonal-topics">
         {topics.map((topic) => (
-          <a href={topic.href} class="seasonal-topics__card">
+          <a href={withBase(topic.href)} class="seasonal-topics__card">
             <ResponsiveImage
               src={topic.image}
               alt={topic.title}
@@ -63,7 +64,7 @@ const topics = [
         ))}
       </div>
       <div class="seasonal-actions">
-        <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+        <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
         <span class="micro-copy">Kostenlos & unverbindlich</span>
       </div>
     </div>

@@ -1,5 +1,6 @@
 ---
 import { company } from "@/config/site";
+import { withBase } from "@/lib/path";
 
 export type Crumb = { label: string; href: string };
 
@@ -30,7 +31,7 @@ const schema = {
             <span aria-current="page">{item.label}</span>
           ) : (
             <>
-              <a href={item.href}>{item.label}</a>
+              <a href={withBase(item.href)}>{item.label}</a>
               <span class="breadcrumbs__sep" aria-hidden="true">
                 /
               </span>

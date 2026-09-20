@@ -1,6 +1,7 @@
 ---
 import SectionHeader from "@/components/SectionHeader.astro";
 import { Image } from "astro:assets";
+import { withBase } from "@/lib/path";
 
 const logoImages = import.meta.glob<{ default: ImageMetadata }>(
   "/src/assets/logo/simin-logo.{png,svg,webp}",
@@ -37,7 +38,7 @@ const logoEntry = Object.values(logoImages)[0];
         Außenanlagen und saisonalen Winterdienst – abgestimmt auf Ihr Objekt und Ihren
         tatsächlichen Bedarf.
       </p>
-      <a href="/ueber-uns" class="btn-ghost brand-promise__link">SIMIN KENNENLERNEN</a>
+      <a href={withBase("/ueber-uns")} class="btn-ghost brand-promise__link">SIMIN KENNENLERNEN</a>
     </div>
   </div>
 </section>

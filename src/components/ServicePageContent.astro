@@ -5,6 +5,7 @@ import FaqAccordion from "@/components/FaqAccordion.astro";
 import CTASection from "@/components/CTASection.astro";
 import type { Service } from "@/data/services";
 import { services } from "@/data/services";
+import { withBase } from "@/lib/path";
 
 interface Props {
   service: Service;
@@ -76,7 +77,7 @@ const ctaImageByService: Record<Service["id"], string> = {
       <div class="service-page__card service-page__card--cta">
         <h2 class="service-page__card-title">Interesse an {service.navLabel}?</h2>
         <p>Beschreiben Sie uns kurz Ihr Objekt – wir melden uns persönlich bei Ihnen.</p>
-        <a href="/angebot" class="btn btn-primary">ANGEBOT ANFRAGEN</a>
+        <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
         <span class="micro-copy">Kostenlos & unverbindlich</span>
       </div>
 
@@ -84,9 +85,9 @@ const ctaImageByService: Record<Service["id"], string> = {
         <h2 class="service-page__card-title">Weitere Leistungen</h2>
         <ul class="service-page__links">
           {otherServices.map((other) => (
-            <li><a href={`/${other.slug}`}>{other.navLabel}</a></li>
+            <li><a href={withBase(`/${other.slug}`)}>{other.navLabel}</a></li>
           ))}
-          <li><a href="/fuer-hausverwaltungen">Für Hausverwaltungen</a></li>
+          <li><a href={withBase("/fuer-hausverwaltungen")}>Für Hausverwaltungen</a></li>
         </ul>
       </nav>
     </aside>

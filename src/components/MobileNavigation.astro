@@ -1,5 +1,6 @@
 ---
 import { visiblePrimaryNav as primaryNav, company } from "@/config/site";
+import { withBase } from "@/lib/path";
 ---
 
 <div class="mobile-nav" id="mobile-nav" hidden>
@@ -25,7 +26,7 @@ import { visiblePrimaryNav as primaryNav, company } from "@/config/site";
                   <ul class="mobile-nav__sublist">
                     {item.dropdown.map((sub) => (
                       <li>
-                        <a href={sub.href} class="mobile-nav__sublink">
+                        <a href={withBase(sub.href)} class="mobile-nav__sublink">
                           {sub.label}
                         </a>
                       </li>
@@ -33,7 +34,7 @@ import { visiblePrimaryNav as primaryNav, company } from "@/config/site";
                   </ul>
                 </details>
               ) : (
-                <a href={item.href} class="mobile-nav__link">
+                <a href={withBase(item.href)} class="mobile-nav__link">
                   {item.label}
                 </a>
               )}
@@ -44,7 +45,7 @@ import { visiblePrimaryNav as primaryNav, company } from "@/config/site";
     </nav>
 
     <div class="mobile-nav__actions">
-      <a href="/angebot" class="btn btn-primary mobile-nav__cta">ANGEBOT ANFRAGEN</a>
+      <a href={withBase("/angebot")} class="btn btn-primary mobile-nav__cta">ANGEBOT ANFRAGEN</a>
       <a href={company.phone.href} class="btn btn-secondary mobile-nav__cta">
         {company.phone.display}
       </a>

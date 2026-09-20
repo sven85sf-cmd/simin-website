@@ -1,6 +1,7 @@
 ---
 import SectionHeader from "@/components/SectionHeader.astro";
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
+import { withBase } from "@/lib/path";
 
 /**
  * Referenzen / echte Arbeit.
@@ -58,7 +59,7 @@ const references: Reference[] = [];
             Arbeit zusammen. Bis dahin sprechen Sie uns gerne direkt an – wir informieren Sie
             persönlich über unsere Leistungen.
           </p>
-          <a href="/angebot" class="btn-ghost">ANGEBOT ANFRAGEN</a>
+          <a href={withBase("/angebot")} class="btn-ghost">ANGEBOT ANFRAGEN</a>
         </div>
       )
     }

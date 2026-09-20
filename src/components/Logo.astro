@@ -9,6 +9,7 @@
  */
 import { Image } from "astro:assets";
 import { company } from "@/config/site";
+import { withBase } from "@/lib/path";
 
 interface Props {
   variant?: "light" | "dark";
@@ -26,12 +27,12 @@ const logoEntry = Object.values(logoImages)[0];
 
 {
   logoEntry ? (
-    <a href="/" class={`logo logo--badge ${className}`} aria-label={`${company.name} – Startseite`}>
+    <a href={withBase("/")} class={`logo logo--badge ${className}`} aria-label={`${company.name} – Startseite`}>
       <Image src={logoEntry.default} alt={company.name} width={240} height={201} />
     </a>
   ) : (
     <a
-      href="/"
+      href={withBase("/")}
       class={`logo logo--type logo--${variant} ${className}`}
       aria-label={`${company.name} – Startseite`}
     >
