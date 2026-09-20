@@ -13,7 +13,7 @@ import { withBase } from "@/lib/path";
 
 interface Props {
   variant?: "light" | "dark";
-  size?: "header" | "footer";
+  size?: "header" | "footer" | "hero";
   class?: string;
 }
 
@@ -67,11 +67,15 @@ const logoEntry = Object.values(logoImages)[0];
   }
 
   .logo--badge-header :global(img) {
-    height: clamp(58px, 8.5vw, 76px);
+    height: clamp(78px, 10.5vw, 104px);
   }
 
   .logo--badge-footer :global(img) {
-    height: clamp(96px, 14vw, 160px);
+    height: clamp(112px, 15vw, 184px);
+  }
+
+  .logo--badge-hero :global(img) {
+    height: clamp(88px, 9vw, 136px);
   }
 
   .logo__mark {

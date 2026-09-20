@@ -3,7 +3,6 @@ import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import { withBase } from "@/lib/path";
 
 interface Props {
-  eyebrow: string;
   title: string;
   text: string;
   items: string[];
@@ -16,7 +15,6 @@ interface Props {
 }
 
 const {
-  eyebrow,
   title,
   text,
   items,
@@ -42,7 +40,6 @@ const {
     />
   </div>
   <div class:list={["service-panel__body", `service-panel__body--${accent}`]}>
-    <p class:list={["eyebrow", { "eyebrow--orange": accent === "orange" }]}>{eyebrow}</p>
     <h3 class="service-panel__title">{title}</h3>
     <p class="prose">{text}</p>
     <ul class="service-panel__list">

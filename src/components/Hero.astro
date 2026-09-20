@@ -1,5 +1,6 @@
 ---
 import ResponsiveImage from "@/components/ResponsiveImage.astro";
+import Logo from "@/components/Logo.astro";
 import { withBase } from "@/lib/path";
 ---
 
@@ -19,6 +20,7 @@ import { withBase } from "@/lib/path";
   </div>
 
   <div class="container hero__content">
+    <Logo size="hero" variant="light" class="hero__logo" />
     <p class="eyebrow eyebrow--orange-on-dark hero__eyebrow">GEBÄUDEDIENSTE SIMIN · KÖLN</p>
     <h1 class="hero__headline">
       GEPFLEGTE IMMOBILIEN.<br />
@@ -75,6 +77,10 @@ import { withBase } from "@/lib/path";
     min-width: 0;
     padding-block: clamp(48px, 10vh, 96px) clamp(56px, 12vh, 96px);
     max-width: 760px;
+  }
+
+  .hero__logo {
+    margin-bottom: 22px;
   }
 
   .hero__eyebrow {

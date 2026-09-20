@@ -9,12 +9,15 @@ interface Props {
   text: string;
   imageSrc?: string;
   imagePosition?: string;
+  /** "final" kennzeichnet den Seitenabschluss-CTA (stärker inszeniert als
+   * die funktionalen Zwischen-CTAs auf Unterseiten und im Seitenverlauf). */
+  variant?: "default" | "final";
 }
 
-const { eyebrow, headline, text, imageSrc, imagePosition } = Astro.props;
+const { eyebrow, headline, text, imageSrc, imagePosition, variant = "default" } = Astro.props;
 ---
 
-<section class="cta-section reveal">
+<section class:list={["cta-section", "reveal", { "cta-section--final": variant === "final" }]}>
   <ResponsiveImage
     src={imageSrc}
     alt="Gepflegte Immobilie, betreut von Gebäudedienste SIMIN"
@@ -61,6 +64,16 @@ const { eyebrow, headline, text, imageSrc, imagePosition } = Astro.props;
     background: linear-gradient(120deg, rgba(7, 53, 74, 0.92) 0%, rgba(7, 53, 74, 0.55) 70%);
   }
 
+  .cta-section--final .cta-section__overlay {
+    background:
+      linear-gradient(120deg, rgba(7, 53, 74, 0.94) 0%, rgba(7, 53, 74, 0.6) 65%),
+      linear-gradient(20deg, rgba(247, 148, 40, 0.28) 0%, rgba(247, 148, 40, 0) 45%);
+  }
+
+  .cta-section--final {
+    border-top: 4px solid var(--color-orange);
+  }
+
   .cta-section__content {
     position: relative;
     width: 100%;
@@ -69,10 +82,19 @@ const { eyebrow, headline, text, imageSrc, imagePosition } = Astro.props;
     max-width: 640px;
   }
 
+  .cta-section--final .cta-section__content {
+    padding-block: clamp(80px, 12vw, 144px);
+    max-width: 680px;
+  }
+
   .cta-section__headline {
     font-size: var(--fs-h2);
     color: var(--color-white);
     margin-top: 12px;
+  }
+
+  .cta-section--final .cta-section__headline {
+    font-size: var(--fs-h1);
   }
 
   .cta-section__text {

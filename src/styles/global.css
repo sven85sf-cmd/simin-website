@@ -83,7 +83,12 @@ h4 {
   margin: 0;
   color: var(--color-navy);
   text-wrap: balance;
-  overflow-wrap: break-word;
+  /* "normal" statt "break-word": verhindert, dass lange deutsche
+     Komposita (z. B. "Gebäudedienstleistungen") mitten im Wort ohne
+     sichtbaren Trennstrich umbrechen. hyphens:auto bleibt aktiv und
+     trennt bei Bedarf kontrolliert mit echtem Trennstrich. */
+  overflow-wrap: normal;
+  word-break: normal;
   hyphens: auto;
 }
 
