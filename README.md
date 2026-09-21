@@ -23,6 +23,7 @@ Sektionen (Referenzen/Kundenstimmen) von der produktiven Startseite.
 - [GitHub-Pages-Vorschau](#github-pages-vorschau)
 - [Accessibility-Hinweise](#accessibility-hinweise)
 - [Offene Punkte vor Livegang](#offene-punkte-vor-livegang)
+- [Launch-Checkliste](#launch-checkliste)
 - [Finaler Selbstaudit](#finaler-selbstaudit)
 
 ## Schnellstart
@@ -50,7 +51,7 @@ src/
   pages/            Eine Datei pro Route (siehe Sitemap in Abschnitt "Seiten")
   styles/           tokens.css (Design Tokens), global.css, fonts.css
 public/
-  fonts/, images/   Statische Assets, robots.txt, favicon
+  fonts/, images/, videos/   Statische Assets, favicon
 ```
 
 ### Seiten (Sitemap)
@@ -60,8 +61,10 @@ public/
 `/fuer-hausverwaltungen`, `/ueber-uns`, `/referenzen`, `/angebot`,
 `/kontakt`, `/herbst-winter`, `/impressum`, `/datenschutz`, `404`.
 
-`sitemap.xml` und `robots.txt` werden automatisch aus dieser Liste erzeugt
-(`src/pages/sitemap.xml.ts`).
+`sitemap.xml` wird automatisch aus dieser Liste erzeugt
+(`src/pages/sitemap.xml.ts`), immer mit Produktions-URLs. `robots.txt`
+(`src/pages/robots.txt.ts`) ist environment-abhängig: `Allow: /` in
+Produktion, `Disallow: /` auf der Preview — siehe „GitHub-Pages-Vorschau“.
 
 ## Unternehmensdaten ändern
 
@@ -198,6 +201,19 @@ Rate-Limiting ist aktuell In-Memory (ausreichend für eine einzelne
 Serverinstanz) — bei horizontaler Skalierung durch einen gemeinsam
 genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
 
+**Wichtig — `security.allowedDomains` (astro.config.mjs):** Astros
+eingebaute CSRF-Origin-Prüfung für `POST /api/quote` validiert den
+Host-Header ohne konfigurierte `allowedDomains` nicht korrekt und lehnt
+dadurch **jede** echte Formular-Anfrage mit 403 ab. `astro.config.mjs`
+trägt deshalb die Produktionsdomain explizit ein
+(`{ hostname: "www.gebaeudedienste-simin.de", protocol: "https" }`). Wird
+die Seite unter einer anderen/zusätzlichen Domain ausgeliefert (z. B. Apex
+ohne Redirect, eigene Staging-Domain), muss diese hier ergänzt werden —
+sonst schlägt der Versand mit „Cross-site POST form submissions are
+forbidden“ fehl, obwohl alles andere korrekt konfiguriert ist. End-to-end
+gegen den Node-Server getestet (Validierung, Honeypot, Datei-Upload,
+Erfolg-/Fehlerzustand, Tastaturbedienung) — siehe Launch-Checkliste unten.
+
 ## GitHub-Pages-Vorschau
 
 Für eine schnelle, unbeworbene Vorschau (z. B. für internes Feedback) kann
@@ -213,11 +229,19 @@ PREVIEW_BASE_PATH=/simin-website npm run build
 
 `astro.config.mjs` liest `PREVIEW_BASE_PATH` nur für diesen Sonderfall;
 ohne die Variable bleibt `base` immer `"/"` — die Produktionsseite unter
-`https://www.gebaeudedienste-simin.de/` ist davon nicht betroffen. Ein
-kleines, in `BaseLayout.astro` eingebettetes Skript schreibt beim Laden alle
-root-relativen internen Links/Bilder (`a[href^="/"]`, `img[src^="/"]`,
-Favicon-Links) auf den korrekten Unterordner-Pfad um; bei `base = "/"` ist
-dieses Skript ein reines No-op.
+`https://www.gebaeudedienste-simin.de/` ist davon nicht betroffen. Der
+zentrale `withBase()`-Helper (`src/lib/path.ts`) hängt den Unterordner-Pfad
+zur Build-Zeit an alle internen Links/Bild-/Video-Pfade an (`import.meta.env.BASE_URL`);
+bei `base = "/"` ist das ein reines No-op.
+
+**Preview ist NICHT indexierbar (bewusst):** Sobald `PREVIEW_BASE_PATH`
+gesetzt ist, erkennt `isPreviewBuild()` (`src/lib/path.ts`) das automatisch
+und `BaseLayout.astro` setzt auf **jeder** Seite `<meta name="robots"
+content="noindex, nofollow">`; `src/pages/robots.txt.ts` liefert für die
+Vorschau zusätzlich `Disallow: /`. Für die Produktion (`base = "/"`) ist
+`robots.txt` normal indexierbar und verweist auf die Produktions-Sitemap —
+diese Logik ist rein build-abhängig, es gibt keine fest verdrahtete
+Preview-Sonderregel, die in Produktion aktiv werden könnte.
 
 **Einschränkung:** Der Angebotsassistent kann auf dieser statischen Vorschau
 keine Anfrage absenden (kein Node-Server für `/api/quote` auf GitHub Pages).
@@ -248,9 +272,15 @@ und pushen (siehe Kommentare in `astro.config.mjs`/`BaseLayout.astro`).
   Grünflächen ergänzen, sobald vorhanden — die aktuellen Motive stammen aus
   kleinen, kreisförmigen Flyer-Ausschnitten mit begrenzter Schärfe (siehe
   „Bilder austauschen“).
-- **Kundenstimmen**: Sektion ist vorbereitet, zeigt aber bewusst keinen
-  erfundenen Inhalt. Echte, freigegebene Bewertungen in `Testimonials.astro`
-  (`testimonials`-Array) ergänzen, sobald verfügbar.
+- **Kundenstimmen**: Komponente (`Testimonials.astro`) und Feature-Flag
+  (`features.testimonials`, aktuell `false`) sind vorbereitet, werden aber
+  auf keiner Seite eingebunden und zeigen keinen erfundenen Inhalt. Echte,
+  freigegebene Bewertungen im `testimonials`-Array ergänzen, Komponente auf
+  der gewünschten Seite einbinden und Flag aktivieren, sobald verfügbar.
+- **Google-Business-Profil-Link**: `googleBusinessUrl` (`src/config/site.ts`)
+  zeigt aktuell auf eine generische Google-Suche, da kein verifizierter
+  Profil-Link vorliegt. Vor Livegang durch den echten Link aus dem
+  Google-Business-Profil-Dashboard ersetzen (siehe TODO-Kommentar dort).
 - **Referenzen**: Es liegen aktuell keine echten, dokumentierten
   Kundenreferenzfotos vor (die Flyer-Motive sind allgemeine Marketingmotive,
   keine Projektbelege). Sektion zeigt deshalb einen Leerzustand, Menüpunkt
@@ -260,6 +290,53 @@ und pushen (siehe Kommentare in `astro.config.mjs`/`BaseLayout.astro`).
 - Analytics/Tracking ist bewusst **nicht** eingebunden (siehe Master-Brief
   Punkt 46). Bei Bedarf datenschutzkonform ergänzen und Datenschutzerklärung
   entsprechend erweitern.
+
+## Launch-Checkliste
+
+Alles hier Aufgeführte ist technisch vorbereitet und strukturell sauber
+abgesichert, aber **noch nicht produktiv scharf geschaltet** bzw. hängt von
+echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
+
+**Rechtliches**
+- [ ] Impressum final rechtlich geprüft (`src/pages/impressum.astro`)
+- [ ] Datenschutzerklärung final geprüft (`src/pages/datenschutz.astro`)
+- [ ] Rechtsform ergänzt (aktuell nur `company.legalName` = Firmenname ohne Rechtsform)
+- [ ] Vertretungsberechtigte Person ergänzt (Impressum, § 5 TMG)
+- [ ] ggf. Handelsregister / USt-ID / zuständige Aufsichtsbehörde ergänzt (nur falls zutreffend)
+
+**Formular**
+- [ ] Formular-Backend produktiv verbunden (`SMTP_*` in `.env`, echte
+      `FormSubmissionService`-Implementierung in
+      `src/lib/forms/submissionService.ts`)
+- [ ] `security.allowedDomains` in `astro.config.mjs` enthält die tatsächlich
+      ausgelieferte(n) Produktionsdomain(s) — **ohne passenden Eintrag
+      schlägt jede Formular-Anfrage mit 403 fehl**, siehe Abschnitt
+      „Formularbackend“ oben
+- [ ] echte Testanfrage über das produktiv verbundene Backend erfolgreich angekommen
+- [ ] Success State geprüft (nach echtem Versand, nicht nur Mock-Adapter)
+- [ ] Datenschutzhinweis am Formular vorhanden — **bereits vorhanden**
+      (Checkbox + Link zu `/datenschutz` in Schritt 4 des Angebotsassistenten)
+
+**SEO / Indexierung**
+- [ ] Google-Business-Profil-Link eingesetzt (`googleBusinessUrl` in `src/config/site.ts`)
+- [ ] Production Build indexierbar — **bereits sichergestellt**: `npm run build`
+      (ohne `PREVIEW_BASE_PATH`) liefert `robots.txt` mit `Allow: /` und kein
+      seitenweites `noindex`
+- [ ] Preview weiterhin noindex — **bereits sichergestellt**: jeder Build mit
+      `PREVIEW_BASE_PATH` erzwingt automatisch `noindex, nofollow` auf jeder
+      Seite sowie `Disallow: /` in `robots.txt` (siehe `isPreviewBuild()`,
+      `src/lib/path.ts`)
+- [ ] Canonical auf Produktionsdomain geprüft — **bereits sichergestellt**:
+      `SEOHead.astro` baut Canonicals immer aus `company.url`, unabhängig vom Build
+- [ ] Sitemap auf Produktionsdomain geprüft — **bereits sichergestellt**,
+      gleicher Mechanismus (`src/pages/sitemap.xml.ts`)
+- [ ] LocalBusiness JSON-LD validiert (z. B. Google Rich-Results-Test),
+      sobald die Seite unter der echten Domain live ist
+
+**Qualität**
+- [ ] Core Web Vitals geprüft (echtes Hosting/CDN, nicht nur lokal)
+- [ ] Mobile final geprüft (echte Geräte, nicht nur Viewport-Simulation)
+- [ ] Kontaktangaben final geprüft (Telefon/E-Mail/Adresse in `src/config/site.ts`)
 
 ## Finaler Selbstaudit
 

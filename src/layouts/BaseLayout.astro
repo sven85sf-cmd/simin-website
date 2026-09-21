@@ -5,7 +5,7 @@ import MobileNavigation from "@/components/MobileNavigation.astro";
 import StickyMobileBar from "@/components/StickyMobileBar.astro";
 import SEOHead from "@/components/SEOHead.astro";
 import LocalBusinessSchema from "@/components/LocalBusinessSchema.astro";
-import { withBase } from "@/lib/path";
+import { withBase, isPreviewBuild } from "@/lib/path";
 import "@/styles/global.css";
 
 interface Props {
@@ -55,7 +55,13 @@ const {
     <meta name="theme-color" content="#07354a" />
     <link rel="icon" href={withBase("/favicon.ico")} sizes="any" />
     <link rel="apple-touch-icon" href={withBase("/apple-touch-icon.png")} />
-    <SEOHead title={title} description={description} path={path} ogImage={ogImage} noindex={noindex} />
+    <SEOHead
+      title={title}
+      description={description}
+      path={path}
+      ogImage={ogImage}
+      noindex={noindex || isPreviewBuild()}
+    />
     <LocalBusinessSchema />
   </head>
   <body>

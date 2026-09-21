@@ -24,3 +24,13 @@ export function withBase(path: string): string {
 
   return `${base}${normalized}` || "/";
 }
+
+/**
+ * true auf der GitHub-Pages-Vorschau (PREVIEW_BASE_PATH gesetzt), false in
+ * der echten Produktion (base "/"). Einzige Quelle der Wahrheit für die
+ * Preview-/Production-Unterscheidung (robots-Meta, robots.txt) - keine
+ * eigene, zweite Environment-Prüfung an anderer Stelle einführen.
+ */
+export function isPreviewBuild(): boolean {
+  return import.meta.env.BASE_URL !== "/";
+}

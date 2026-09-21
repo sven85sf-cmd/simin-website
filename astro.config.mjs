@@ -10,6 +10,17 @@ export default defineConfig({
   adapter: node({ mode: "standalone" }),
   trailingSlash: "never",
   compressHTML: true,
+  security: {
+    // OHNE dies validiert Astros eingebaute CSRF-Origin-Prüfung (nur für
+    // die eine on-demand-Route /api/quote relevant) den Host-Header nicht
+    // gegen die echte Produktionsdomain und fällt intern auf ein leeres
+    // "http://localhost" zurück - eine echte Formular-Anfrage vom echten
+    // Origin (https://www.gebaeudedienste-simin.de) würde dadurch IMMER
+    // mit 403 "Cross-site POST form submissions are forbidden" abgelehnt.
+    // Mit dieser Domain in der Allowlist wird der tatsächliche Host korrekt
+    // erkannt und die Origin-Prüfung funktioniert wie vorgesehen.
+    allowedDomains: [{ hostname: "www.gebaeudedienste-simin.de", protocol: "https" }],
+  },
   build: {
     // "always" statt "auto": mit "auto" hat Vite/Astro einen Teil des
     // globalen Reveal-System-CSS (aus global.css) in einen Chunk gepackt,

@@ -29,8 +29,16 @@ export const company = {
 
 export const fullAddress = `${company.address.street}, ${company.address.postalCode} ${company.address.city}`;
 
-/** Generischer, nicht erfundener Link zu Google-Bewertungen (keine Rating-Daten). */
-export const googleReviewsUrl = `https://www.google.com/search?q=${encodeURIComponent(
+/**
+ * Link zu Google-Bewertungen. Solange kein verifizierter Google-Business-
+ * Profil-Link vorliegt, zeigt dies bewusst nur auf eine generische
+ * Google-Suche (keine erfundene Profil-ID, keine Rating-Daten).
+ *
+ * TODO: echten verifizierten Google-Business-Profil-Link einsetzen, sobald
+ * verfügbar (z. B. https://g.page/... oder der "Rezension schreiben"-Link
+ * aus dem Google-Business-Profil-Dashboard).
+ */
+export const googleBusinessUrl = `https://www.google.com/search?q=${encodeURIComponent(
   `${company.name} ${company.address.city} Bewertungen`,
 )}`;
 
@@ -66,8 +74,8 @@ export const primaryNav: NavItem[] = [
 export const features = {
   /** Referenzen-Seite im Hauptmenü zeigen, sobald echte, dokumentierte Kundenreferenzfotos vorliegen. */
   referencesPage: false,
-  /** Kundenstimmen-Sektion aktiv (zeigt aktuell einen ehrlichen Leer-/Hinweiszustand). */
-  testimonials: true,
+  /** Kundenstimmen-Sektion aktiv. Bleibt aus, solange keine echten, freigegebenen Kundenstimmen vorliegen. */
+  testimonials: false,
 } as const;
 
 export const visiblePrimaryNav: NavItem[] = primaryNav.filter(
