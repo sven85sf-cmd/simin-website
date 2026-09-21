@@ -20,6 +20,7 @@ Sektionen (Referenzen/Kundenstimmen) von der produktiven Startseite.
 - [Logo austauschen](#logo-austauschen)
 - [SEO-Meta ändern](#seo-meta-ändern)
 - [Formularbackend (Angebotsassistent) konfigurieren](#formularbackend-angebotsassistent-konfigurieren)
+- [Produktions-Hosting-Anforderung](#produktions-hosting-anforderung-p0--entscheidung-vor-livegang-nötig)
 - [GitHub-Pages-Vorschau](#github-pages-vorschau)
 - [Accessibility-Hinweise](#accessibility-hinweise)
 - [Offene Punkte vor Livegang](#offene-punkte-vor-livegang)
@@ -214,6 +215,53 @@ forbidden“ fehl, obwohl alles andere korrekt konfiguriert ist. End-to-end
 gegen den Node-Server getestet (Validierung, Honeypot, Datei-Upload,
 Erfolg-/Fehlerzustand, Tastaturbedienung) — siehe Launch-Checkliste unten.
 
+## Produktions-Hosting-Anforderung (P0 — Entscheidung vor Livegang nötig)
+
+**Dieses Setup benötigt zwingend einen Node.js-fähigen Hosting-Host für
+`https://www.gebaeudedienste-simin.de/` — reines statisches
+„Dateien hochladen"-Webhosting reicht NICHT aus, damit der
+Angebotsassistent tatsächlich senden kann.**
+
+Hintergrund: `astro.config.mjs` verwendet `output: "static"` mit dem
+`@astrojs/node`-Adapter (`mode: "standalone"`). `npm run build` erzeugt
+dadurch zwei getrennte Ausgaben:
+
+- `dist/client/` — die vollständig statische Website (alle Seiten außer
+  dem Formular-Endpunkt). Kann auf jedem beliebigen Webspace/CDN
+  ausgeliefert werden.
+- `dist/server/entry.mjs` — ein eigenständiger Node.js-Server, der
+  **ausschließlich** für `POST /api/quote` (`src/pages/api/quote.ts`,
+  `export const prerender = false`) benötigt wird. Alle anderen Seiten
+  sind vollständig vorgerendert und benötigen diesen Server nicht.
+
+Läuft die Produktionsdomain auf klassischem statischem Shared-Hosting
+(z. B. reinem FTP-Upload ohne Node-Laufzeitumgebung, wie bei vielen
+günstigen Webspace-Paketen üblich), sieht die Website optisch und
+strukturell vollständig funktionsfähig aus — **aber jede
+Formular-Anfrage schlägt fehl**, weil `dist/server/entry.mjs` nirgendwo
+läuft und `/api/quote` schlicht nicht erreichbar ist.
+
+Damit der Angebotsassistent produktiv senden kann, braucht es eines von:
+
+1. Einen Host, der `node dist/server/entry.mjs` dauerhaft als Prozess
+   ausführen kann (z. B. ein vServer/VPS oder ein Node-fähiger
+   Anbieter) — dieser Server liefert dann sowohl die statischen Seiten
+   als auch `/api/quote` aus einem Prozess.
+2. Eine getrennte Architektur: `dist/client/` weiterhin klassisch
+   statisch ausliefern, `/api/quote` separat als eigene
+   Node-/Serverless-Funktion beim jeweiligen Hosting-Anbieter
+   bereitstellen (z. B. dessen Node-/Funktions-Angebot, falls
+   vorhanden).
+
+**Dies ist ausdrücklich eine Entscheidung des Auftraggebers** (abhängig
+vom bereits gebuchten oder geplanten Hosting-Vertrag) und wurde in
+diesem Reparaturlauf bewusst nicht eigenmächtig durch einen
+Plattformwechsel vorweggenommen. Vor Livegang klären: Unterstützt das
+vorgesehene Hosting für `www.gebaeudedienste-simin.de` eine
+Node.js-Laufzeitumgebung? Falls nein, ist Weg 2 oder ein Wechsel zu
+einem Node-fähigen Anbieter nötig, bevor das Formular produktiv
+funktioniert.
+
 ## GitHub-Pages-Vorschau
 
 Für eine schnelle, unbeworbene Vorschau (z. B. für internes Feedback) kann
@@ -303,6 +351,13 @@ echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
 - [ ] Rechtsform ergänzt (aktuell nur `company.legalName` = Firmenname ohne Rechtsform)
 - [ ] Vertretungsberechtigte Person ergänzt (Impressum, § 5 TMG)
 - [ ] ggf. Handelsregister / USt-ID / zuständige Aufsichtsbehörde ergänzt (nur falls zutreffend)
+
+**Hosting**
+- [ ] Bestätigt: das vorgesehene Hosting für `www.gebaeudedienste-simin.de`
+      unterstützt eine Node.js-Laufzeitumgebung (nicht nur statisches
+      Webspace) — siehe Abschnitt „Produktions-Hosting-Anforderung“ oben.
+      Ohne das läuft `/api/quote` in Produktion nicht, unabhängig davon,
+      wie gut Formular-Backend/SMTP konfiguriert sind.
 
 **Formular**
 - [ ] Formular-Backend produktiv verbunden (`SMTP_*` in `.env`, echte
