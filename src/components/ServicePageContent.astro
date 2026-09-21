@@ -3,6 +3,7 @@ import PageHero from "@/components/PageHero.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import FaqAccordion from "@/components/FaqAccordion.astro";
 import CTASection from "@/components/CTASection.astro";
+import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import type { Service } from "@/data/services";
 import { services } from "@/data/services";
 import { withBase } from "@/lib/path";
@@ -73,6 +74,17 @@ const ctaImageByService: Record<Service["id"], string> = {
     </div>
 
     <aside class="service-page__sidebar">
+      {service.sidebarImage && (
+        <ResponsiveImage
+          src={service.sidebarImage.src}
+          alt={service.sidebarImage.alt}
+          width={1200}
+          height={900}
+          loading="lazy"
+          class="service-page__sidebar-image"
+        />
+      )}
+
       <div class="service-page__card">
         <h2 class="service-page__card-title">Objektarten</h2>
         <ul class="service-page__tags">
@@ -201,6 +213,10 @@ const ctaImageByService: Record<Service["id"], string> = {
     flex-direction: column;
     gap: 20px;
     align-self: start;
+  }
+
+  .service-page__sidebar-image {
+    border-radius: var(--radius-md);
   }
 
   .service-page__card {

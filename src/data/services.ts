@@ -35,6 +35,10 @@ export type Service = {
   ablauf: string[];
   objektarten: string[];
   faq: ServiceFaq[];
+  /** Optionales, breites Zusatzbild oberhalb der Sidebar-Karten (bislang nur
+   * für Außenanlagenpflege bestätigt) - bei fehlendem Feld bleibt die
+   * Sidebar der jeweiligen Seite unverändert. */
+  sidebarImage?: { src: string; alt: string };
 };
 
 export const services: Service[] = [
@@ -229,6 +233,10 @@ export const services: Service[] = [
           "Ja, Laubbeseitigung kann als saisonale Leistung im Rahmen der Außenanlagenpflege vereinbart werden.",
       },
     ],
+    sidebarImage: {
+      src: "/images/aussenanlagenpflege-sidebar.webp",
+      alt: "SIMIN-Team bei der Außenanlagenpflege mit Rasenmähen, Heckenschnitt und Rasenkantentrimmen",
+    },
   },
   {
     id: "winterdienst",
