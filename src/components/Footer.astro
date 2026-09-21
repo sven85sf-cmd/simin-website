@@ -19,6 +19,11 @@ const year = new Date().getFullYear();
         <a href={company.phone.href}>{company.phone.display}</a>
         <a href={company.email.href}>{company.email.display}</a>
         <a href={company.url} rel="noopener">www.gebaeudedienste-simin.de</a>
+        <div class="site-footer__hours">
+          <span class="site-footer__hours-heading">Bürozeiten</span>
+          <span>Montag–Freitag</span>
+          <span>08:00–16:00 Uhr</span>
+        </div>
       </address>
     </div>
 
@@ -114,6 +119,24 @@ const year = new Date().getFullYear();
 
   .site-footer__contact a:hover {
     color: var(--color-orange);
+  }
+
+  .site-footer__hours {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    margin-top: 14px;
+  }
+
+  .site-footer__hours-heading {
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-light-blue);
+    margin-bottom: 4px;
   }
 
   .site-footer__heading {
