@@ -7,6 +7,12 @@
 export const company = {
   name: "Gebäudedienste SIMIN",
   legalName: "Gebäudedienste SIMIN",
+  /**
+   * Vollständiger bürgerlicher Name des Inhabers (Einzelunternehmen).
+   * Noch nicht bestätigt - Platzhalter bewusst nicht durch einen erfundenen
+   * Namen ersetzen. Wird in Impressum und Datenschutzerklärung ausgegeben.
+   */
+  ownerName: "[PLATZHALTER: vollständiger Vor- und Nachname des Inhabers]",
   claim: "SAUBER. ZUVERLÄSSIG. PERSÖNLICH.",
   positioning: "Gepflegte Immobilien. Alles aus einer Hand.",
   address: {

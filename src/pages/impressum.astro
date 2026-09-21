@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Breadcrumbs from "@/components/Breadcrumbs.astro";
-import { company, fullAddress } from "@/config/site";
+import { company } from "@/config/site";
 
 const title = "Impressum | Gebäudedienste SIMIN";
 const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 51149 Köln.";
@@ -13,19 +13,19 @@ const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 5114
   <section class="section legal">
     <div class="container legal__content prose">
       <p class="legal__notice" role="note">
-        RECHTSTEXT VOR LIVEGANG PRÜFEN — Dieser Inhalt enthält ausschließlich die bestätigten
-        Unternehmensangaben. Vor Veröffentlichung ist er durch eine rechtlich geprüfte,
-        vollständige Impressumsfassung zu ersetzen bzw. zu ergänzen (u. a. um ggf. erforderliche
-        Angaben zu Handelsregister, Umsatzsteuer-ID oder Aufsichtsbehörde, sofern zutreffend).
+        Hinweis: Einzelne Pflichtangaben sind noch zu ergänzen. Die Seite ist noch nicht für den
+        Produktivbetrieb freigegeben.
       </p>
 
       <h1>Impressum</h1>
 
-      <h2>Angaben gemäß § 5 TMG</h2>
+      <h2>Angaben gemäß § 5 DDG</h2>
       <p>
         {company.legalName}<br />
+        Inhaber: <span class="legal__placeholder">{company.ownerName}</span><br />
         {company.address.street}<br />
-        {company.address.postalCode} {company.address.city}
+        {company.address.postalCode} {company.address.city}<br />
+        {company.address.country}
       </p>
 
       <h2>Kontakt</h2>
@@ -34,8 +34,21 @@ const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 5114
         E-Mail: <a href={company.email.href}>{company.email.display}</a>
       </p>
 
-      <h2>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
-      <p>{fullAddress}</p>
+      <h2>Umsatzsteuer / Wirtschafts-ID</h2>
+      <p>
+        <span class="legal__placeholder">[PLATZHALTER: USt-IdNr. gemäß § 27a UStG, sofern vorhanden]</span
+        ><br />
+        <span class="legal__placeholder"
+          >[PLATZHALTER: Wirtschafts-Identifikationsnummer, sofern vorhanden]</span
+        >
+      </p>
+
+      <h2>Registerangaben</h2>
+      <p>
+        <span class="legal__placeholder"
+          >[PLATZHALTER: Registerangaben nur ergänzen, falls Eintragung vorhanden]</span
+        >
+      </p>
     </div>
   </section>
 </BaseLayout>
@@ -56,5 +69,20 @@ const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 5114
     font-size: var(--fs-h3);
     margin-top: 28px;
     margin-bottom: 8px;
+  }
+
+  .legal__content p {
+    margin-bottom: 4px;
+  }
+
+  .legal__placeholder {
+    display: inline-block;
+    background: var(--color-cream);
+    border: 1px dashed var(--color-orange);
+    border-radius: var(--radius-sm);
+    padding: 1px 8px;
+    font-family: monospace;
+    font-size: 0.875rem;
+    color: var(--color-orange-accessible);
   }
 </style>
