@@ -49,6 +49,7 @@ const { eyebrow, headline, text, imageSrc, imagePosition, variant = "default" } 
     min-height: 480px;
     display: flex;
     align-items: center;
+    overflow: hidden;
   }
 
   .cta-section__image {
@@ -72,6 +73,42 @@ const { eyebrow, headline, text, imageSrc, imagePosition, variant = "default" } 
 
   .cta-section--final {
     border-top: 4px solid var(--color-orange);
+  }
+
+  /* Finaler CTA: langsamer, sichtbarer Hintergrund-Shift statt eines
+     statischen Bilds - unterscheidet den Seitenabschluss klar von den
+     funktionalen Zwischen-CTAs. */
+  html.motion-enabled .cta-section--final .cta-section__image {
+    animation: cta-final-shift 12s var(--ease-standard) forwards;
+  }
+
+  @keyframes cta-final-shift {
+    from {
+      transform: scale(1.06) translateY(0);
+    }
+    to {
+      transform: scale(1) translateY(-10px);
+    }
+  }
+
+  /* Headline/Text/Button des Abschluss-CTAs bewegen sich deutlicher und
+     zeitlich klarer versetzt als bei den mittleren Zwischen-CTAs. */
+  html.motion-enabled .cta-section--final .cta-section__headline[data-reveal] {
+    transform: translateY(45px);
+    transition-duration: 900ms;
+    transition-delay: 90ms;
+  }
+
+  html.motion-enabled .cta-section--final .cta-section__headline[data-reveal].is-visible {
+    transform: none;
+  }
+
+  html.motion-enabled .cta-section--final .cta-section__text[data-reveal] {
+    transition-delay: 210ms;
+  }
+
+  html.motion-enabled .cta-section--final .cta-section__actions[data-reveal] {
+    transition-delay: 370ms;
   }
 
   .cta-section__content {

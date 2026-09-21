@@ -87,11 +87,13 @@ const steps = [
   }
 
   /* Stärkster Motion-Moment der Seite: die Linie "zeichnet" sich Schritt
-     für Schritt, jede Nummer aktiviert sich, sobald die Linie sie
-     erreicht. Einmalig, wenn die Section in den Viewport kommt. */
+     für Schritt, jede Nummer aktiviert sich sichtbar (Skalierung, Opazität
+     UND Farbwechsel), sobald die Linie sie erreicht. Einmalig, wenn die
+     Section in den Viewport kommt. */
   html.motion-enabled .process__number {
-    transform: scale(0.9);
-    opacity: 0.6;
+    transform: scale(0.96);
+    opacity: 0.55;
+    background-color: var(--color-light-blue);
     transition:
       transform var(--motion-base) var(--ease-standard),
       opacity var(--motion-base) var(--ease-standard),
@@ -101,6 +103,7 @@ const steps = [
   html.motion-enabled .process__list.is-visible .process__number {
     transform: scale(1);
     opacity: 1;
+    background-color: var(--color-navy);
   }
 
   html.motion-enabled .process__list.is-visible .process__item:nth-child(2) .process__number {
@@ -116,9 +119,9 @@ const steps = [
   }
 
   .process__line {
-    width: 2px;
+    width: 3px;
     flex: 1;
-    background: var(--color-border);
+    background: var(--color-simin-blue);
     margin-block: 4px;
     transform-origin: top;
     transform: scaleY(0);
@@ -172,7 +175,7 @@ const steps = [
 
     .process__line {
       width: auto;
-      height: 2px;
+      height: 3px;
       flex: 1;
       margin-block: 0;
       margin-inline: 4px;

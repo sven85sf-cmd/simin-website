@@ -48,13 +48,23 @@
   --header-height-mobile: 96px;
   --sticky-bar-height: 60px;
 
-  /* Motion */
-  --motion-fast: 180ms;
-  --motion-base: 320ms;
-  --motion-medium: 480ms;
-  --motion-slow: 700ms;
+  /* Motion
+     Werte gegenüber der ersten Motion-Pass-Version deutlich angehoben:
+     im echten Betrieb (Screenrecording-Abnahme) war die Bewegung bei den
+     ursprünglichen, kürzeren Werten für Nutzer praktisch nicht wahrnehmbar. */
+  --motion-fast: 220ms;
+  --motion-base: 380ms;
+  --motion-medium: 850ms;
+  --motion-slow: 950ms;
   --motion-cinematic: 1200ms;
-  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  /* War zuvor cubic-bezier(0.22, 1, 0.36, 1) ("emphasized decelerate") -
+     diese Kurve erreicht rechnerisch schon nach ~15-20% der Dauer fast
+     den Zielwert, wodurch die Bewegung selbst bei langen Laufzeiten für
+     Nutzer kaum wahrnehmbar war. Die jetzige Kurve verteilt die Bewegung
+     gleichmäßiger über die gesamte Dauer (weiterhin rein dezelerierend,
+     kein Bounce/Overshoot), damit Reveals tatsächlich als Bewegung
+     wahrgenommen werden statt als Sprung. */
+  --ease-standard: cubic-bezier(0.33, 1, 0.68, 1);
   /* Legacy aliases (weiterhin an vielen Stellen im Einsatz) - an die
      Motion-Tokens angeglichen, damit ein einheitlicher Rhythmus entsteht. */
   --duration-fast: var(--motion-fast);

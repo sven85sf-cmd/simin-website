@@ -19,7 +19,7 @@ import { withBase } from "@/lib/path";
     <div class="hero__gradient" aria-hidden="true"></div>
   </div>
 
-  <div class="container hero__content" data-stagger="110">
+  <div class="container hero__content" data-stagger="150">
     <Logo size="hero" variant="light" class="hero__logo" data-reveal="up" />
     <p class="eyebrow eyebrow--orange-on-dark hero__eyebrow" data-reveal="up">GEBÄUDEDIENSTE SIMIN · KÖLN</p>
     <h1 class="hero__headline" data-reveal="up">
@@ -59,20 +59,21 @@ import { withBase } from "@/lib/path";
     height: 100%;
   }
 
-  /* Sehr subtiler Cinematic-Zoom: kein "bewegtes Hintergrundbild", sondern
-     eine kaum wahrnehmbare, langsame Tiefenwirkung über die gesamte
-     Betrachtungsdauer. Läuft nur unter html.motion-enabled (siehe
-     global.css) - ohne JS/mit reduced-motion bleibt das Bild ruhig. */
+  /* Cinematic-Zoom mit leichtem vertikalem Drift: langsame, aber klar
+     spürbare Tiefenwirkung über die gesamte Betrachtungsdauer - kein
+     harter "Zoom-Effekt", aber das Bild soll sichtbar leben. Läuft nur
+     unter html.motion-enabled (siehe global.css) - ohne JS/mit
+     reduced-motion bleibt das Bild ruhig. */
   html.motion-enabled .hero__image {
     animation: hero-cinematic-zoom 16s var(--ease-standard) forwards;
   }
 
   @keyframes hero-cinematic-zoom {
     from {
-      transform: scale(1);
+      transform: scale(1) translateY(0);
     }
     to {
-      transform: scale(1.035);
+      transform: scale(1.05) translateY(-14px);
     }
   }
 
@@ -100,11 +101,12 @@ import { withBase } from "@/lib/path";
     margin-bottom: 22px;
   }
 
-  /* Markenreveal: "Marke tritt ruhig ins Bild" - dezenter als der
-     Standard-Reveal (kleinerer Versatz, minimal längere Dauer). */
+  /* Markenreveal: "Marke tritt ruhig ins Bild" - spürbarer Versatz und
+     Skalierung, damit die Markeninszenierung tatsächlich wahrgenommen
+     wird, aber weiterhin ruhig (kein "Reinfliegen"). */
   html.motion-enabled .hero__logo[data-reveal] {
-    transform: scale(0.96) translateY(10px);
-    transition-duration: var(--motion-slow);
+    transform: scale(0.92) translateY(28px);
+    transition-duration: 900ms;
   }
 
   html.motion-enabled .hero__logo[data-reveal].is-visible {
@@ -121,6 +123,18 @@ import { withBase } from "@/lib/path";
     text-wrap: balance;
   }
 
+  /* Headline bewegt sich sichtbar ins Bild - größerer Versatz als der
+     Rest der Seite, da sie der dramaturgische Höhepunkt des Hero-Reveals
+     ist. */
+  html.motion-enabled .hero__headline[data-reveal] {
+    transform: translateY(48px);
+    transition-duration: 950ms;
+  }
+
+  html.motion-enabled .hero__headline[data-reveal].is-visible {
+    transform: none;
+  }
+
   .hero__text {
     margin-top: 24px;
     font-size: var(--fs-lead);
@@ -134,6 +148,15 @@ import { withBase } from "@/lib/path";
     align-items: center;
     gap: 28px;
     margin-top: 36px;
+  }
+
+  html.motion-enabled .hero__actions[data-reveal] {
+    transform: translateY(27px);
+    transition-duration: 800ms;
+  }
+
+  html.motion-enabled .hero__actions[data-reveal].is-visible {
+    transform: none;
   }
 
   .hero__primary-action {

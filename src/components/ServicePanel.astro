@@ -80,8 +80,25 @@ const {
     transition: border-color var(--motion-base) var(--ease-standard);
   }
 
+  /* Deutlich sichtbarer Scroll-Reveal: Bild kommt mit größerem Versatz,
+     Text folgt leicht zeitversetzt (Gruppen-Gefühl statt "alles auf
+     einmal"). */
+  html.motion-enabled .service-panel__media[data-reveal] {
+    transform: translateY(58px);
+    transition-duration: 900ms;
+  }
+
+  html.motion-enabled .service-panel__media[data-reveal].is-visible {
+    transform: none;
+  }
+
   html.motion-enabled .service-panel__body[data-reveal] {
-    transition-delay: 120ms;
+    transform: translateY(40px);
+    transition-delay: 140ms;
+  }
+
+  html.motion-enabled .service-panel__body[data-reveal].is-visible {
+    transform: none;
   }
 
   .service-panel__body--orange {

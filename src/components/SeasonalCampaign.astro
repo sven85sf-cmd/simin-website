@@ -1,5 +1,4 @@
 ---
-import ResponsiveImage from "@/components/ResponsiveImage.astro";
 import { seasonalCampaign } from "@/config/site";
 import { withBase } from "@/lib/path";
 ---
@@ -9,13 +8,20 @@ import { withBase } from "@/lib/path";
     <section class="seasonal section">
       <div class="container seasonal__grid">
         <div class="seasonal__media" data-reveal="up">
-          <ResponsiveImage
-            src="/images/service-aussenanlagen.webp"
-            alt="Herbstliche Laubbeseitigung auf einem gepflegten Grundstück"
-            width={1200}
-            height={1566}
-            class="seasonal__image"
-          />
+          <video
+            class="seasonal__video"
+            poster={withBase("/images/seasonal-video-poster.webp")}
+            muted
+            loop
+            playsinline
+            preload="none"
+            aria-hidden="true"
+            tabindex="-1"
+            data-lazy-video
+          >
+            <source data-src={withBase("/videos/herbst-winter-mobile.mp4")} media="(max-width: 767px)" type="video/mp4" />
+            <source data-src={withBase("/videos/herbst-winter-desktop.mp4")} type="video/mp4" />
+          </video>
         </div>
         <div class="seasonal__body" data-reveal="up">
           <p class="eyebrow eyebrow--orange">{seasonalCampaign.eyebrow}</p>
@@ -54,19 +60,30 @@ import { withBase } from "@/lib/path";
     min-width: 0;
   }
 
-  .seasonal__image {
+  .seasonal__media {
     border-radius: var(--radius-lg);
+    overflow: hidden;
   }
 
-  /* Cinematisches Kampagnenmodul: Bild bekommt einen minimal stärkeren
-     Reveal (leichter Zoom aus 1.04 -> 1) als die übrigen Sections, Text
-     folgt leicht zeitversetzt. */
-  html.motion-enabled .seasonal__media[data-reveal] :global(img) {
-    transform: scale(1.04);
+  .seasonal__video {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: center;
+    border-radius: var(--radius-lg);
+    background: var(--color-navy);
+  }
+
+  /* Cinematisches Kampagnenmodul: Video-Panel bekommt einen spürbaren
+     Zoom-Reveal (1.06 -> 1) als die übrigen Sections, Text folgt leicht
+     zeitversetzt. */
+  html.motion-enabled .seasonal__media[data-reveal] .seasonal__video {
+    transform: scale(1.06);
     transition: transform var(--motion-slow) var(--ease-standard);
   }
 
-  html.motion-enabled .seasonal__media[data-reveal].is-visible :global(img) {
+  html.motion-enabled .seasonal__media[data-reveal].is-visible .seasonal__video {
     transform: scale(1);
   }
 
@@ -120,3 +137,46 @@ import { withBase } from "@/lib/path";
     }
   }
 </style>
+
+<script>
+  /**
+   * Saisonvideo: lädt und startet erst, wenn das Panel in die Nähe des
+   * Viewports kommt (kein eager Preload/Autoplay direkt beim Laden der
+   * Seite), und nur wenn prefers-reduced-motion nicht aktiv ist - dann
+   * bleibt es beim statischen Poster-Bild. Kein Ton, keine Controls
+   * (rein visuelles Markenmedium), stiller Fallback auf das Poster, falls
+   * play() vom Browser abgelehnt wird.
+   */
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const video = document.querySelector<HTMLVideoElement>("[data-lazy-video]");
+
+  if (video && !reduceMotion) {
+    const start = () => {
+      video.querySelectorAll<HTMLSourceElement>("source[data-src]").forEach((source) => {
+        source.src = source.dataset.src ?? "";
+      });
+      video.muted = true;
+      video.load();
+      video.play().catch(() => {
+        /* Autoplay abgelehnt (z. B. Sparmodus) - Poster bleibt sichtbar. */
+      });
+    };
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              start();
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { rootMargin: "200px 0px" },
+      );
+      observer.observe(video);
+    } else {
+      start();
+    }
+  }
+</script>
