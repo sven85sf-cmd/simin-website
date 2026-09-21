@@ -29,7 +29,7 @@ import { withBase } from "@/lib/path";
           <p class="seasonal__claim" set:html={seasonalCampaign.claim.replace(/\n/g, "<br />")} />
           <div class="seasonal__actions">
             <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
-            <a href={withBase(seasonalCampaign.href)} class="btn-ghost">MEHR ERFAHREN</a>
+            <a href={withBase(seasonalCampaign.href)} class="btn btn-secondary btn-secondary--on-dark">MEHR ERFAHREN</a>
           </div>
         </div>
       </div>
