@@ -197,4 +197,15 @@ const year = new Date().getFullYear();
       grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
     }
   }
+
+  /* Unterhalb 1200px blendet StickyMobileBar.astro eine fixe Bottom-Bar
+     ein (siehe --sticky-bar-height dort); ohne Ausgleich verdeckt sie das
+     Footer-Ende (Copyright/Impressum/Datenschutz). Extra-Abstand exakt in
+     Höhe der Bar zzgl. Safe-Area, damit beide Werte nicht auseinanderlaufen
+     können, falls die Bar responsive höher wird. */
+  @media (max-width: 1199px) {
+    .site-footer {
+      padding-bottom: calc(var(--sticky-bar-height) + env(safe-area-inset-bottom, 0px));
+    }
+  }
 </style>
