@@ -1,4 +1,2 @@
 User-agent: *
-Allow: /
-
-Sitemap: https://www.gebaeudedienste-simin.de/sitemap.xml
+Disallow: /
