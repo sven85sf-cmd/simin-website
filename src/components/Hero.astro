@@ -55,7 +55,12 @@ import { withBase } from "@/lib/path";
     inset: 0;
   }
 
-  .hero__image {
+  /* :global() nötig: .hero__image wird als class-Prop an ResponsiveImage
+     durchgereicht, das <img> trägt also dessen data-astro-cid, nicht das
+     von Hero.astro - ohne :global() würde Astros automatisches CSS-Scoping
+     diese Selektoren nie treffen (galt zuvor auch für die
+     Cinematic-Zoom-Animation, die dadurch nie gelaufen ist). */
+  :global(.hero__image) {
     height: 100%;
   }
 
@@ -64,7 +69,7 @@ import { withBase } from "@/lib/path";
      harter "Zoom-Effekt", aber das Bild soll sichtbar leben. Läuft nur
      unter html.motion-enabled (siehe global.css) - ohne JS/mit
      reduced-motion bleibt das Bild ruhig. */
-  html.motion-enabled .hero__image {
+  html.motion-enabled :global(.hero__image) {
     animation: hero-cinematic-zoom 16s var(--ease-standard) forwards;
   }
 
@@ -97,19 +102,24 @@ import { withBase } from "@/lib/path";
     max-width: 760px;
   }
 
-  .hero__logo {
+  /* :global() nötig: .hero__logo wird als class-Prop an die Logo-
+     Komponente durchgereicht, das Element trägt also deren data-astro-cid,
+     nicht das von Hero.astro - ohne :global() träfen diese Selektoren nie
+     (die Marken-spezifische Skalierung/Dauer lief dadurch nie, nur der
+     globale Standard-Reveal aus global.css). */
+  :global(.hero__logo) {
     margin-bottom: 22px;
   }
 
   /* Markenreveal: "Marke tritt ruhig ins Bild" - spürbarer Versatz und
      Skalierung, damit die Markeninszenierung tatsächlich wahrgenommen
      wird, aber weiterhin ruhig (kein "Reinfliegen"). */
-  html.motion-enabled .hero__logo[data-reveal] {
+  html.motion-enabled :global(.hero__logo[data-reveal]) {
     transform: scale(0.92) translateY(28px);
     transition-duration: 900ms;
   }
 
-  html.motion-enabled .hero__logo[data-reveal].is-visible {
+  html.motion-enabled :global(.hero__logo[data-reveal].is-visible) {
     transform: none;
   }
 

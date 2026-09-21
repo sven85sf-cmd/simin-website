@@ -58,7 +58,11 @@ const {
     background: var(--color-white);
   }
 
-  .service-panel__image {
+  /* :global() nötig: .service-panel__image wird als class-Prop an
+     ResponsiveImage durchgereicht, das <img> trägt also dessen
+     data-astro-cid, nicht das von ServicePanel.astro - ohne :global()
+     träfe dieser Selektor nie (der Hover-Scale-Effekt lief dadurch nie). */
+  :global(.service-panel__image) {
     height: 100%;
     transition: transform 0.6s var(--ease-standard);
   }
@@ -67,7 +71,7 @@ const {
     overflow: hidden;
   }
 
-  .service-panel__media:hover .service-panel__image {
+  .service-panel__media:hover :global(.service-panel__image) {
     transform: scale(1.03);
   }
 

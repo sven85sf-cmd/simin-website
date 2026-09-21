@@ -52,7 +52,12 @@ const { eyebrow, headline, text, imageSrc, imagePosition, variant = "default" } 
     overflow: hidden;
   }
 
-  .cta-section__image {
+  /* :global() nötig: .cta-section__image wird als class-Prop an
+     ResponsiveImage durchgereicht, das <img> trägt also dessen
+     data-astro-cid, nicht das von CTASection.astro - ohne :global() träfe
+     dieser Selektor nie (der Hintergrund-Shift der Abschluss-Variante lief
+     dadurch nie). */
+  :global(.cta-section__image) {
     position: absolute;
     inset: 0;
     height: 100%;
@@ -78,7 +83,7 @@ const { eyebrow, headline, text, imageSrc, imagePosition, variant = "default" } 
   /* Finaler CTA: langsamer, sichtbarer Hintergrund-Shift statt eines
      statischen Bilds - unterscheidet den Seitenabschluss klar von den
      funktionalen Zwischen-CTAs. */
-  html.motion-enabled .cta-section--final .cta-section__image {
+  html.motion-enabled .cta-section--final :global(.cta-section__image) {
     animation: cta-final-shift 12s var(--ease-standard) forwards;
   }
 
