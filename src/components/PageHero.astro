@@ -8,9 +8,14 @@ interface Props {
   placeholderLabel?: string;
   src?: string;
   imagePosition?: string;
+  /** Aktiviert das Reveal-System (siehe global.css/BaseLayout.astro) für
+   * Eyebrow/H1/Text. Standardmäßig aus, damit bestehende Seiten (z. B.
+   * /ueber-uns, /herbst-winter), die PageHero ohne Motion nutzen, optisch
+   * unverändert bleiben. */
+  reveal?: boolean;
 }
 
-const { eyebrow, headline, text, placeholderLabel, src, imagePosition } = Astro.props;
+const { eyebrow, headline, text, placeholderLabel, src, imagePosition, reveal = false } = Astro.props;
 ---
 
 <section class="page-hero">
@@ -29,10 +34,10 @@ const { eyebrow, headline, text, placeholderLabel, src, imagePosition } = Astro.
     />
     <div class="page-hero__gradient" aria-hidden="true"></div>
   </div>
-  <div class="container page-hero__content">
-    <p class="eyebrow eyebrow--orange-on-dark">{eyebrow}</p>
-    <h1 class="page-hero__headline">{headline}</h1>
-    {text && <p class="page-hero__text">{text}</p>}
+  <div class="container page-hero__content" data-stagger={reveal ? "120" : undefined}>
+    <p class="eyebrow eyebrow--orange-on-dark" data-reveal={reveal ? "up" : undefined}>{eyebrow}</p>
+    <h1 class="page-hero__headline" data-reveal={reveal ? "up" : undefined}>{headline}</h1>
+    {text && <p class="page-hero__text" data-reveal={reveal ? "up" : undefined}>{text}</p>}
   </div>
 </section>
 

@@ -33,20 +33,21 @@ const ctaImageByService: Record<Service["id"], string> = {
   headline={service.heroH1}
   src={service.heroImage}
   imagePosition={imagePositions[service.heroImage]}
+  reveal
 />
 
 <section class="service-page section">
   <div class="container service-page__grid">
     <div class="service-page__main">
-      <p class="lead">{service.intro}</p>
+      <p class="lead" data-reveal="up">{service.intro}</p>
 
-      <h2 class="service-page__heading">Leistungen im Überblick</h2>
-      <ul class="service-page__list">
+      <h2 class="service-page__heading" data-reveal="up">Leistungen im Überblick</h2>
+      <ul class="service-page__list" data-reveal="up">
         {service.leistungen.map((item) => <li>{item}</li>)}
       </ul>
 
       {service.leistungsDetails?.map((block) => (
-        <div class="service-page__detail-block">
+        <div class="service-page__detail-block" data-reveal="up">
           <h3 class="service-page__subheading">{block.title}</h3>
           <ul class="service-page__list">
             {block.items.map((item) => <li>{item}</li>)}
@@ -54,13 +55,13 @@ const ctaImageByService: Record<Service["id"], string> = {
         </div>
       ))}
 
-      <h2 class="service-page__heading">Ihr Nutzen</h2>
-      <ul class="service-page__list">
+      <h2 class="service-page__heading" data-reveal="up">Ihr Nutzen</h2>
+      <ul class="service-page__list" data-reveal="up">
         {service.nutzen.map((item) => <li>{item}</li>)}
       </ul>
 
-      <h2 class="service-page__heading">Ablauf</h2>
-      <ol class="service-page__ablauf">
+      <h2 class="service-page__heading" data-reveal="up">Ablauf</h2>
+      <ol class="service-page__ablauf" data-reveal="up">
         {service.ablauf.map((step, index) => (
           <li>
             <span class="service-page__ablauf-number">{index + 1}</span>
@@ -69,37 +70,39 @@ const ctaImageByService: Record<Service["id"], string> = {
         ))}
       </ol>
 
-      <h2 class="service-page__heading">Häufige Fragen</h2>
+      <h2 class="service-page__heading" data-reveal="up">Häufige Fragen</h2>
       <FaqAccordion items={service.faq} />
     </div>
 
-    <aside class="service-page__sidebar">
+    <aside class="service-page__sidebar" data-stagger="100">
       {service.sidebarImage && (
-        <ResponsiveImage
-          src={service.sidebarImage.src}
-          alt={service.sidebarImage.alt}
-          width={1200}
-          height={900}
-          loading="lazy"
-          class="service-page__sidebar-image"
-        />
+        <div class="service-page__sidebar-image-wrap" data-reveal="up">
+          <ResponsiveImage
+            src={service.sidebarImage.src}
+            alt={service.sidebarImage.alt}
+            width={1200}
+            height={900}
+            loading="lazy"
+            class="service-page__sidebar-image"
+          />
+        </div>
       )}
 
-      <div class="service-page__card">
+      <div class="service-page__card" data-reveal="up">
         <h2 class="service-page__card-title">Objektarten</h2>
         <ul class="service-page__tags">
           {service.objektarten.map((item) => <li>{item}</li>)}
         </ul>
       </div>
 
-      <div class="service-page__card service-page__card--cta">
+      <div class="service-page__card service-page__card--cta" data-reveal="up">
         <h2 class="service-page__card-title">Interesse an {service.navLabel}?</h2>
         <p>Beschreiben Sie uns kurz Ihr Objekt – wir melden uns persönlich bei Ihnen.</p>
         <a href={withBase("/angebot")} class="btn btn-primary">ANGEBOT ANFRAGEN</a>
         <span class="micro-copy">Kostenlos & unverbindlich</span>
       </div>
 
-      <nav class="service-page__card" aria-label="Weitere Leistungen">
+      <nav class="service-page__card" aria-label="Weitere Leistungen" data-reveal="up">
         <h2 class="service-page__card-title">Weitere Leistungen</h2>
         <ul class="service-page__links">
           {otherServices.map((other) => (

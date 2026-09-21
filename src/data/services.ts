@@ -119,6 +119,10 @@ export const services: Service[] = [
           "Glas- und Fensterreinigung kann als eigene Leistung oder in Kombination mit der Unterhaltsreinigung vereinbart werden.",
       },
     ],
+    sidebarImage: {
+      src: "/images/gebaeudereinigung-sidebar.webp",
+      alt: "SIMIN-Mitarbeiterin bei der professionellen Bodenreinigung im Gebäude-Eingangsbereich",
+    },
   },
   {
     id: "objektservice",
@@ -183,6 +187,10 @@ export const services: Service[] = [
           "Winter- und Streudienst führen wir als eigene Leistung durch – Details dazu finden Sie auf unserer Winterdienst-Seite und können mit dem Objektservice kombiniert werden.",
       },
     ],
+    sidebarImage: {
+      src: "/images/objektservice-sidebar.webp",
+      alt: "SIMIN-Mitarbeiter im Objektservice beim Wechsel eines Leuchtmittels im Gebäude-Eingangsbereich",
+    },
   },
   {
     id: "aussenanlagen",
@@ -278,6 +286,10 @@ export const services: Service[] = [
           "Ja, Winterdienst und Außenanlagenpflege können als aufeinander abgestimmte Leistungen vereinbart werden.",
       },
     ],
+    sidebarImage: {
+      src: "/images/winterdienst-sidebar.webp",
+      alt: "SIMIN-Mitarbeiter beim Winterdienst mit Schneefräse vor winterlicher Kölner Kulisse",
+    },
   },
 ];
 
