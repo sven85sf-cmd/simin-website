@@ -39,6 +39,19 @@ const ctaImageByService: Record<Service["id"], string> = {
 <section class="service-page section">
   <div class="container service-page__grid">
     <div class="service-page__main">
+      {service.sidebarImage && (
+        <div class="service-page__lead-image-wrap" data-reveal="up">
+          <ResponsiveImage
+            src={service.sidebarImage.src}
+            alt={service.sidebarImage.alt}
+            width={1200}
+            height={900}
+            loading="lazy"
+            class="service-page__lead-image"
+          />
+        </div>
+      )}
+
       <p class="lead" data-reveal="up">{service.intro}</p>
 
       <h2 class="service-page__heading" data-reveal="up">Leistungen im Überblick</h2>
@@ -69,24 +82,13 @@ const ctaImageByService: Record<Service["id"], string> = {
           </li>
         ))}
       </ol>
-
-      <h2 class="service-page__heading" data-reveal="up">Häufige Fragen</h2>
-      <FaqAccordion items={service.faq} />
     </div>
 
     <aside class="service-page__sidebar" data-stagger="100">
-      {service.sidebarImage && (
-        <div class="service-page__sidebar-image-wrap" data-reveal="up">
-          <ResponsiveImage
-            src={service.sidebarImage.src}
-            alt={service.sidebarImage.alt}
-            width={1200}
-            height={900}
-            loading="lazy"
-            class="service-page__sidebar-image"
-          />
-        </div>
-      )}
+      <div class="service-page__sidebar-faq" data-reveal="up">
+        <h2 class="service-page__heading">Häufige Fragen</h2>
+        <FaqAccordion items={service.faq} />
+      </div>
 
       <div class="service-page__card" data-reveal="up">
         <h2 class="service-page__card-title">Objektarten</h2>
@@ -211,6 +213,10 @@ const ctaImageByService: Record<Service["id"], string> = {
     font-size: 0.875rem;
   }
 
+  .service-page__lead-image {
+    border-radius: var(--radius-md);
+  }
+
   .service-page__sidebar {
     display: flex;
     flex-direction: column;
@@ -218,8 +224,8 @@ const ctaImageByService: Record<Service["id"], string> = {
     align-self: start;
   }
 
-  .service-page__sidebar-image {
-    border-radius: var(--radius-md);
+  .service-page__sidebar-faq .service-page__heading {
+    margin-top: 0;
   }
 
   .service-page__card {

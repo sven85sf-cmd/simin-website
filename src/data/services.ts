@@ -35,9 +35,10 @@ export type Service = {
   ablauf: string[];
   objektarten: string[];
   faq: ServiceFaq[];
-  /** Optionales, breites Zusatzbild oberhalb der Sidebar-Karten (bislang nur
-   * für Außenanlagenpflege bestätigt) - bei fehlendem Feld bleibt die
-   * Sidebar der jeweiligen Seite unverändert. */
+  /** Großes Leistungsbild, das ServicePageContent.astro als erstes Element
+   * der linken Hauptspalte rendert (Feldname historisch, seit dem
+   * Mobile-Layout-Umbau nicht mehr in der Sidebar). Bei fehlendem Feld
+   * entfällt das Bild einfach, der übrige Seitenaufbau bleibt unverändert. */
   sidebarImage?: { src: string; alt: string };
 };
 
