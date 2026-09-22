@@ -181,51 +181,70 @@ Ersatzlogo).
 
 Der Angebotsassistent sendet serverseitig an `POST /api/quote`
 (`src/pages/api/quote.ts`). Validierung (client- und serverseitig),
-Honeypot-Spamschutz, einfaches Rate-Limiting, Datei-Validierung
+Honeypot-Spamschutz, einfaches Rate-Limiting und Datei-Validierung
 (Größe, Anzahl, Erweiterung, Magic-Byte-Prüfung des tatsächlichen
-Dateiinhalts) und der eigentliche Mailversand sind produktionsfertig
-implementiert.
+Dateiinhalts) sind unverändert produktionsfertig implementiert.
 
-**Mailversand-Architektur:** `src/pages/api/quote.ts` kennt nur die
-Abstraktion `FormSubmissionService` (`src/lib/forms/submissionService.ts`),
-die wiederum nur die provider-agnostische `MailService`-Schnittstelle
-(`src/lib/mail/types.ts`) kennt. Ein Wechsel des Mailproviders oder des
-Hosters betrifft ausschließlich `src/lib/mail/getMailService.ts` und den
-jeweiligen Adapter – nicht die Formularlogik selbst.
+**Architektur (Wix-native, kein externer Mailanbieter):**
 
-Enthaltene Adapter:
+```
+Angebotsassistent (Frontend, unverändert)
+  → POST /api/quote (Validierung, Honeypot, Rate-Limit, Origin-Check)
+  → src/lib/forms/submissionService.ts (FormSubmissionService-Abstraktion)
+  → src/lib/wix/submissionsRepository.ts
+      → Dateien: Wix Media (@wix/media, generateFileUploadUrl)
+      → Anfrage: Wix Data Collection (@wix/data, items.insert, elevated)
+  → Wix Automation (im Wix-Dashboard konfiguriert)
+  → E-Mail an kontakt@gebaeudedienste-simin.de
+```
 
-- `ResendMailService` (`src/lib/mail/resendMailService.ts`) – Produktivadapter,
-  spricht die Resend-HTTP-API direkt per `fetch()` an (keine zusätzliche
-  Laufzeitabhängigkeit, läuft in jeder Node-/Serverless-/Edge-Umgebung).
-- `DevLogMailService` (`src/lib/mail/devLogMailService.ts`) – reiner
-  Entwicklungs-Adapter, protokolliert statt zu senden. Wird **nie**
-  automatisch verwendet und ist in einem Production-Build (`import.meta.env.PROD`)
-  fest deaktiviert, selbst wenn `MAIL_PROVIDER=dev-log` versehentlich gesetzt wäre.
+Es wird **kein** externer Mailanbieter mehr verwendet (frühere
+Resend-Architektur vollständig entfernt). Die Anfrage wird als Datensatz
+in einer Wix-Data-Collection gespeichert; hochgeladene Dateien landen im
+Wix Media Manager (privat, Ordner `/angebotsanfragen`). Die eigentliche
+Benachrichtigung an SIMIN erzeugt **keine Zeile Code in diesem Repo**,
+sondern eine im Wix-Dashboard eingerichtete Automation, die auf „neuer
+Eintrag in dieser Collection" reagiert.
 
-**Es ist aktuell kein echter API-Key/keine verifizierte Absenderdomain
-hinterlegt** (keine erfundenen Zugangsdaten). Ohne vollständige
-Konfiguration antwortet `/api/quote` klar mit „nicht konfiguriert" –
-niemals mit einem falschen Erfolg.
+**Vor Produktivbetrieb im Wix-Dashboard einzurichten:**
 
-Für den Produktivbetrieb:
+1. Data-Collection anlegen (Content Manager), empfohlener Anzeigename
+   „SIMIN Angebotsanfragen", mit Feldern passend zum in
+   `src/lib/wix/submissionsRepository.ts` geschriebenen Datensatz
+   (`service`, `propertyType`, `postalCode`, `city`, `description`,
+   `name`, `company`, `phone`, `email`, `files`, `submittedAt`).
+2. Die Collection-ID als `WIX_SUBMISSIONS_COLLECTION_ID` setzen
+   (`.env.example` kopieren nach `.env`).
+3. Eine Automation einrichten: Trigger „Neuer Eintrag" auf dieser
+   Collection → Aktion „E-Mail senden" an `kontakt@gebaeudedienste-simin.de`,
+   mit den relevanten Feldern (Leistung, Name, Kontakt, Nachricht) im
+   E-Mail-Text. Betreff z. B. „Neue Website-Anfrage – [Leistung] – [Name]".
+4. Reply-To auf die Interessenten-E-Mail: technisch abhängig davon, ob die
+   Wix-Automation-E-Mail dynamische Reply-To-Felder aus Trigger-Daten
+   unterstützt — im Dashboard beim Einrichten der Automation prüfen. Falls
+   nicht unterstützt: Konstantin sieht die Interessenten-E-Mail als Feld im
+   Anfrage-Datensatz/in der Benachrichtigung und kann sie manuell in einer
+   neuen E-Mail verwenden.
 
-1. `.env.example` nach `.env` kopieren.
-2. Bei [Resend](https://resend.com) einen Account anlegen, die
-   Absenderdomain (`gebaeudedienste-simin.de` bzw. eine Subdomain davon)
-   per SPF/DKIM verifizieren und einen API-Key erzeugen.
-3. `MAIL_PROVIDER=resend`, `RESEND_API_KEY=<echter Key>` und
-   `MAIL_FROM="Gebäudedienste SIMIN Website <anfrage@gebaeudedienste-simin.de>"`
-   (oder eine andere verifizierte Adresse) setzen.
-4. `QUOTE_REQUEST_TO_EMAIL` prüfen (Standard: `kontakt@gebaeudedienste-simin.de`).
+**Ohne `WIX_SUBMISSIONS_COLLECTION_ID` antwortet `/api/quote` klar mit
+„nicht konfiguriert"** – niemals mit einem falschen Erfolg.
 
-Soll später ein anderer Mailprovider verwendet werden, genügt ein neuer
-Adapter in `src/lib/mail/` plus eine Ergänzung in `getMailService.ts` –
-`submissionService.ts` und `quote.ts` bleiben unverändert.
+**Wichtiger Hinweis zum aktuellen Implementierungsstand:** Der Code in
+`src/lib/wix/submissionsRepository.ts` wurde gegen die echten, im Projekt
+installierten `@wix/data`- und `@wix/media`-Pakete geschrieben (reale
+API-Signaturen, keine erfundenen Funktionsnamen). Er konnte in der
+Entwicklungsumgebung, in der er entstand, **nicht gegen eine echte
+Wix-Site ausgeführt werden** (kein Netzwerkzugriff auf `*.wix.com`) und ist
+daher **nicht end-to-end getestet**. Vor Produktivbetrieb unbedingt eine
+echte Testanfrage durchführen und verifizieren: Datensatz erscheint im
+Wix-Dashboard, Dateien sind im Media Manager abrufbar, Automation
+versendet die Benachrichtigung.
 
 Rate-Limiting ist aktuell In-Memory (ausreichend für eine einzelne
 Serverinstanz) — bei horizontaler Skalierung durch einen gemeinsam
-genutzten Speicher (z. B. Redis) ersetzen (`src/lib/forms/rateLimit.ts`).
+genutzten Speicher ersetzen (`src/lib/forms/rateLimit.ts`); prüfen, ob die
+Wix-Hosting-Laufzeit hierfür bereits einen geeigneteren nativen Schutz
+bietet.
 
 **Wichtig — `security.allowedDomains` (astro.config.mjs):** Astros
 eingebaute CSRF-Origin-Prüfung für `POST /api/quote` validiert den
@@ -385,17 +404,18 @@ echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
       wie gut das Mail-Backend konfiguriert ist.
 
 **Formular**
-- [ ] Formular-Backend produktiv verbunden (`MAIL_PROVIDER=resend`,
-      `RESEND_API_KEY`, `MAIL_FROM` in `.env`, siehe Abschnitt
+- [ ] Wix-Data-Collection „SIMIN Angebotsanfragen" im Dashboard angelegt,
+      `WIX_SUBMISSIONS_COLLECTION_ID` in `.env` gesetzt (siehe Abschnitt
       „Formularbackend“ oben)
-- [ ] Absenderdomain bei Resend verifiziert (SPF/DKIM) — ohne Verifizierung
-      lehnt Resend den Versand ab
+- [ ] Wix-Automation eingerichtet (Trigger: neuer Eintrag → E-Mail an
+      `kontakt@gebaeudedienste-simin.de`) und aktiviert
+- [ ] echte End-to-End-Testanfrage durchgeführt: Datensatz im Dashboard
+      sichtbar, Dateien im Media Manager abrufbar, Benachrichtigungsmail
+      angekommen — **bisher nicht getestet**, siehe Hinweis oben
 - [ ] `security.allowedDomains` in `astro.config.mjs` enthält die tatsächlich
       ausgelieferte(n) Produktionsdomain(s) — **ohne passenden Eintrag
       schlägt jede Formular-Anfrage mit 403 fehl**, siehe Abschnitt
       „Formularbackend“ oben
-- [ ] echte Testanfrage über das produktiv verbundene Backend erfolgreich angekommen
-- [ ] Success State geprüft (nach echtem Versand, nicht nur `dev-log`-Adapter)
 - [ ] Datenschutzhinweis am Formular vorhanden — **bereits vorhanden**
       (Checkbox + Link zu `/datenschutz` in Schritt 4 des Angebotsassistenten)
 

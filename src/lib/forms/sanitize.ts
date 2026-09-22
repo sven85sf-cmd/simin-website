@@ -1,22 +1,3 @@
-/** Escaped Text zur sicheren Verwendung innerhalb von HTML-Mail-Inhalten. */
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
-/**
- * Entfernt CR/LF und sonstige Steuerzeichen aus Werten, die in E-Mail-Header
- * (Subject, Reply-To, Von-Namen) landen, um Header-Injection zu verhindern.
- */
-export function sanitizeHeaderValue(value: string): string {
-  // eslint-disable-next-line no-control-regex
-  return value.replace(/[\r\n\x00-\x1f]/g, " ").trim();
-}
-
 /**
  * Reduziert einen hochgeladenen Dateinamen auf sichere Zeichen und eine
  * begrenzte Länge, ohne die Dateiendung zu verändern (die selbst bereits
