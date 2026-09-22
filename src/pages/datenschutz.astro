@@ -12,18 +12,13 @@ const description = "Datenschutzerklärung von Gebäudedienste SIMIN.";
 
   <section class="section legal">
     <div class="container legal__content prose">
-      <p class="legal__notice" role="note">
-        Hinweis: Einzelne Pflichtangaben sind noch zu ergänzen. Die Seite ist noch nicht für den
-        Produktivbetrieb freigegeben.
-      </p>
-
       <h1>Datenschutzerklärung</h1>
 
       <h2>1. Verantwortlicher</h2>
       <p>Verantwortlicher im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:</p>
       <p>
-        {company.legalName}<br />
-        Inhaber: <span class="legal__placeholder">{company.ownerName}</span><br />
+        {company.legalName} ({company.legalForm})<br />
+        Inhaber: {company.ownerName}<br />
         {company.address.street}<br />
         {company.address.postalCode} {company.address.city}<br />
         {company.address.country}<br />
@@ -31,7 +26,7 @@ const description = "Datenschutzerklärung von Gebäudedienste SIMIN.";
         E-Mail: <a href={company.email.href}>{company.email.display}</a>
       </p>
 
-      <h2>2. Allgemeine Hinweise zur Datenverarbeitung</h2>
+      <h2>2. Allgemeines zur Datenverarbeitung</h2>
       <p>
         Wir verarbeiten personenbezogene Daten der Nutzer dieser Website grundsätzlich nur, soweit
         dies zur Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte und
@@ -39,75 +34,133 @@ const description = "Datenschutzerklärung von Gebäudedienste SIMIN.";
         Daten zu welchem Zweck, auf welcher Rechtsgrundlage und wie lange verarbeitet werden.
       </p>
 
-      <h2>3. Hosting und Server-Logfiles</h2>
-      <p>Diese Website wird bei folgendem Hostinganbieter betrieben:</p>
+      <h2>3. Hosting</h2>
       <p>
-        <span class="legal__placeholder">[PLATZHALTER: Name und Anschrift des Hostinganbieters]</span>
-      </p>
-      <p>
-        Beim Aufruf der Website können technisch erforderliche Verbindungsdaten (z. B.
-        IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite, verwendeter Browser) in
-        Server-Logfiles verarbeitet werden. Diese Verarbeitung erfolgt auf Grundlage von Art. 6
-        Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren und funktionsfähigen
-        Betrieb der Website). Konkrete Speicherfristen der Logfiles hängen vom eingesetzten
-        Hostinganbieter ab und werden ergänzt, sobald dieser feststeht.
+        Diese Website ist eine individuell entwickelte Website. Der endgültige
+        Hosting-Anbieter für den Produktivbetrieb unter{" "}
+        <a href={company.url}>{company.url}</a> steht zum jetzigen Zeitpunkt noch nicht
+        abschließend fest. Sobald ein Hostinganbieter verbindlich im Einsatz ist, wird dieser
+        Abschnitt um dessen Namen und Anschrift sowie – soweit einschlägig – um Hinweise zu einem
+        Auftragsverarbeitungsvertrag und zu einer etwaigen Datenübermittlung in Drittländer
+        ergänzt.
       </p>
 
-      <h2>4. Angebotsanfragen / Kontaktaufnahme</h2>
+      <h2>4. Server-Logfiles / technische Bereitstellung</h2>
       <p>
-        Wenn Sie über den Angebotsassistenten oder ein Kontaktformular eine Anfrage stellen,
-        verarbeiten wir insbesondere folgende Daten, soweit Sie diese angeben:
+        Beim Aufruf dieser Website können aus technischen Gründen automatisch Informationen in
+        Server-Logfiles gespeichert werden, die Ihr Browser übermittelt, insbesondere:
       </p>
       <ul>
-        <li>Name</li>
-        <li>Firma, sofern angegeben</li>
-        <li>Telefonnummer</li>
-        <li>E-Mail-Adresse</li>
-        <li>PLZ und Ort</li>
-        <li>gewünschte Leistung</li>
-        <li>Objektart</li>
-        <li>Freitextbeschreibung</li>
-        <li>hochgeladene Dateien</li>
+        <li>IP-Adresse</li>
+        <li>Datum und Uhrzeit des Zugriffs</li>
+        <li>aufgerufene Seite bzw. Ressource</li>
+        <li>verwendeter Browsertyp und Browserversion</li>
+        <li>verwendetes Betriebssystem</li>
+        <li>ggf. die zuvor besuchte Seite (Referrer)</li>
       </ul>
       <p>
-        Zweck der Verarbeitung ist die Bearbeitung Ihrer Anfrage, die Kontaktaufnahme, die
-        Erstellung bzw. Vorbereitung eines Angebots sowie die vorvertragliche Kommunikation mit
-        Ihnen.
+        Diese Daten dienen der sicheren und funktionsfähigen Bereitstellung der Website, der
+        Stabilität, der Fehleranalyse und dem Schutz vor Missbrauch. Rechtsgrundlage ist Art. 6
+        Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren und funktionsfähigen Betrieb
+        der Website).
       </p>
 
-      <h2>5. Angebotsassistent</h2>
+      <h2>5. Cookies und technisch notwendige Technologien</h2>
       <p>
-        Der Angebotsassistent führt Sie schrittweise durch die Angabe der in Abschnitt 4
-        genannten Daten. Die Angaben werden erst nach Abschluss aller Schritte und nach
-        ausdrücklicher Bestätigung des Datenschutzhinweises im letzten Schritt an uns übermittelt.
+        Diese Website setzt nach aktuellem technischen Stand selbst keine Cookies und keine
+        vergleichbaren Speicher- oder Auslesetechnologien auf Ihrem Endgerät ein. Sollte der
+        künftige Hosting-Betrieb technisch zwingend erforderliche Cookies mit sich bringen (z. B.
+        für sicherheitsrelevante Funktionen), würden diese ausschließlich im unbedingt
+        erforderlichen Umfang eingesetzt (§ 25 Abs. 2 TDDDG); eine damit verbundene Verarbeitung
+        personenbezogener Daten würde zusätzlich auf der jeweils einschlägigen
+        datenschutzrechtlichen Rechtsgrundlage erfolgen. Nicht unbedingt erforderliche Cookies
+        oder vergleichbare Technologien würden nur nach Ihrer vorherigen Einwilligung eingesetzt.
       </p>
 
-      <h2>6. Datei-Uploads</h2>
+      <h2>6. Kontaktformular / Angebotsanfrage</h2>
       <p>
-        Im Rahmen des Angebotsassistenten können Sie freiwillig Dateien (z. B. Fotos oder PDF)
-        übermitteln, soweit dies zur Beschreibung des Objekts oder der gewünschten Leistung
-        hilfreich ist. Bitte laden Sie keine sensiblen personenbezogenen Daten hoch, die für die
-        Bearbeitung Ihrer Anfrage nicht erforderlich sind. Hochgeladene Dateien werden
-        ausschließlich zur Bearbeitung Ihrer Anfrage verwendet.
+        Über den Angebotsassistenten können Sie eine unverbindliche Anfrage stellen. Dabei
+        verarbeiten wir die von Ihnen eingegebenen Daten, insbesondere:
       </p>
-
-      <h2>7. E-Mail-Kommunikation</h2>
-      <p>Zur Bearbeitung von Anfragen nutzen wir einen E-Mail-Dienst:</p>
+      <ul>
+        <li>gewünschte Leistung</li>
+        <li>Objektart</li>
+        <li>Postleitzahl und Ort</li>
+        <li>Beschreibung Ihres Anliegens</li>
+        <li>Name</li>
+        <li>Unternehmen / Hausverwaltung, sofern angegeben</li>
+        <li>Telefonnummer</li>
+        <li>E-Mail-Adresse</li>
+        <li>ggf. hochgeladene Dateien (siehe Abschnitt „Datei-Upload“)</li>
+      </ul>
       <p>
-        <span class="legal__placeholder"
-          >[PLATZHALTER: Name und Anschrift des E-Mail-Anbieters / Auftragsverarbeiters]</span
-        >
+        Pflichtfelder sind entsprechend gekennzeichnet; nur diese Angaben sind zur Bearbeitung
+        Ihrer Anfrage erforderlich, alle weiteren Angaben sind freiwillig. Die Übermittlung Ihrer
+        Anfrage setzt zusätzlich voraus, dass Sie den Hinweis zur Datenschutzerklärung im letzten
+        Schritt des Angebotsassistenten ausdrücklich bestätigen.
       </p>
-
-      <h2>8. Rechtsgrundlagen</h2>
       <p>
-        Soweit die Verarbeitung zur Durchführung vorvertraglicher Maßnahmen auf Ihre Anfrage hin
-        erfolgt, ist Rechtsgrundlage Art. 6 Abs. 1 lit. b DSGVO. Soweit eine Anfrage außerhalb
-        einer konkreten Vertragsvorbereitung erfolgt und auf einem berechtigten Interesse beruht,
-        kann Art. 6 Abs. 1 lit. f DSGVO einschlägig sein.
+        Zweck der Verarbeitung ist die Bearbeitung Ihrer Anfrage, Rückfragen zu Ihrem Objekt, die
+        Erstellung bzw. Vorbereitung eines Angebots sowie die Kommunikation mit Ihnen als
+        Interessent. Soweit Ihre Anfrage auf die Vorbereitung eines Vertrags gerichtet ist, ist
+        Rechtsgrundlage Art. 6 Abs. 1 lit. b DSGVO (vorvertragliche Maßnahmen). Soweit die Anfrage
+        allgemeiner Kommunikation dient, die nicht unmittelbar auf einen Vertragsschluss
+        gerichtet ist, stützen wir die Verarbeitung auf Art. 6 Abs. 1 lit. f DSGVO (berechtigtes
+        Interesse an der Bearbeitung eingehender Anfragen).
+      </p>
+      <p>
+        Bitte übermitteln Sie über das Formular keine besonderen Kategorien personenbezogener
+        Daten im Sinne von Art. 9 DSGVO (z. B. Angaben zu Gesundheit oder religiöser
+        Überzeugung), soweit diese für die Bearbeitung Ihrer Anfrage nicht erforderlich sind.
       </p>
 
-      <h2>9. Speicherdauer</h2>
+      <h2>7. Datei-Upload</h2>
+      <p>
+        Im Rahmen des Angebotsassistenten können Sie freiwillig bis zu 5 Dateien (Fotos im
+        Format JPG, PNG oder WEBP sowie PDF-Dokumente, jeweils bis 8 MB) hochladen, etwa um Ihr
+        Objekt oder die gewünschte Leistung zu veranschaulichen. Die hochgeladenen Dateien werden
+        ausschließlich zur Bearbeitung Ihrer Anfrage verwendet. Bitte laden Sie auch hier keine
+        besonderen Kategorien personenbezogener Daten hoch, die für die Bearbeitung nicht
+        erforderlich sind.
+      </p>
+
+      <h2>8. Kontakt per E-Mail und Telefon</h2>
+      <p>
+        Ihre über den Angebotsassistenten übermittelte Anfrage wird zur Bearbeitung an unsere
+        E-Mail-Adresse {company.email.display} weitergeleitet. Der dafür technisch eingesetzte
+        E-Mail-Versanddienst steht zum jetzigen Zeitpunkt noch nicht abschließend fest; dieser
+        Abschnitt wird ergänzt, sobald ein Anbieter verbindlich im Einsatz ist.
+      </p>
+      <p>
+        Wenn Sie uns direkt per E-Mail kontaktieren, verarbeiten wir die von Ihnen mitgeteilten
+        Daten zur Bearbeitung Ihrer Anfrage. Rechtsgrundlage ist je nach Kontext Art. 6 Abs. 1
+        lit. b DSGVO oder Art. 6 Abs. 1 lit. f DSGVO.
+      </p>
+      <p>
+        Bei telefonischer Kontaktaufnahme verwenden wir die von Ihnen freiwillig mitgeteilten
+        Angaben zur Bearbeitung Ihrer Anfrage. Telefongespräche werden nicht aufgezeichnet.
+      </p>
+
+      <h2>9. Empfänger / Auftragsverarbeitung</h2>
+      <p>
+        Ihre Daten werden nur an Dritte weitergegeben, soweit dies zur Bearbeitung Ihrer Anfrage
+        erforderlich ist oder eine gesetzliche Verpflichtung besteht. Soweit im Rahmen des
+        Betriebs dieser Website technische Dienstleister eingesetzt werden – insbesondere für
+        Hosting und E-Mail-Versand, sobald diese verbindlich feststehen –, erfolgt dies
+        ausschließlich auf Grundlage entsprechender Auftragsverarbeitungsverträge nach Art. 28
+        DSGVO, soweit gesetzlich erforderlich.
+      </p>
+
+      <h2>10. Drittlandübermittlung</h2>
+      <p>
+        Sollte im Rahmen des künftigen Hosting- oder E-Mail-Betriebs eine Übermittlung
+        personenbezogener Daten in Staaten außerhalb des Europäischen Wirtschaftsraums erfolgen,
+        geschieht dies nur unter Beachtung der gesetzlichen Voraussetzungen, beispielsweise auf
+        Grundlage eines Angemessenheitsbeschlusses der Europäischen Kommission oder geeigneter
+        Garantien wie EU-Standardvertragsklauseln.
+      </p>
+
+      <h2>11. Speicherdauer</h2>
       <p>
         Wir speichern personenbezogene Daten nur so lange, wie dies für die Bearbeitung der
         jeweiligen Anfrage erforderlich ist. Entsteht aus der Anfrage ein Vertragsverhältnis,
@@ -116,32 +169,13 @@ const description = "Datenschutzerklärung von Gebäudedienste SIMIN.";
         Aufbewahrungspflichten mehr, werden die Daten gelöscht.
       </p>
 
-      <h2>10. Empfänger / Auftragsverarbeiter</h2>
+      <h2>12. Datensicherheit</h2>
       <p>
-        Soweit im Rahmen des Betriebs dieser Website Dienstleister eingesetzt werden (z. B.
-        Hosting, E-Mail-Versand), erfolgt dies ausschließlich auf Grundlage entsprechender
-        Auftragsverarbeitungsverträge nach Art. 28 DSGVO, soweit gesetzlich erforderlich. Die
-        jeweiligen Anbieter sind in den Abschnitten „Hosting und Server-Logfiles" sowie
-        „E-Mail-Kommunikation" benannt bzw. bis zur endgültigen Festlegung als offene Angabe
-        gekennzeichnet.
-      </p>
-
-      <h2>11. Cookies und Tracking</h2>
-      <p>
-        Nach aktuellem technischen Stand werden auf dieser Website keine Analyse- oder
-        Marketing-Cookies eingesetzt. Sollten künftig technisch notwendige Cookies erforderlich
-        werden (z. B. für sicherheitsrelevante Funktionen), würden diese nur im erforderlichen
-        Umfang eingesetzt und diese Datenschutzerklärung entsprechend angepasst.
-      </p>
-
-      <h2>12. Externe Inhalte und Dienste</h2>
-      <p>
-        Diese Website bindet nach aktuellem Projektstand keine der folgenden Dienste ein: Google
-        Analytics, Google Maps, YouTube, Facebook, Instagram, Meta Pixel, TikTok, reCAPTCHA,
-        Google Fonts CDN, Cloudflare oder Newsletterdienste. Verwendete Schriftarten werden
-        selbst gehostet und nicht von einem externen Anbieter nachgeladen. Sollte künftig ein
-        externer Dienst eingebunden werden, wird diese Datenschutzerklärung entsprechend
-        angepasst.
+        Diese Website wird ausschließlich über eine verschlüsselte Verbindung (TLS/HTTPS)
+        ausgeliefert. Wir setzen angemessene technische und organisatorische Maßnahmen ein, um
+        Ihre Daten gegen Verlust, Missbrauch und unberechtigten Zugriff zu schützen. Eine
+        vollständige Sicherheit gegen jede denkbare Gefährdung kann dennoch nicht garantiert
+        werden.
       </p>
 
       <h2>13. Betroffenenrechte</h2>
@@ -156,51 +190,37 @@ const description = "Datenschutzerklärung von Gebäudedienste SIMIN.";
         <li>Recht auf Widerruf einer erteilten Einwilligung mit Wirkung für die Zukunft, soweit eine Verarbeitung auf Einwilligung beruht</li>
       </ul>
 
-      <h2>14. Beschwerderecht</h2>
+      <h2>14. Widerspruchsrecht</h2>
       <p>
-        Sie haben zudem das Recht, sich bei einer Datenschutzaufsichtsbehörde über die
-        Verarbeitung Ihrer personenbezogenen Daten zu beschweren. Zuständig ist in der Regel die
-        Aufsichtsbehörde des Bundeslandes, in dem der Verantwortliche seinen Sitz hat — für
-        Nordrhein-Westfalen die Landesbeauftragte für Datenschutz und Informationsfreiheit
-        Nordrhein-Westfalen (LDI NRW).
-      </p>
-      <p>
-        <span class="legal__placeholder"
-          >[PLATZHALTER: aktuelle Kontaktdaten der LDI NRW vor Livegang aus offizieller Quelle
-          prüfen und ergänzen]</span
-        >
+        Soweit wir personenbezogene Daten auf Grundlage berechtigter Interessen (Art. 6 Abs. 1
+        lit. f DSGVO) verarbeiten, haben Sie das Recht, gemäß Art. 21 DSGVO jederzeit Widerspruch
+        gegen diese Verarbeitung einzulegen, wenn Sie Gründe haben, die sich aus Ihrer besonderen
+        Situation ergeben.
       </p>
 
-      <h2>15. Datenschutzkontakt</h2>
+      <h2>15. Beschwerderecht</h2>
+      <p>
+        Ihnen steht außerdem ein Beschwerderecht bei einer Datenschutzaufsichtsbehörde zu,
+        insbesondere in dem Mitgliedstaat Ihres gewöhnlichen Aufenthalts, Ihres Arbeitsplatzes
+        oder des Ortes des mutmaßlichen Verstoßes. Für den Sitz des Verantwortlichen in
+        Nordrhein-Westfalen ist dies die Landesbeauftragte für Datenschutz und
+        Informationsfreiheit Nordrhein-Westfalen (LDI NRW).
+      </p>
+
+      <h2>16. Datenschutzkontakt</h2>
       <p>
         Bei Fragen zum Datenschutz wenden Sie sich bitte an{" "}
-        <a href={company.email.href}>{company.email.display}</a>.
-      </p>
-      <p>
-        <span class="legal__placeholder"
-          >[PLATZHALTER: Prüfen, ob ein Datenschutzbeauftragter bestellt ist. Falls nein bzw.
-          gesetzlich nicht erforderlich, keinen entsprechenden Abschnitt veröffentlichen.]</span
-        >
+        <a href={company.email.href}>{company.email.display}</a>. Ein Datenschutzbeauftragter
+        wurde nicht bestellt.
       </p>
 
-      <h2>16. Stand der Datenschutzerklärung</h2>
+      <h2>17. Stand der Datenschutzerklärung</h2>
       <p>Stand: September 2026</p>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .legal__notice {
-    background: var(--color-cream);
-    border: 1px solid var(--color-orange);
-    border-radius: var(--radius-md);
-    padding: 16px 20px;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--color-orange-accessible);
-    margin-bottom: 32px;
-  }
-
   .legal__content h2 {
     font-size: var(--fs-h3);
     margin-top: 28px;
@@ -219,16 +239,5 @@ const description = "Datenschutzerklärung von Gebäudedienste SIMIN.";
 
   .legal__content li {
     margin-bottom: 4px;
-  }
-
-  .legal__placeholder {
-    display: inline-block;
-    background: var(--color-cream);
-    border: 1px dashed var(--color-orange);
-    border-radius: var(--radius-sm);
-    padding: 1px 8px;
-    font-family: monospace;
-    font-size: 0.875rem;
-    color: var(--color-orange-accessible);
   }
 </style>
