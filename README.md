@@ -181,22 +181,47 @@ Ersatzlogo).
 
 Der Angebotsassistent sendet serverseitig an `POST /api/quote`
 (`src/pages/api/quote.ts`). Validierung (client- und serverseitig),
-Honeypot-Spamschutz, einfaches Rate-Limiting und Datei-Validierung
-(Typ/Größe) sind bereits implementiert.
+Honeypot-Spamschutz, einfaches Rate-Limiting, Datei-Validierung
+(Größe, Anzahl, Erweiterung, Magic-Byte-Prüfung des tatsächlichen
+Dateiinhalts) und der eigentliche Mailversand sind produktionsfertig
+implementiert.
 
-**Es ist aktuell kein echter Maildienst angebunden** (keine erfundenen
-API-Keys). Im Entwicklungsmodus läuft automatisch ein Mock-Adapter
-(`MockFormSubmissionService`), der eingehende Anfragen nur in die
-Konsole loggt.
+**Mailversand-Architektur:** `src/pages/api/quote.ts` kennt nur die
+Abstraktion `FormSubmissionService` (`src/lib/forms/submissionService.ts`),
+die wiederum nur die provider-agnostische `MailService`-Schnittstelle
+(`src/lib/mail/types.ts`) kennt. Ein Wechsel des Mailproviders oder des
+Hosters betrifft ausschließlich `src/lib/mail/getMailService.ts` und den
+jeweiligen Adapter – nicht die Formularlogik selbst.
+
+Enthaltene Adapter:
+
+- `ResendMailService` (`src/lib/mail/resendMailService.ts`) – Produktivadapter,
+  spricht die Resend-HTTP-API direkt per `fetch()` an (keine zusätzliche
+  Laufzeitabhängigkeit, läuft in jeder Node-/Serverless-/Edge-Umgebung).
+- `DevLogMailService` (`src/lib/mail/devLogMailService.ts`) – reiner
+  Entwicklungs-Adapter, protokolliert statt zu senden. Wird **nie**
+  automatisch verwendet und ist in einem Production-Build (`import.meta.env.PROD`)
+  fest deaktiviert, selbst wenn `MAIL_PROVIDER=dev-log` versehentlich gesetzt wäre.
+
+**Es ist aktuell kein echter API-Key/keine verifizierte Absenderdomain
+hinterlegt** (keine erfundenen Zugangsdaten). Ohne vollständige
+Konfiguration antwortet `/api/quote` klar mit „nicht konfiguriert" –
+niemals mit einem falschen Erfolg.
 
 Für den Produktivbetrieb:
 
-1. `.env.example` nach `.env` kopieren und `SMTP_*`
-   Variablen setzen.
-2. In `src/lib/forms/submissionService.ts` eine echte Implementierung von
-   `FormSubmissionService` ergänzen (z. B. SMTP-Versand oder CRM-API) und in
-   `getFormSubmissionService()` zurückgeben, sobald `SMTP_HOST`/`SMTP_USER`/
-   `SMTP_PASSWORD` gesetzt sind.
+1. `.env.example` nach `.env` kopieren.
+2. Bei [Resend](https://resend.com) einen Account anlegen, die
+   Absenderdomain (`gebaeudedienste-simin.de` bzw. eine Subdomain davon)
+   per SPF/DKIM verifizieren und einen API-Key erzeugen.
+3. `MAIL_PROVIDER=resend`, `RESEND_API_KEY=<echter Key>` und
+   `MAIL_FROM="Gebäudedienste SIMIN Website <anfrage@gebaeudedienste-simin.de>"`
+   (oder eine andere verifizierte Adresse) setzen.
+4. `QUOTE_REQUEST_TO_EMAIL` prüfen (Standard: `kontakt@gebaeudedienste-simin.de`).
+
+Soll später ein anderer Mailprovider verwendet werden, genügt ein neuer
+Adapter in `src/lib/mail/` plus eine Ergänzung in `getMailService.ts` –
+`submissionService.ts` und `quote.ts` bleiben unverändert.
 
 Rate-Limiting ist aktuell In-Memory (ausreichend für eine einzelne
 Serverinstanz) — bei horizontaler Skalierung durch einen gemeinsam
@@ -357,18 +382,20 @@ echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
       unterstützt eine Node.js-Laufzeitumgebung (nicht nur statisches
       Webspace) — siehe Abschnitt „Produktions-Hosting-Anforderung“ oben.
       Ohne das läuft `/api/quote` in Produktion nicht, unabhängig davon,
-      wie gut Formular-Backend/SMTP konfiguriert sind.
+      wie gut das Mail-Backend konfiguriert ist.
 
 **Formular**
-- [ ] Formular-Backend produktiv verbunden (`SMTP_*` in `.env`, echte
-      `FormSubmissionService`-Implementierung in
-      `src/lib/forms/submissionService.ts`)
+- [ ] Formular-Backend produktiv verbunden (`MAIL_PROVIDER=resend`,
+      `RESEND_API_KEY`, `MAIL_FROM` in `.env`, siehe Abschnitt
+      „Formularbackend“ oben)
+- [ ] Absenderdomain bei Resend verifiziert (SPF/DKIM) — ohne Verifizierung
+      lehnt Resend den Versand ab
 - [ ] `security.allowedDomains` in `astro.config.mjs` enthält die tatsächlich
       ausgelieferte(n) Produktionsdomain(s) — **ohne passenden Eintrag
       schlägt jede Formular-Anfrage mit 403 fehl**, siehe Abschnitt
       „Formularbackend“ oben
 - [ ] echte Testanfrage über das produktiv verbundene Backend erfolgreich angekommen
-- [ ] Success State geprüft (nach echtem Versand, nicht nur Mock-Adapter)
+- [ ] Success State geprüft (nach echtem Versand, nicht nur `dev-log`-Adapter)
 - [ ] Datenschutzhinweis am Formular vorhanden — **bereits vorhanden**
       (Checkbox + Link zu `/datenschutz` in Schritt 4 des Angebotsassistenten)
 

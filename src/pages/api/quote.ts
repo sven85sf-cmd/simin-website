@@ -1,10 +1,14 @@
 import type { APIRoute } from "astro";
-import { emptyQuoteFormData, type QuoteFormData } from "@/lib/forms/types";
-import { validateQuoteFormData, validateFiles } from "@/lib/forms/validate";
+import { emptyQuoteFormData, MAX_FILES, MAX_FILE_SIZE_BYTES, type QuoteFormData } from "@/lib/forms/types";
+import { validateQuoteFormData, validateFiles, validateFileSignatures } from "@/lib/forms/validate";
 import { isRateLimited } from "@/lib/forms/rateLimit";
 import { getFormSubmissionService } from "@/lib/forms/submissionService";
+import { company } from "@/config/site";
 
 export const prerender = false;
+
+/** Grobe Obergrenze für die gesamte Anfrage (Text-Felder + Anhänge + Multipart-Overhead). */
+const MAX_REQUEST_BYTES = MAX_FILES * MAX_FILE_SIZE_BYTES + 1024 * 1024;
 
 function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -28,6 +32,16 @@ function isSameOrigin(request: Request): boolean {
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   if (!isSameOrigin(request)) {
     return json(403, { ok: false, error: "Ungültige Anfrage-Herkunft." });
+  }
+
+  const contentType = request.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
+    return json(415, { ok: false, error: "Ungültiger Content-Type." });
+  }
+
+  const contentLength = Number(request.headers.get("content-length") ?? "0");
+  if (contentLength > MAX_REQUEST_BYTES) {
+    return json(413, { ok: false, error: "Die Anfrage ist zu groß." });
   }
 
   let rateLimitKey = "unknown";
@@ -83,6 +97,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     return json(422, { ok: false, error: "Ein oder mehrere Dateien sind ungültig.", fileErrors });
   }
 
+  // Verlässt sich NICHT auf die vom Client gemeldeten MIME-Types/Erweiterungen:
+  // prüft die tatsächlichen Datei-Inhalte (Magic Bytes) serverseitig.
+  const signatureErrors = await validateFileSignatures(files);
+  if (signatureErrors.length > 0) {
+    return json(422, { ok: false, error: "Ein oder mehrere Dateien sind ungültig.", fileErrors: signatureErrors });
+  }
+
   const submissionService = getFormSubmissionService();
   const result = await submissionService.submit({ data, files });
 
@@ -91,7 +112,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       ok: false,
       error:
         result.errorMessage ??
-        "Ihre Anfrage konnte nicht übermittelt werden. Bitte versuchen Sie es später erneut oder rufen Sie uns an.",
+        `Ihre Anfrage konnte gerade nicht versendet werden. Bitte versuchen Sie es erneut oder kontaktieren Sie uns telefonisch unter ${company.phone.display}.`,
     });
   }
 

@@ -5,23 +5,10 @@ import TextareaField from "@/components/form/TextareaField.astro";
 import FileUpload from "@/components/form/FileUpload.astro";
 import { company } from "@/config/site";
 import { withBase } from "@/lib/path";
+import { SERVICE_OPTIONS, PROPERTY_TYPE_OPTIONS } from "@/lib/forms/types";
 
-const serviceOptions = [
-  { value: "gebaeudereinigung", label: "Gebäudereinigung" },
-  { value: "objektservice", label: "Objektservice" },
-  { value: "aussenanlagenpflege", label: "Außenanlagenpflege" },
-  { value: "winterdienst", label: "Winterdienst" },
-  { value: "mehrere-leistungen", label: "Mehrere Leistungen" },
-  { value: "noch-nicht-sicher", label: "Noch nicht sicher" },
-];
-
-const propertyOptions = [
-  { value: "wohnimmobilie", label: "Wohnimmobilie" },
-  { value: "buero", label: "Büro" },
-  { value: "praxis", label: "Praxis" },
-  { value: "gewerbeobjekt", label: "Gewerbeobjekt" },
-  { value: "sonstiges", label: "Sonstiges" },
-];
+const serviceOptions = SERVICE_OPTIONS;
+const propertyOptions = PROPERTY_TYPE_OPTIONS;
 ---
 
 <section class="quote-wizard section--navy section" id="angebotsassistent">
