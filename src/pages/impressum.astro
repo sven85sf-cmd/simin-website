@@ -12,17 +12,13 @@ const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 5114
 
   <section class="section legal">
     <div class="container legal__content prose">
-      <p class="legal__notice" role="note">
-        Hinweis: Einzelne Pflichtangaben sind noch zu ergänzen. Die Seite ist noch nicht für den
-        Produktivbetrieb freigegeben.
-      </p>
-
       <h1>Impressum</h1>
 
       <h2>Angaben gemäß § 5 DDG</h2>
       <p>
         {company.legalName}<br />
-        Inhaber: <span class="legal__placeholder">{company.ownerName}</span><br />
+        {company.legalForm}<br />
+        Inhaber: {company.ownerName}<br />
         {company.address.street}<br />
         {company.address.postalCode} {company.address.city}<br />
         {company.address.country}
@@ -33,38 +29,11 @@ const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 5114
         Telefon: <a href={company.phone.href}>{company.phone.display}</a><br />
         E-Mail: <a href={company.email.href}>{company.email.display}</a>
       </p>
-
-      <h2>Umsatzsteuer / Wirtschafts-ID</h2>
-      <p>
-        <span class="legal__placeholder">[PLATZHALTER: USt-IdNr. gemäß § 27a UStG, sofern vorhanden]</span
-        ><br />
-        <span class="legal__placeholder"
-          >[PLATZHALTER: Wirtschafts-Identifikationsnummer, sofern vorhanden]</span
-        >
-      </p>
-
-      <h2>Registerangaben</h2>
-      <p>
-        <span class="legal__placeholder"
-          >[PLATZHALTER: Registerangaben nur ergänzen, falls Eintragung vorhanden]</span
-        >
-      </p>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .legal__notice {
-    background: var(--color-cream);
-    border: 1px solid var(--color-orange);
-    border-radius: var(--radius-md);
-    padding: 16px 20px;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--color-orange-accessible);
-    margin-bottom: 32px;
-  }
-
   .legal__content h2 {
     font-size: var(--fs-h3);
     margin-top: 28px;
@@ -73,16 +42,5 @@ const description = "Impressum von Gebäudedienste SIMIN, Gilgaustraße 64, 5114
 
   .legal__content p {
     margin-bottom: 4px;
-  }
-
-  .legal__placeholder {
-    display: inline-block;
-    background: var(--color-cream);
-    border: 1px dashed var(--color-orange);
-    border-radius: var(--radius-sm);
-    padding: 1px 8px;
-    font-family: monospace;
-    font-size: 0.875rem;
-    color: var(--color-orange-accessible);
   }
 </style>
