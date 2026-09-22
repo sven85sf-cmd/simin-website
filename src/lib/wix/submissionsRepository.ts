@@ -32,9 +32,23 @@ import { sanitizeFilename } from "@/lib/forms/sanitize";
 const insertItem = elevate(items.insert);
 const generateFileUploadUrl = elevate(mediaFiles.generateFileUploadUrl);
 
-export interface SubmissionFileRef {
-  name: string;
-  url: string;
+/**
+ * Wix-Media-Dokumentreferenz im Format, das das CMS-Feld "files"
+ * (Feldtyp "Mehrere Dokumente") erwartet: `wix:document://v1/<fileId>/<filename>`.
+ *
+ * Dieses Format ist NICHT erfunden, sondern aus der tatsächlichen
+ * Implementierung von `@wix/sdk`s `media.getDocumentUrl()` abgeleitet
+ * (node_modules/@wix/sdk/build/media/helpers.js): diese Funktion parst
+ * genau diesen String zurück in `{ id, url, filename }` – die Schreibrichtung
+ * ist die symmetrische Umkehrung davon. "Mehrere Dokumente" speichert laut
+ * Wix-Dokumentation ("Data Types in Wix Data") mehrere solcher
+ * Dokumentreferenzen pro Feld, analog zu "Mehrere Bilder" bei `wix:image://`
+ * – d. h. ein Array dieser Strings.
+ */
+type WixDocumentReference = string;
+
+function toWixDocumentReference(fileId: string, filename: string): WixDocumentReference {
+  return `wix:document://v1/${fileId}/${encodeURIComponent(filename)}`;
 }
 
 function collectionId(): string | null {
@@ -43,11 +57,12 @@ function collectionId(): string | null {
 
 /**
  * Lädt eine Datei in den Wix Media Manager hoch (privat, eigener Ordner)
- * und liefert eine Dateireferenz zurück, die im Submission-Datensatz
- * gespeichert wird. Gibt bei Fehlern `null` zurück, statt die gesamte
- * Anfrage scheitern zu lassen – der Fehler wird vom Aufrufer entschieden.
+ * und liefert die Wix-native Dokumentreferenz zurück, die im
+ * Submission-Datensatz im Feld "files" gespeichert wird. Gibt bei Fehlern
+ * `null` zurück, statt die gesamte Anfrage scheitern zu lassen – der
+ * Fehler wird vom Aufrufer entschieden.
  */
-async function uploadFile(file: File): Promise<SubmissionFileRef | null> {
+async function uploadFile(file: File): Promise<WixDocumentReference | null> {
   const safeName = sanitizeFilename(file.name);
 
   try {
@@ -67,14 +82,15 @@ async function uploadFile(file: File): Promise<SubmissionFileRef | null> {
 
     if (!uploadResponse.ok) return null;
 
+    // FileDescriptor-Felder (_id, displayName) gemäß @wix/auto_sdk_media_files-Typdefinitionen.
     const result = (await uploadResponse.json().catch(() => null)) as
-      | { file?: { url?: string; id?: string } }
+      | { file?: { _id?: string; displayName?: string } }
       | null;
 
-    const url = result?.file?.url;
-    if (!url) return null;
+    const fileId = result?.file?._id;
+    if (!fileId) return null;
 
-    return { name: safeName, url };
+    return toWixDocumentReference(fileId, result?.file?.displayName || safeName);
   } catch {
     return null;
   }
@@ -103,7 +119,7 @@ export async function insertQuoteSubmission(input: QuoteSubmissionInput): Promis
   }
 
   const uploadResults = await Promise.all(input.files.map((file) => uploadFile(file)));
-  const uploadedFiles: SubmissionFileRef[] = [];
+  const uploadedFiles: WixDocumentReference[] = [];
   const failedUploads: string[] = [];
   input.files.forEach((file, index) => {
     const result = uploadResults[index];

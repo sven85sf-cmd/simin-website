@@ -212,7 +212,11 @@ Eintrag in dieser Collection" reagiert.
    „SIMIN Angebotsanfragen", mit Feldern passend zum in
    `src/lib/wix/submissionsRepository.ts` geschriebenen Datensatz
    (`service`, `propertyType`, `postalCode`, `city`, `description`,
-   `name`, `company`, `phone`, `email`, `files`, `submittedAt`).
+   `name`, `company`, `phone`, `email`, `files`, `submittedAt`). Das
+   Feld `files` muss den Feldtyp **„Mehrere Dokumente"** verwenden — der
+   Code schreibt dort ein Array nativer Wix-Dokumentreferenzen
+   (`wix:document://v1/<fileId>/<filename>`, siehe `uploadFile()` in
+   `submissionsRepository.ts`), keine JSON-Objekte und keine Klartext-URLs.
 2. Die Collection-ID als `WIX_SUBMISSIONS_COLLECTION_ID` setzen
    (`.env.example` kopieren nach `.env`).
 3. Eine Automation einrichten: Trigger „Neuer Eintrag" auf dieser
