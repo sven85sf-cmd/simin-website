@@ -1,0 +1,9 @@
+{
+  "appManifestPath": "C:\\Users\\SF\\Documents\\GitHub\\simin-website\\dist\\_wix\\app-manifest.json",
+  "clientDir": "C:\\Users\\SF\\Documents\\GitHub\\simin-website\\dist\\client\\",
+  "extensionsTopology": [],
+  "outDir": "C:\\Users\\SF\\Documents\\GitHub\\simin-website\\dist\\",
+  "serverDir": "C:\\Users\\SF\\Documents\\GitHub\\simin-website\\dist\\server\\",
+  "serverUrlPlaceholder": "http://_wix_server_url_placeholder_",
+  "staticsUrlPlaceholder": "http://_wix_statics_url_placeholder_"
+}

@@ -1,15 +1,22 @@
 import { defineConfig } from "astro/config";
 import node from "@astrojs/node";
 
+import react from "@astrojs/react";
+import wix from "@wix/astro";
+import wixPages from "@wix/astro-pages";
+
 export default defineConfig({
   site: "https://www.gebaeudedienste-simin.de",
+
   // Nur für GitHub-Pages-Previews gesetzt (z. B. PREVIEW_BASE_PATH=/simin-website).
   // In Produktion bleibt base "/", ohne Auswirkung auf die echte Domain.
   base: process.env.PREVIEW_BASE_PATH || "/",
+
   output: "static",
   adapter: node({ mode: "standalone" }),
   trailingSlash: "never",
   compressHTML: true,
+
   security: {
     // OHNE dies validiert Astros eingebaute CSRF-Origin-Prüfung (nur für
     // die eine on-demand-Route /api/quote relevant) den Host-Header nicht
@@ -21,6 +28,7 @@ export default defineConfig({
     // erkannt und die Origin-Prüfung funktioniert wie vorgesehen.
     allowedDomains: [{ hostname: "www.gebaeudedienste-simin.de", protocol: "https" }],
   },
+
   build: {
     // "always" statt "auto": mit "auto" hat Vite/Astro einen Teil des
     // globalen Reveal-System-CSS (aus global.css) in einen Chunk gepackt,
@@ -30,7 +38,11 @@ export default defineConfig({
     // dieses Chunking-Risiko strukturell unmöglich.
     inlineStylesheets: "always",
   },
+
   image: {
     remotePatterns: [],
+    domains: ["static.wixstatic.com"],
   },
+
+  integrations: [react(), wix(), wixPages()],
 });
