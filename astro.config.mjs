@@ -1,9 +1,32 @@
 import { defineConfig } from "astro/config";
 import node from "@astrojs/node";
+import wixHostingAdapter from "@wix/astro-wix-hosting-adapter";
 
 import react from "@astrojs/react";
 import wix from "@wix/astro";
 import wixPages from "@wix/astro-pages";
+
+/**
+ * Wix Managed Headless erwartet laut offizieller Doku für ein bestehendes
+ * Astro-5-Projekt (dev.wix.com/docs/go-headless/wix-managed-headless/
+ * full-integration-astro) `output: "server"` mit `adapter: wixHostingAdapter()`
+ * (Cloudflare-Workers-Runtime). Dieser Adapter benötigt lokal aber einen
+ * glibc-≥-2.32-Worker-Emulator, den lokale Entwicklung nicht braucht/hat -
+ * `astro dev`/`astro check` sollen weiterhin mit dem bisherigen Node-Adapter
+ * laufen (exakt das von Wix selbst dokumentierte Muster: Wix-Adapter nur
+ * für den echten Produktions-Build, lokal "plain Node SSR").
+ *
+ * NODE_ENV allein reicht als Unterscheidung NICHT aus: Astro/Vite setzt es
+ * empirisch verifiziert auch bei `astro check` auf "production" (nicht nur
+ * bei `astro build`). Stattdessen wird gezielt auf `npm_lifecycle_event`
+ * geprüft - das ist "build" ausschließlich bei `npm run build` (= `wix
+ * build`), nicht bei `check`, `dev`/`start` oder `build:unsafe`. Zusätzliche
+ * Ausnahme: der separate GitHub-Pages-Preview-Build (`PREVIEW_BASE_PATH`
+ * gesetzt, läuft ohnehin über `build:unsafe` = reines `astro build` ohne
+ * Wix) darf NICHT den Wix-Hosting-Adapter bekommen - das wäre ein rein
+ * statischer Export für einen anderen Host.
+ */
+const isWixProductionBuild = process.env.npm_lifecycle_event === "build" && !process.env.PREVIEW_BASE_PATH;
 
 export default defineConfig({
   site: "https://www.gebaeudedienste-simin.de",
@@ -12,8 +35,8 @@ export default defineConfig({
   // In Produktion bleibt base "/", ohne Auswirkung auf die echte Domain.
   base: process.env.PREVIEW_BASE_PATH || "/",
 
-  output: "static",
-  adapter: node({ mode: "standalone" }),
+  output: isWixProductionBuild ? "server" : "static",
+  adapter: isWixProductionBuild ? wixHostingAdapter() : node({ mode: "standalone" }),
   trailingSlash: "never",
   compressHTML: true,
 

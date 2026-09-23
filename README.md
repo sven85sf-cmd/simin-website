@@ -266,46 +266,66 @@ alles andere korrekt konfiguriert ist. End-to-end
 gegen den Node-Server getestet (Validierung, Honeypot, Datei-Upload,
 Erfolg-/Fehlerzustand, Tastaturbedienung) — siehe Launch-Checkliste unten.
 
-## Wix Managed Headless — Runtime-Pakete (wichtig bei zukünftigen Dependency-Änderungen)
+## Wix Managed Headless — Adapter & Runtime-Pakete (wichtig bei zukünftigen Änderungen)
 
-Das SSR-Server-Bundle (`dist/server/`) lässt Framework-/Wix-SDK-Pakete
-bewusst unbundled (bare imports, z. B. `import React from "react"` in
-`dist/server/renderers.mjs`) — sie werden zur Laufzeit aus `node_modules`
-aufgelöst. Läuft der Deploy-Prozess (z. B. Wix' eigene Build-Pipeline) mit
-einer reinen Production-Installation (`npm ci --omit=dev`), gehen alle
-Pakete verloren, die nur unter `devDependencies` stehen, obwohl der
-gebaute Code sie zur Laufzeit direkt oder über einen Pfad in
-`node_modules/<paket>/...` benötigt (kein Peer-Dependency-Hoisting rettet
-das, wenn die einzige „harte" Installation eine devDependency ist).
+**Warum der frühere `@astrojs/node`-Standalone-Build auf Wix falsch war:**
+Wix Managed Headless deployed die Site als Cloudflare-Workers-Bundle
+(`_worker.js/`). Der Node-Standalone-Adapter erzeugt dagegen ein separates
+`dist/server/`-Verzeichnis, dessen SSR-Bundle Framework-Pakete bewusst
+unbundled lässt (bare imports, z. B. `import React from "react"` in
+`dist/server/renderers.mjs`), die zur Laufzeit aus `node_modules` aufgelöst
+werden müssen. Auf Wix' Cloudflare-Worker-Runtime — die kein `node_modules`
+zur Laufzeit hat — schlägt genau das fehl: „Cannot find package 'react'
+imported from /user-code/renderers.mjs". Das Verschieben von
+`react`/`react-dom` nach `dependencies` (siehe unten) behebt zusätzlich
+reale, unabhängige Packaging-Risiken, war aber allein nicht die Ursache
+des gemeldeten Laufzeitfehlers.
 
-Deshalb stehen folgende Pakete bewusst unter `dependencies`, nicht
-`devDependencies`, obwohl sie so von `npm create @wix/new -- headless
-link` ursprünglich einsortiert wurden:
+**Jetzt umgesetzt (`astro.config.mjs`):** `adapter`/`output` werden
+abhängig davon gewählt, ob es sich um den echten Wix-Produktionsbuild
+handelt (`npm_lifecycle_event === "build"`, d. h. `npm run build` = `wix
+build`, und kein GitHub-Pages-Preview-Build):
 
-- `react`, `react-dom` — von `dist/server/renderers.mjs` per bare import
-  benötigt; nur als `devDependencies` reproduzierte exakt den Fehler
-  „Cannot find package 'react' imported from /user-code/renderers.mjs"
-  auf der Wix-Runtime.
-- `@wix/astro`, `@wix/astro-pages` — registrieren zur Laufzeit referenzierte
-  Server-Routen (`node_modules/@wix/astro/build/dependencies/.../*.mjs`,
-  u. a. `/_wix/pages.json`, Auth-Callbacks, Payment-Links) im SSR-Manifest.
-- `@wix/media` — direkt in `src/lib/wix/submissionsRepository.ts`
-  importiert; lief bisher nur „zufällig", weil `@wix/dashboard` es
-  transitiv mitzieht — jetzt explizit deklariert.
+- Wix-Produktionsbuild: `adapter: wixHostingAdapter()` (aus
+  `@wix/astro-wix-hosting-adapter`, kapselt `@astrojs/cloudflare`),
+  `output: "server"` — erzeugt `dist/_worker.js/`, in dem React/ReactDOM
+  vollständig inline gebündelt sind (lokal verifiziert: 0 bare
+  `import ... from "react"` in `dist/_worker.js/renderers.mjs`,
+  `adapterName` im Manifest ist `@astrojs/cloudflare`).
+- Alles andere (`astro dev`/`start`, `astro check`, `build:unsafe` für
+  GitHub Pages): unverändert `adapter: node({ mode: "standalone" })`,
+  `output: "static"` — genau das von Wix selbst dokumentierte Muster
+  ("local development runs plain Node SSR" ohne den Cloudflare-Adapter,
+  dessen lokaler Emulator glibc ≥ 2.32 voraussetzt).
+- `NODE_ENV` allein reicht als Unterscheidung nicht aus: Astro/Vite setzt
+  es empirisch verifiziert auch bei `astro check` auf `"production"`,
+  nicht nur bei `astro build` — deshalb `npm_lifecycle_event` statt
+  `NODE_ENV` als Schalter.
 
-`@astrojs/react` (nur Build-Zeit-Integration, generiert `renderers.mjs`,
-wird selbst nicht zur Laufzeit importiert), `@wix/cli` (Build-/CLI-Tool)
-und `@wix/astro-wix-hosting-adapter` (aktuell nicht in `astro.config.mjs`
-eingebunden, siehe unten) bleiben zulässig unter `devDependencies`.
+`react()`, `wix({ robots: false })`, `wixPages()` bleiben unverändert in
+allen Fällen aktiv (nicht Teil der Bedingung).
 
-**Offener Beobachtungspunkt (nicht verändert):** `@wix/astro-wix-hosting-adapter`
-ist installiert, aber `astro.config.mjs` verwendet weiterhin den
-`@astrojs/node`-Adapter, nicht diesen Wix/Cloudflare-Adapter. Der lokale
-Build läuft damit einwandfrei durch; ob Wix' eigene Deploy-Pipeline
-zwingend den Cloudflare-Adapter erwartet, konnte in dieser Umgebung nicht
-verifiziert werden (kein Netzwerkzugriff auf `*.wix.com`). Nicht
-eigenmächtig umgestellt, da dies laut Aufgabenstellung eine große,
-nicht anhand vorliegender Fehler begründete Architekturänderung wäre.
+Zusätzlich stehen folgende Pakete jetzt unter `dependencies`, nicht mehr
+`devDependencies` (wie sie ursprünglich vom Linking-Prozess einsortiert
+wurden) — jedes davon wird beim Config-Laden oder im SSR-Manifest per
+bare import/`node_modules/<paket>/...`-Pfad referenziert, würde also bei
+einer reinen Production-Installation (`npm ci --omit=dev`) fehlen:
+
+- `react`, `react-dom`
+- `@wix/astro`, `@wix/astro-pages` (registrieren Server-Routen im
+  SSR-Manifest, u. a. `/_wix/pages.json`, Auth-Callbacks, Payment-Links)
+- `@wix/astro-wix-hosting-adapter` (jetzt unconditional am Kopf von
+  `astro.config.mjs` importiert, auch wenn nur produktiv *verwendet*)
+- `@wix/media` (direkt in `src/lib/wix/submissionsRepository.ts`
+  importiert; lief bisher nur „zufällig" über `@wix/dashboard` mit)
+
+`@astrojs/node` bleibt bewusst unter `dependencies` (nicht entfernt,
+trotz anfänglicher Vermutung): Es wird für `astro dev`/`astro check`/den
+GitHub-Pages-Build weiterhin als lokaler Adapter gebraucht und ist am
+Kopf von `astro.config.mjs` unconditional importiert. `@astrojs/react`
+(nur Build-Zeit-Integration, generiert `renderers.mjs`, wird selbst nicht
+zur Laufzeit importiert) und `@wix/cli` (Build-/CLI-Tool) bleiben zulässig
+unter `devDependencies`.
 
 ## Produktions-Hosting-Anforderung (P0 — Entscheidung vor Livegang nötig)
 
@@ -364,10 +384,13 @@ Da GitHub Pages dieses Repository unter einem Unterordner-Pfad ausliefert,
 unterstützt die Website einen konfigurierbaren `base`-Pfad:
 
 ```bash
-PREVIEW_BASE_PATH=/simin-website npm run build
+PREVIEW_BASE_PATH=/simin-website npm run build:unsafe
 ```
 
-`astro.config.mjs` liest `PREVIEW_BASE_PATH` nur für diesen Sonderfall;
+**Wichtig:** hier ausdrücklich `build:unsafe` (reines `astro build`), nicht
+`build` (= `wix build`) — Letzteres würde versuchen, den Wix-CLI-Build samt
+Wix-Netzwerkzugriff auszuführen, den ein reiner statischer GitHub-Pages-Export
+nicht braucht und nicht haben soll. `astro.config.mjs` liest `PREVIEW_BASE_PATH` nur für diesen Sonderfall;
 ohne die Variable bleibt `base` immer `"/"` — die Produktionsseite unter
 `https://www.gebaeudedienste-simin.de/` ist davon nicht betroffen. Der
 zentrale `withBase()`-Helper (`src/lib/path.ts`) hängt den Unterordner-Pfad
