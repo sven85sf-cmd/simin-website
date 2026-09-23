@@ -1,89 +1,45 @@
 import { defineConfig } from "astro/config";
-import node from "@astrojs/node";
 import wixHostingAdapter from "@wix/astro-wix-hosting-adapter";
 
-import react from "@astrojs/react";
-import wix from "@wix/astro";
-import wixPages from "@wix/astro-pages";
+import { baseConfig } from "./astro.config.base.mjs";
 
 /**
- * Wix Managed Headless erwartet laut offizieller Doku für ein bestehendes
- * Astro-5-Projekt (dev.wix.com/docs/go-headless/wix-managed-headless/
- * full-integration-astro) `output: "server"` mit `adapter: wixHostingAdapter()`
- * (Cloudflare-Workers-Runtime). Dieser Adapter benötigt lokal aber einen
- * glibc-≥-2.32-Worker-Emulator, den lokale Entwicklung nicht braucht/hat -
- * `astro dev`/`astro check` sollen weiterhin mit dem bisherigen Node-Adapter
- * laufen (exakt das von Wix selbst dokumentierte Muster: Wix-Adapter nur
- * für den echten Produktions-Build, lokal "plain Node SSR").
+ * Dies ist die Konfiguration, die `wix dev`, `wix build` UND `wix preview`
+ * lesen (Astros Standard-Dateiname, ohne `--config`-Override). Sie MUSS
+ * für alle drei identisch und unconditional Wix-konfiguriert sein - eine
+ * frühere Version wählte den Adapter abhängig von `npm_lifecycle_event`
+ * ("build" vs. alles andere). Das brach genau dann, wenn `wix preview`
+ * intern nicht mit `npm_lifecycle_event=build` läuft: `wix build` bekam
+ * korrekt den Wix-Hosting-Adapter, `wix preview` fiel aber wieder auf
+ * `@astrojs/node`/`output: "static"` zurück - und reproduzierte dadurch
+ * exakt "Cannot find package 'react' imported from /user-code/renderers.mjs",
+ * weil dieser Adapter/Output-Modus Framework-Pakete bewusst nicht bündelt
+ * (bare `import ... from "react"`, zur Laufzeit aus node_modules aufgelöst),
+ * was auf Wix' Cloudflare-Workers-Runtime (kein node_modules zur Laufzeit)
+ * fehlschlägt.
  *
- * NODE_ENV allein reicht als Unterscheidung NICHT aus: Astro/Vite setzt es
- * empirisch verifiziert auch bei `astro check` auf "production" (nicht nur
- * bei `astro build`). Stattdessen wird gezielt auf `npm_lifecycle_event`
- * geprüft - das ist "build" ausschließlich bei `npm run build` (= `wix
- * build`), nicht bei `check`, `dev`/`start` oder `build:unsafe`. Zusätzliche
- * Ausnahme: der separate GitHub-Pages-Preview-Build (`PREVIEW_BASE_PATH`
- * gesetzt, läuft ohnehin über `build:unsafe` = reines `astro build` ohne
- * Wix) darf NICHT den Wix-Hosting-Adapter bekommen - das wäre ein rein
- * statischer Export für einen anderen Host.
+ * Deshalb hier KEINE Bedingung mehr: `output: "server"` und
+ * `adapter: wixHostingAdapter()` sind fest, genauso wie es die offizielle
+ * Wix-Doku für ein verlinktes Astro-5-Projekt vorsieht. Lokal verifiziert:
+ * dist/_worker.js/renderers.mjs enthält 0 bare `import ... from "react"`
+ * -Zeilen (React vollständig inline gebündelt), Manifest meldet
+ * adapterName "@astrojs/cloudflare".
+ *
+ * Lokale Entwicklung/Typecheck/GitHub-Pages-Build laufen über die separate
+ * astro.config.static.mjs (siehe dort) - explizit per `--config`, niemals
+ * durch eine Bedingung in dieser Datei.
  */
-const isWixProductionBuild = process.env.npm_lifecycle_event === "build" && !process.env.PREVIEW_BASE_PATH;
+// Bewusst dauerhaft vorhanden (nicht nur zum Debuggen entfernt): macht in
+// jedem Terminal-Log von `wix dev`/`wix build`/`wix preview` sofort
+// nachprüfbar, welche Config-Datei/Adapter aktiv war - genau das, was den
+// vorherigen Fehler (stiller Rückfall auf eine andere Konfiguration) erst
+// unentdeckt gemacht hat.
+console.log(
+  `[astro.config.mjs] output=server adapter=wixHostingAdapter(@astrojs/cloudflare) npm_lifecycle_event=${process.env.npm_lifecycle_event}`,
+);
 
 export default defineConfig({
-  site: "https://www.gebaeudedienste-simin.de",
-
-  // Nur für GitHub-Pages-Previews gesetzt (z. B. PREVIEW_BASE_PATH=/simin-website).
-  // In Produktion bleibt base "/", ohne Auswirkung auf die echte Domain.
-  base: process.env.PREVIEW_BASE_PATH || "/",
-
-  output: isWixProductionBuild ? "server" : "static",
-  adapter: isWixProductionBuild ? wixHostingAdapter() : node({ mode: "standalone" }),
-  trailingSlash: "never",
-  compressHTML: true,
-
-  security: {
-    // OHNE dies validiert Astros eingebaute CSRF-Origin-Prüfung (nur für
-    // die eine on-demand-Route /api/quote relevant) den Host-Header nicht
-    // gegen die echte Produktionsdomain und fällt intern auf ein leeres
-    // "http://localhost" zurück - eine echte Formular-Anfrage vom echten
-    // Origin (https://www.gebaeudedienste-simin.de) würde dadurch IMMER
-    // mit 403 "Cross-site POST form submissions are forbidden" abgelehnt.
-    // Mit dieser Domain in der Allowlist wird der tatsächliche Host korrekt
-    // erkannt und die Origin-Prüfung funktioniert wie vorgesehen.
-    //
-    // Zusätzlich: Wix-Managed-Headless-Previews laufen auf einer von Wix
-    // generierten *.wix-site-host.com-Subdomain (siehe .wix/topology.json).
-    // Ohne diesen Eintrag würde eine Testanfrage über die Wix-Preview aus
-    // demselben Grund mit "Cross-site POST form submissions are forbidden"
-    // fehlschlagen. Als Wildcard auf Wix' eigene, dedizierte Preview-Domain
-    // beschränkt (nicht pauschal offen), da die konkrete Subdomain sich pro
-    // Deployment ändern kann.
-    allowedDomains: [
-      { hostname: "www.gebaeudedienste-simin.de", protocol: "https" },
-      { hostname: "**.wix-site-host.com", protocol: "https" },
-    ],
-  },
-
-  build: {
-    // "always" statt "auto": mit "auto" hat Vite/Astro einen Teil des
-    // globalen Reveal-System-CSS (aus global.css) in einen Chunk gepackt,
-    // der auf der Startseite gar nicht eingebunden wurde (nur z. B. auf
-    // /angebot) - das Reveal-System griff dadurch auf der Startseite
-    // lautlos nicht. "always" inlined jede Seite vollständig und macht
-    // dieses Chunking-Risiko strukturell unmöglich.
-    inlineStylesheets: "always",
-  },
-
-  image: {
-    remotePatterns: [],
-    domains: ["static.wixstatic.com"],
-  },
-
-  // robots: false, da @wix/astro sonst eine eigene /robots.txt-Route
-  // registriert, die mit der bestehenden src/pages/robots.txt.ts kollidiert
-  // ("A static route cannot be defined more than once", zuletzt als Warnung,
-  // laut Astro künftig ein Hard-Error). Wix' eigene Route proxied nur das
-  // generische Wix-robots.txt und kennt die hier gewünschte
-  // Preview-noindex-/Production-indexierbar-Logik nicht – die bestehende,
-  // vollständigere eigene Route bleibt deshalb aktiv.
-  integrations: [react(), wix({ robots: false }), wixPages()],
+  ...baseConfig,
+  output: "server",
+  adapter: wixHostingAdapter(),
 });

@@ -281,29 +281,48 @@ imported from /user-code/renderers.mjs". Das Verschieben von
 reale, unabhängige Packaging-Risiken, war aber allein nicht die Ursache
 des gemeldeten Laufzeitfehlers.
 
-**Jetzt umgesetzt (`astro.config.mjs`):** `adapter`/`output` werden
-abhängig davon gewählt, ob es sich um den echten Wix-Produktionsbuild
-handelt (`npm_lifecycle_event === "build"`, d. h. `npm run build` = `wix
-build`, und kein GitHub-Pages-Preview-Build):
+**Zwischenstand, der NICHT ausreichte:** Ein erster Versuch wählte
+`adapter`/`output` abhängig von `npm_lifecycle_event === "build"`
+innerhalb von `astro.config.mjs`. Das erklärte den Fehler zwar korrekt,
+löste ihn aber nicht robust: `wix build` bekam damit zwar den
+Wix-Hosting-Adapter, aber `wix preview` (das `astro.config.mjs` erneut
+einliest) fiel wieder auf `@astrojs/node`/`output: "static"` zurück,
+sobald sein interner Aufruf `npm_lifecycle_event` nicht auf `"build"`
+setzte — und reproduzierte dadurch exakt denselben Fehler erneut.
 
-- Wix-Produktionsbuild: `adapter: wixHostingAdapter()` (aus
+**Jetzt umgesetzt: keine Bedingung mehr, sondern zwei getrennte
+Config-Dateien:**
+
+- **`astro.config.mjs`** (Astros Standardname — das liest `wix dev`,
+  `wix build` UND `wix preview` immer, ohne `--config`-Override):
+  unconditional `adapter: wixHostingAdapter()` (aus
   `@wix/astro-wix-hosting-adapter`, kapselt `@astrojs/cloudflare`),
-  `output: "server"` — erzeugt `dist/_worker.js/`, in dem React/ReactDOM
-  vollständig inline gebündelt sind (lokal verifiziert: 0 bare
-  `import ... from "react"` in `dist/_worker.js/renderers.mjs`,
-  `adapterName` im Manifest ist `@astrojs/cloudflare`).
-- Alles andere (`astro dev`/`start`, `astro check`, `build:unsafe` für
-  GitHub Pages): unverändert `adapter: node({ mode: "standalone" })`,
-  `output: "static"` — genau das von Wix selbst dokumentierte Muster
-  ("local development runs plain Node SSR" ohne den Cloudflare-Adapter,
-  dessen lokaler Emulator glibc ≥ 2.32 voraussetzt).
-- `NODE_ENV` allein reicht als Unterscheidung nicht aus: Astro/Vite setzt
-  es empirisch verifiziert auch bei `astro check` auf `"production"`,
-  nicht nur bei `astro build` — deshalb `npm_lifecycle_event` statt
-  `NODE_ENV` als Schalter.
+  `output: "server"`. Kein Fallback, keine Umgebungsvariable entscheidet
+  hier irgendetwas mehr.
+- **`astro.config.static.mjs`**: unconditional `adapter: node({ mode:
+  "standalone" })`, `output: "static"` — für alles, was explizit NICHT
+  der echte Wix-Build/-Preview ist.
+- **`astro.config.base.mjs`**: gemeinsame Basis (site/base/security/
+  build/image/integrations), von beiden obigen Dateien per Spread
+  übernommen, damit sie nicht auseinanderlaufen.
+- `package.json`: `start`, `check` und `build:unsafe` rufen jetzt explizit
+  `--config astro.config.static.mjs` auf; `dev`, `build` und `preview`
+  (die drei `wix …`-Kommandos) bleiben unverändert und lesen dadurch
+  garantiert dieselbe, unconditionale `astro.config.mjs`.
+- Beide Config-Dateien loggen beim Laden bewusst dauerhaft (nicht nur zum
+  Debuggen) `output`/`adapter`/`npm_lifecycle_event` in die Konsole —
+  genau das macht in jedem `wix …`-Terminal-Log sofort sichtbar, welche
+  Konfiguration tatsächlich aktiv war.
 
-`react()`, `wix({ robots: false })`, `wixPages()` bleiben unverändert in
-allen Fällen aktiv (nicht Teil der Bedingung).
+**Lokal verifiziert** (auch mit explizit *fehlendem* `npm_lifecycle_event`,
+um den zuvor vermuteten Rückfall-Mechanismus direkt zu reproduzieren):
+`astro.config.mjs` liefert in jedem Fall `adapterName: "@astrojs/cloudflare"`;
+`dist/_worker.js/` enthält projektweit **0** bare `import ... from
+"react"`-Zeilen und **0** bare `@astrojs/react`-Referenzen — React ist
+vollständig inline gebündelt.
+
+`react()`, `wix({ robots: false })`, `wixPages()` bleiben in beiden
+Config-Dateien unverändert aktiv (Teil von `astro.config.base.mjs`).
 
 Zusätzlich stehen folgende Pakete jetzt unter `dependencies`, nicht mehr
 `devDependencies` (wie sie ursprünglich vom Linking-Prozess einsortiert
@@ -322,10 +341,12 @@ einer reinen Production-Installation (`npm ci --omit=dev`) fehlen:
 `@astrojs/node` bleibt bewusst unter `dependencies` (nicht entfernt,
 trotz anfänglicher Vermutung): Es wird für `astro dev`/`astro check`/den
 GitHub-Pages-Build weiterhin als lokaler Adapter gebraucht und ist am
-Kopf von `astro.config.mjs` unconditional importiert. `@astrojs/react`
-(nur Build-Zeit-Integration, generiert `renderers.mjs`, wird selbst nicht
-zur Laufzeit importiert) und `@wix/cli` (Build-/CLI-Tool) bleiben zulässig
-unter `devDependencies`.
+Kopf von `astro.config.static.mjs` unconditional importiert. `@astrojs/react`
+bleibt zulässig unter `devDependencies` — lokal verifiziert (siehe oben):
+0 bare Referenzen darauf im Wix-Worker-Bundle, es generiert nur zur
+Build-Zeit `renderers.mjs` und wird selbst nie zur Laufzeit importiert.
+`@wix/cli` (Build-/CLI-Tool) bleibt ebenfalls zulässig unter
+`devDependencies`.
 
 ## Produktions-Hosting-Anforderung (P0 — Entscheidung vor Livegang nötig)
 
