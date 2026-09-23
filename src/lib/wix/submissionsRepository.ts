@@ -1,8 +1,6 @@
 import { items } from "@wix/data";
 import { files as mediaFiles } from "@wix/media";
 import { auth } from "@wix/essentials";
-
-const { elevate } = auth;
 import type { QuoteFormData } from "@/lib/forms/types";
 import { serviceLabel, propertyTypeLabel } from "@/lib/forms/types";
 import { sanitizeFilename } from "@/lib/forms/sanitize";
@@ -18,19 +16,15 @@ import { sanitizeFilename } from "@/lib/forms/sanitize";
  * nicht durch Code in diesem Repository.
  *
  * `elevate()` (siehe @wix/essentials) hebt die aufgerufene Funktion auf
- * Backend-Berechtigungen an – der dokumentierte Weg für serverseitige
- * Schreibzugriffe innerhalb einer Wix-CLI-/Managed-Headless-Backend-Route,
- * ohne einen separaten API-Key manuell verwalten zu müssen.
- *
- * WICHTIG (siehe README/Abschlussbericht): Dieser Code wurde gegen die
- * echten, im Projekt installierten @wix/data- und @wix/media-Typdefinitionen
- * geschrieben, konnte in dieser Umgebung aber NICHT gegen eine echte
- * Wix-Site ausgeführt/getestet werden (kein Netzwerkzugriff auf *.wix.com).
- * Vor Produktivbetrieb: echte Testanfrage gemäß README durchführen.
+ * Backend-Berechtigungen an. Die elevierten Funktionen werden bewusst
+ * INNERHALB der jeweils aufrufenden Funktion erzeugt (nicht mehr auf
+ * Modulebene) - nicht weil das laut @wix/sdk-runtime-Quellcode zwingend
+ * nötig wäre (der zurückgegebene Wrapper löst den Wix-Kontext erst beim
+ * tatsächlichen Aufruf, nicht bei der Erzeugung, siehe
+ * contextualizeRESTModuleV2 in node_modules/@wix/sdk-runtime), sondern um
+ * jede Abhängigkeit von einer zum Modul-Import-Zeitpunkt bereits
+ * initialisierten Wix-Request-Umgebung auszuschließen.
  */
-
-const insertItem = elevate(items.insert);
-const generateFileUploadUrl = elevate(mediaFiles.generateFileUploadUrl);
 
 /**
  * Wix-Media-Dokumentreferenz im Format, das das CMS-Feld "files"
@@ -63,6 +57,7 @@ function collectionId(): string | null {
  * Fehler wird vom Aufrufer entschieden.
  */
 async function uploadFile(file: File): Promise<WixDocumentReference | null> {
+  const generateFileUploadUrl = auth.elevate(mediaFiles.generateFileUploadUrl);
   const safeName = sanitizeFilename(file.name);
 
   try {
@@ -91,7 +86,9 @@ async function uploadFile(file: File): Promise<WixDocumentReference | null> {
     if (!fileId) return null;
 
     return toWixDocumentReference(fileId, result?.file?.displayName || safeName);
-  } catch {
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("[quote] ERROR stage=media_upload", error instanceof Error ? error.message : error);
     return null;
   }
 }
@@ -110,6 +107,9 @@ export interface QuoteSubmissionOutcome {
 
 export async function insertQuoteSubmission(input: QuoteSubmissionInput): Promise<QuoteSubmissionOutcome> {
   const collection = collectionId();
+  // eslint-disable-next-line no-console
+  console.info("[quote] wix service start", { collectionIdPresent: Boolean(collection), fileCount: input.files.length });
+
   if (!collection) {
     return {
       ok: false,
@@ -118,7 +118,14 @@ export async function insertQuoteSubmission(input: QuoteSubmissionInput): Promis
     };
   }
 
+  // eslint-disable-next-line no-console
+  console.info("[quote] media upload start", { fileCount: input.files.length });
+  // Bei input.files.length === 0 ruft .map() uploadFile() nicht auf - kein
+  // generateFileUploadUrl-Aufruf, keine Media-Abhängigkeit für diesen Fall.
   const uploadResults = await Promise.all(input.files.map((file) => uploadFile(file)));
+  // eslint-disable-next-line no-console
+  console.info("[quote] media upload complete", { uploaded: uploadResults.filter(Boolean).length, failed: uploadResults.filter((r) => !r).length });
+
   const uploadedFiles: WixDocumentReference[] = [];
   const failedUploads: string[] = [];
   input.files.forEach((file, index) => {
@@ -145,9 +152,16 @@ export async function insertQuoteSubmission(input: QuoteSubmissionInput): Promis
   };
 
   try {
+    // eslint-disable-next-line no-console
+    console.info("[quote] cms insert start");
+    const insertItem = auth.elevate(items.insert);
     await insertItem(collection, record);
+    // eslint-disable-next-line no-console
+    console.info("[quote] cms insert complete");
     return { ok: true, failedUploads };
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("[quote] ERROR stage=cms_insert", error instanceof Error ? error.message : error);
     return {
       ok: false,
       errorDetail: error instanceof Error ? error.message : "Unbekannter Fehler beim Speichern in Wix Data.",
