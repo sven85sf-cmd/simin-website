@@ -146,6 +146,12 @@ export const POST: APIRoute = async (context: APIContext) => {
         code: "ORIGIN_REJECTED",
       });
     }
+    // isAllowedOrigin() garantiert oben bereits, dass der Origin-Header
+    // vorhanden und Teil der festen Allowlist ist - deshalb hier sicher
+    // als der öffentliche Origin für Attachment-Access-Links verwendbar.
+    // NIE `request.url` (interne Worker-/Wix-Host-Adresse, siehe
+    // isAllowedOrigin()-Kommentar oben).
+    const publicOrigin = request.headers.get("origin")!;
 
     const contentType = request.headers.get("content-type") ?? "";
     if (!contentType.toLowerCase().startsWith("multipart/form-data")) {
@@ -283,7 +289,11 @@ export const POST: APIRoute = async (context: APIContext) => {
     console.info("[quote] stage=wix_module_import_ok");
 
     const submissionService = getFormSubmissionService();
-    const result = await submissionService.submit({ data, files });
+    const result = await submissionService.submit({
+      data,
+      files,
+      publicOrigin,
+    });
 
     if (!result.ok) {
       return json(502, {

@@ -290,3 +290,168 @@ test.describe("Regressionsschutz: Additive Multi-File-Auswahl", () => {
     expect(source).toMatch(/resetFileState\(\);/);
   });
 });
+
+test.describe("Regressionsschutz: CMS-Datumsfeld (Abschnitt 18-21)", () => {
+  test("submittedAt ist ein echter Date-Wert, kein ISO-String mehr", () => {
+    const source = stripComments(read("src/lib/wix/submissionsRepository.ts"));
+    expect(source).not.toMatch(/new Date\(\)\.toISOString\(\)/);
+    expect(source).toMatch(/submittedAt:\s*new Date\(\),/);
+  });
+});
+
+test.describe("Regressionsschutz: Private Attachment Access (signierte Capability-Links)", () => {
+  test("attachmentLink.ts verwendet ausschließlich Web Crypto, kein node:crypto", () => {
+    const source = stripComments(read("src/lib/attachmentLink.ts"));
+    expect(source).not.toMatch(/from\s+["']node:crypto["']/);
+    expect(source).not.toMatch(/require\(["']crypto["']\)/);
+    expect(source).toMatch(/crypto\.subtle\.(sign|verify|importKey)/);
+  });
+
+  test("Token-Payload enthält keine PII (nur v, f, exp)", () => {
+    const source = stripComments(read("src/lib/attachmentLink.ts"));
+    expect(source).toMatch(
+      /interface AttachmentTokenPayload\s*\{\s*v:\s*1;\s*f:\s*string;\s*exp:\s*number;\s*\}/,
+    );
+    expect(source).not.toMatch(/\bname\b.*:.*payload|\bemail\b.*:.*payload/i);
+  });
+
+  test("Token-Format ist payload.signature (Base64Url), Signaturprüfung vor Payload-Auswertung", () => {
+    const source = stripComments(read("src/lib/attachmentLink.ts"));
+    expect(source).toMatch(/token\.split\("\."\)/);
+    expect(source).toMatch(/crypto\.subtle\.verify/);
+    // Die Signaturprüfung muss vor dem JSON.parse des Payloads erfolgen.
+    const verifyIndex = source.indexOf("crypto.subtle.verify");
+    const parseIndex = source.indexOf("JSON.parse");
+    expect(verifyIndex).toBeGreaterThan(-1);
+    expect(parseIndex).toBeGreaterThan(verifyIndex);
+  });
+
+  test("Abgelaufene Tokens werden erkannt (EXPIRED getrennt von INVALID_SIGNATURE)", () => {
+    const source = stripComments(read("src/lib/attachmentLink.ts"));
+    expect(source).toMatch(
+      /"MALFORMED"\s*\|\s*"INVALID_SIGNATURE"\s*\|\s*"EXPIRED"/,
+    );
+    expect(source).toMatch(/Date\.now\(\) > exp \* 1000/);
+  });
+
+  test("submissionsRepository.ts speichert NIE die von Wix erzeugte temporäre Download-URL im CMS, nur den eigenen Capability-Link", () => {
+    const source = stripComments(read("src/lib/wix/submissionsRepository.ts"));
+    expect(source).not.toMatch(/generateFileDownloadUrl/);
+    expect(source).toMatch(/createAttachmentToken/);
+    expect(source).toMatch(/attachmentAccessLinks/);
+    expect(source).toMatch(/\/api\/attachment\?token=/);
+  });
+
+  test("Attachment-Access-Link nutzt den zur Laufzeit übergebenen publicOrigin, keine hartcodierte Domain (Abschnitt 30)", () => {
+    const source = stripComments(read("src/lib/wix/submissionsRepository.ts"));
+    expect(source).toMatch(/\$\{publicOrigin\}\/api\/attachment\?token=/);
+    expect(source).toMatch(
+      /buildAttachmentAccessLinksText\(\s*successfulAttachments,\s*input\.publicOrigin,?\s*\)/,
+    );
+    expect(source).not.toMatch(/gebaeudedienste-simin\.de/);
+    expect(source).not.toMatch(/wix-site-host\.com/);
+  });
+
+  test("downloadClient.ts nutzt ausschließlich generateFileDownloadUrl (pro Datei), NIEMALS die permanente generateFilesDownloadUrl", () => {
+    const source = stripComments(read("src/lib/wix/downloadClient.ts"));
+    expect(source).toMatch(/generateFileDownloadUrl/);
+    expect(source).not.toMatch(/generateFilesDownloadUrl/);
+  });
+
+  test("Wix-Download-URL wird erst im Attachment-Endpoint erzeugt, mit kurzer Gültigkeit", () => {
+    const source = stripComments(read("src/pages/api/attachment.ts"));
+    expect(source).toMatch(/generateFileDownloadUrl/);
+    expect(source).toMatch(/WIX_DOWNLOAD_URL_TTL_MINUTES\s*=\s*10/);
+  });
+
+  test("/api/attachment ist GET-only, liest ausschließlich ein signiertes token, kein rohes fileId-Query-Parameter", () => {
+    const source = stripComments(read("src/pages/api/attachment.ts"));
+    expect(source).toMatch(/export const GET:/);
+    expect(source).not.toMatch(/export const POST:/);
+    expect(source).toMatch(/searchParams\.get\("token"\)/);
+    expect(source).not.toMatch(/searchParams\.get\("fileId"\)/);
+  });
+
+  test("/api/attachment prüft KEINE Origin-Allowlist (Capability-Token ist die einzige Autorisierung)", () => {
+    const source = stripComments(read("src/pages/api/attachment.ts"));
+    expect(source).not.toMatch(/isAllowedOrigin/);
+  });
+
+  test("/api/attachment streamt keine Datei-Binärdaten selbst, sondern leitet per 302 weiter", () => {
+    const source = stripComments(read("src/pages/api/attachment.ts"));
+    expect(source).toMatch(/status:\s*302/);
+    expect(source).toMatch(/Location:\s*downloadUrl/);
+  });
+
+  test("/api/attachment loggt niemals Token, Secret, temporäre Wix-URL oder fileId", () => {
+    const source = stripComments(read("src/pages/api/attachment.ts"));
+    const consoleCalls = source.match(/console\.(info|error)\([^)]*\)/g) ?? [];
+    for (const call of consoleCalls) {
+      // `Boolean(token)`/`Boolean(downloadUrl)` loggen nur die Präsenz als
+      // true/false (genau das verlangt Abschnitt 17) - erst der reine,
+      // unverpackte Bezeichner (der tatsächliche Wert) wäre verdächtig.
+      const withoutBooleanWrapping = call.replace(/Boolean\([^)]*\)/g, "BOOL");
+      expect(
+        withoutBooleanWrapping,
+        `verdächtiger Log-Aufruf: ${call}`,
+      ).not.toMatch(
+        /\btoken\b|signingSecret|SIGNING_SECRET|\bdownloadUrl\b|\bfileId\b/,
+      );
+    }
+  });
+
+  test("quote.ts leitet den bereits geprüften Origin-Header weiter, NIEMALS request.url, für Attachment-Links", () => {
+    const source = stripComments(read("src/pages/api/quote.ts"));
+    expect(source).toMatch(
+      /const publicOrigin = request\.headers\.get\("origin"\)!;/,
+    );
+    expect(source).toMatch(/publicOrigin/);
+  });
+
+  test("ATTACHMENT_LINK_SIGNING_SECRET kommt aus astro:env/server mit access:secret, niemals aus process.env", () => {
+    const configSource = stripComments(read("astro.config.base.mjs"));
+    expect(configSource).toMatch(
+      /ATTACHMENT_LINK_SIGNING_SECRET:\s*envField\.string\(\{[^}]*access:\s*"secret"/s,
+    );
+
+    const repoSource = stripComments(
+      read("src/lib/wix/submissionsRepository.ts"),
+    );
+    expect(repoSource).not.toMatch(
+      /process\.env\.ATTACHMENT_LINK_SIGNING_SECRET/,
+    );
+  });
+
+  test("Signing-Secret wird nirgends im clientseitigen Frontend-Code referenziert", () => {
+    const frontendFiles = [
+      "src/components/QuoteWizard.astro",
+      "src/components/form/FileUpload.astro",
+    ];
+    for (const file of frontendFiles) {
+      const source = stripComments(read(file));
+      expect(
+        source,
+        `${file} darf ATTACHMENT_LINK_SIGNING_SECRET nicht referenzieren`,
+      ).not.toMatch(/ATTACHMENT_LINK_SIGNING_SECRET/);
+    }
+  });
+
+  test("private:true bleibt in der gesamten Media-Pipeline erhalten", () => {
+    for (const file of [
+      "src/lib/wix/mediaClient.ts",
+      "src/lib/wix/downloadClient.ts",
+    ]) {
+      const source = stripComments(read(file));
+      expect(source).not.toMatch(/private:\s*false/);
+    }
+    const mediaClientSource = stripComments(read("src/lib/wix/mediaClient.ts"));
+    expect(mediaClientSource).toMatch(/private:\s*true/);
+  });
+
+  test("Fehlendes Signing-Secret blockiert die Kundenanfrage NICHT (kein stilles Erfinden, aber auch kein Absturz)", () => {
+    const source = stripComments(read("src/lib/wix/submissionsRepository.ts"));
+    expect(source).toMatch(
+      /if\s*\(!ATTACHMENT_LINK_SIGNING_SECRET\)\s*\{[\s\S]*?return\s+"";/,
+    );
+  });
+});

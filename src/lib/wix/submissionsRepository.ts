@@ -1,9 +1,14 @@
-import { WIX_SUBMISSIONS_COLLECTION_ID } from "astro:env/server";
+import {
+  WIX_SUBMISSIONS_COLLECTION_ID,
+  ATTACHMENT_LINK_SIGNING_SECRET,
+  ATTACHMENT_LINK_TTL_HOURS,
+} from "astro:env/server";
 import type { QuoteFormData } from "@/lib/forms/types";
 import { serviceLabel, propertyTypeLabel } from "@/lib/forms/types";
 import { sanitizeFilename } from "@/lib/forms/sanitize";
 import { insertSubmission } from "@/lib/wix/dataClient";
 import type { AttachmentMetadata } from "@/lib/wix/attachmentTypes";
+import { createAttachmentToken } from "@/lib/attachmentLink";
 
 /**
  * Orchestriert Wix-native Persistenz für Angebotsanfragen.
@@ -18,23 +23,88 @@ import type { AttachmentMetadata } from "@/lib/wix/attachmentTypes";
  * tatsächlich Dateien vorhanden sind - eine Anfrage ohne Dateien löst
  * @wix/media als Modul nie aus.
  *
- * ATTACHMENT-DATENMODELL (Neubau, siehe attachmentTypes.ts):
+ * ATTACHMENT-DATENMODELL (siehe attachmentTypes.ts):
  * Das bisherige CMS-Feld `files` (Multiple Documents) wird NICHT mehr
  * beschrieben - Uploads sind gemischt IMAGE/DOCUMENT, ein reines
  * Dokumente-Feld kann das nicht korrekt abbilden, und eine selbst
  * konstruierte `wix:document://...`-URI für Bilder wäre semantisch falsch.
  * Stattdessen werden Automation-taugliche Primitiv-Felder geschrieben:
  * attachmentMetadata (Array), attachmentsPresent (Boolean),
- * attachmentCount (Number), attachmentNames (Text). Diese Felder müssen
- * VOR dem produktiven Einsatz einmalig manuell im Wix-Dashboard angelegt
- * werden (siehe Abschlussbericht "MANUAL WIX ACTION REQUIRED") - das
- * bestehende `files`-Feld bleibt in der Collection definiert, wird aber
- * ab sofort nicht mehr befüllt.
+ * attachmentCount (Number), attachmentNames (Text), attachmentAccessLinks
+ * (Text). `attachmentAccessLinks` muss VOR dem produktiven Einsatz
+ * einmalig manuell im Wix-Dashboard angelegt werden (siehe
+ * Abschlussbericht "MANUAL WIX ACTION REQUIRED") - das bestehende
+ * `files`-Feld bleibt in der Collection definiert, wird aber ab sofort
+ * nicht mehr befüllt.
+ *
+ * PRIVATE ATTACHMENT ACCESS: Für jeden erfolgreich hochgeladenen Anhang
+ * wird ein signiertes Capability-Token (src/lib/attachmentLink.ts) erzeugt
+ * und zu `${publicOrigin}/api/attachment?token=...` zusammengesetzt - NIE
+ * die von Wix erzeugte temporäre Download-URL selbst (die lebt nur wenige
+ * Minuten und würde in der CMS-Zeile/E-Mail sofort veralten). Der frische
+ * Wix-Download-Link wird stattdessen erst beim Klick in
+ * src/pages/api/attachment.ts erzeugt.
  */
 
 export interface QuoteSubmissionInput {
   data: QuoteFormData;
   files: File[];
+  /**
+   * Bereits gegen die Origin-Allowlist geprüfter, öffentlicher Origin
+   * (siehe quote.ts, isAllowedOrigin()) - NIE eine interne Worker-/Wix-
+   * Host-Adresse. Wird ausschließlich zum Zusammensetzen der
+   * Attachment-Access-Links verwendet.
+   */
+  publicOrigin: string;
+}
+
+/**
+ * Erzeugt für jeden erfolgreichen Anhang einen signierten Capability-Link
+ * und liefert sie als mehrzeiligen Text (`Dateiname: Link`) für das
+ * Text-Feld `attachmentAccessLinks`. Fehlt das Signing-Secret, wird die
+ * Anfrage NICHT blockiert - es werden lediglich keine Links erzeugt (klar
+ * geloggt, kein stilles Erfinden eines Ersatz-Secrets). Schlägt die
+ * Token-Erzeugung für EINE Datei fehl, wird nur diese eine Zeile
+ * ausgelassen; die übrigen Links und die Kundenanfrage selbst bleiben
+ * unberührt (Abschnitt 27).
+ */
+async function buildAttachmentAccessLinksText(
+  attachments: AttachmentMetadata[],
+  publicOrigin: string,
+): Promise<string> {
+  if (attachments.length === 0) return "";
+
+  if (!ATTACHMENT_LINK_SIGNING_SECRET) {
+    // eslint-disable-next-line no-console
+    console.error("[attachment-link] ERROR stage=missing_signing_secret");
+    return "";
+  }
+  // Eigene, neu deklarierte Konstante: TS engt `ATTACHMENT_LINK_SIGNING_SECRET`
+  // selbst (ein `astro:env/server`-Import) innerhalb der Closure unten
+  // (`.map(async ...)`) nicht zuverlässig auf `string` ein.
+  const signingSecret: string = ATTACHMENT_LINK_SIGNING_SECRET;
+
+  const lines = await Promise.all(
+    attachments.map(async (attachment) => {
+      try {
+        const token = await createAttachmentToken(
+          attachment.fileId,
+          signingSecret,
+          ATTACHMENT_LINK_TTL_HOURS,
+        );
+        return `${attachment.displayName}: ${publicOrigin}/api/attachment?token=${token}`;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error(
+          "[attachment-link] ERROR stage=token_creation",
+          error instanceof Error ? error.message : error,
+        );
+        return null;
+      }
+    }),
+  );
+
+  return lines.filter((line): line is string => line !== null).join("\n");
 }
 
 export interface QuoteSubmissionOutcome {
@@ -96,6 +166,10 @@ export async function insertQuoteSubmission(
   }
 
   const attachmentsComplete = failedAttachmentNames.length === 0;
+  const attachmentAccessLinks = await buildAttachmentAccessLinksText(
+    successfulAttachments,
+    input.publicOrigin,
+  );
 
   const record = {
     service: serviceLabel(input.data.service),
@@ -111,7 +185,15 @@ export async function insertQuoteSubmission(
     attachmentsPresent: successfulAttachments.length > 0,
     attachmentCount: successfulAttachments.length,
     attachmentNames: successfulAttachments.map((a) => a.displayName).join(", "),
-    submittedAt: new Date().toISOString(),
+    attachmentAccessLinks,
+    // Echter Date-Wert statt ISO-String: Wix Data akzeptiert für
+    // "Datum und Uhrzeit"-Felder nativ ein JS-Date-Objekt (bestätigt in
+    // den installierten @wix/wix-data-items-sdk-Typdefinitionen, u. a.
+    // `_createdDate`/`_updatedDate`/`eventTime` sind dort selbst als
+    // `Date` typisiert, und der interne `Descendable<T>`-Typ behandelt
+    // `Date` explizit als eigenen Werttyp). Ein ISO-String wurde im CMS
+    // fälschlich als Text statt als Datum interpretiert (Warnsymbol).
+    submittedAt: new Date(),
   };
 
   try {

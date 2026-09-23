@@ -5,6 +5,8 @@ import { company } from "@/config/site";
 export interface QuoteSubmissionPayload {
   data: QuoteFormData;
   files: File[];
+  /** Bereits gegen die Origin-Allowlist geprüfter, öffentlicher Origin (siehe quote.ts). */
+  publicOrigin: string;
 }
 
 export interface SubmissionResult {

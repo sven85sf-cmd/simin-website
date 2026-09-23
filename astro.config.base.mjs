@@ -81,6 +81,30 @@ export const baseConfig = {
         access: "public",
         optional: true,
       }),
+
+      // Signiert die Capability-Token für /api/attachment (privater
+      // Wix-Media-Zugriff aus der Benachrichtigungs-E-Mail heraus, siehe
+      // src/lib/attachmentLink.ts). `access: "secret"` stellt sicher,
+      // dass Astro diesen Wert niemals ins Client-Bundle aufnimmt.
+      // `optional: true`, damit ein fehlender Wert kontrolliert behandelt
+      // wird (keine Access-Links für diese Anfrage, siehe
+      // submissionsRepository.ts) statt eines Build-/Laufzeitfehlers.
+      ATTACHMENT_LINK_SIGNING_SECRET: envField.string({
+        context: "server",
+        access: "secret",
+        optional: true,
+      }),
+
+      // Gültigkeitsdauer des SIMIN-eigenen Capability-Links in Stunden
+      // (NICHT die kurzlebige, erst beim Klick erzeugte Wix-Download-URL -
+      // siehe src/pages/api/attachment.ts). Default 168h = 7 Tage, damit
+      // Konstantin die Benachrichtigungs-Mail auch Tage später noch öffnen
+      // kann.
+      ATTACHMENT_LINK_TTL_HOURS: envField.number({
+        context: "server",
+        access: "public",
+        default: 168,
+      }),
     },
   },
 

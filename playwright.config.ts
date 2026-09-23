@@ -25,7 +25,7 @@ const PORT = 4321;
 
 export default defineConfig({
   testDir: "./e2e",
-  testIgnore: "regression-guards.spec.ts",
+  testIgnore: ["regression-guards.spec.ts", "attachment-token.spec.ts"],
   fullyParallel: false,
   workers: 1,
   reporter: "list",
@@ -41,7 +41,11 @@ export default defineConfig({
   projects: [
     {
       name: "api",
-      testMatch: ["quote-api.spec.ts", "runtime-health.spec.ts"],
+      testMatch: [
+        "quote-api.spec.ts",
+        "runtime-health.spec.ts",
+        "attachment-endpoint.spec.ts",
+      ],
     },
     {
       name: "visual-desktop",
