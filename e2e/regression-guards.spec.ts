@@ -1,11 +1,27 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relativePath: string) =>
   readFileSync(join(root, relativePath), "utf-8");
+
+/** Rekursiver Verzeichnis-Walker (nur node:fs, keine Shell/git-Abhängigkeit)
+ * für .astro/.ts-Dateien - gibt absolute Pfade zurück. */
+function walkAstroAndTsFiles(dir: string): string[] {
+  const results: string[] = [];
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...walkAstroAndTsFiles(fullPath));
+    } else if (/\.(astro|ts)$/.test(entry.name)) {
+      results.push(fullPath);
+    }
+  }
+  return results;
+}
 
 /** Entfernt Block- und Zeilenkommentare, damit Erwähnungen in Prosa
  * (z. B. "process.env ist auf Cloudflare Workers...") echte Codetreffer
@@ -456,30 +472,54 @@ test.describe("Regressionsschutz: Private Attachment Access (signierte Capabilit
   });
 });
 
-test.describe("Regressionsschutz: SIMIN-Logo-Asset (statischer Import statt import.meta.glob)", () => {
-  test("A) Logo.astro importiert simin-logo.png statisch", () => {
-    const source = stripComments(read("src/components/Logo.astro"));
-    expect(source).toMatch(
-      /import\s+siminLogo\s+from\s+["']@\/assets\/logo\/simin-logo\.png["']/,
-    );
+test.describe("Regressionsschutz: SIMIN-Logo-Asset (public/-Pfad statt astro:assets/import.meta.glob)", () => {
+  /**
+   * FORENSISCH BEWIESENER ROOT CAUSE: ein per astro:assets statisch
+   * importiertes lokales Bild, das ausschließlich aus rein serverseitig
+   * gerenderten (nicht client-hydrierten, nicht vorgerenderten)
+   * Komponenten heraus verwendet wird, landet im Wix/Cloudflare-Build im
+   * SERVER-Worker-Bundle statt im öffentlichen Client-Asset-Ordner - die
+   * daraus resultierende <img src="/_astro/<hash>.png">-URL liefert daher
+   * 404, wodurch der Browser den alt-Text als Fallback rendert. Bestätigt
+   * durch direkte Build-Output-Inspektion: `dist/_astro/` (öffentlich)
+   * enthielt keine Bilddateien, nur `dist/_worker.js/_astro/` (serverseitig,
+   * nicht öffentlich erreichbar).
+   *
+   * Fix: kanonisches Logo zusätzlich (Original bleibt unverändert) als
+   * echtes public/-Asset ausliefern - astro kopiert public/ IMMER 1:1 in
+   * den Build-Output-Root, unabhängig vom Rendering-Kontext - und per
+   * einfachem <img>-Pfad referenzieren, genau wie das nachweislich
+   * funktionierende Hero-Hintergrundbild (ResponsiveImage.astro).
+   */
+  const CANONICAL_LOGO_PATH = "public/brand/simin-logo.png";
+  const ORIGINAL_LOGO_PATH = "src/assets/logo/simin-logo.png";
+
+  function sha256(relativePath: string): string {
+    return createHash("sha256").update(readFileSync(join(root, relativePath))).digest("hex");
+  }
+
+  test("A) Kanonisches Logo-Asset existiert unter public/brand/simin-logo.png", () => {
+    const stats = statSync(join(root, CANONICAL_LOGO_PATH));
+    expect(stats.isFile()).toBe(true);
+    expect(stats.size).toBeGreaterThan(0);
   });
 
-  test("B) Logo.astro verwendet KEIN import.meta.glob mehr für das Logo", () => {
+  test("B) public/brand/simin-logo.png ist binär identisch zum Original (SHA256)", () => {
+    expect(sha256(CANONICAL_LOGO_PATH)).toBe(sha256(ORIGINAL_LOGO_PATH));
+  });
+
+  test("C) Logo.astro referenziert exakt das kanonische public/-Asset, kein import.meta.glob", () => {
     const source = stripComments(read("src/components/Logo.astro"));
+    expect(source).toMatch(/withBase\(["']\/brand\/simin-logo\.png["']\)/);
     expect(source).not.toMatch(/import\.meta\.glob/);
     expect(source).not.toMatch(/Object\.values\(/);
-  });
-
-  test("C) Logo.astro rendert <Image src={siminLogo} ...> deterministisch (kein Fallback-Ternary mehr)", () => {
-    const source = stripComments(read("src/components/Logo.astro"));
-    expect(source).toMatch(/<Image\s+src=\{siminLogo\}/);
     expect(source).not.toMatch(/logoEntry/);
   });
 
-  test("D) src/assets/logo/simin-logo.png existiert weiterhin unverändert", () => {
-    const stats = statSync(join(root, "src/assets/logo/simin-logo.png"));
-    expect(stats.isFile()).toBe(true);
-    expect(stats.size).toBeGreaterThan(0);
+  test("D) Logo.astro enthält keinen typografischen Fallback-Zweig mehr", () => {
+    const source = stripComments(read("src/components/Logo.astro"));
+    expect(source).not.toMatch(/logo__mark|logo__sub|logo--type/);
+    expect(source).not.toMatch(/\{\s*logoEntry\s*\?/);
   });
 
   test("E) Header.astro rendert weiterhin <Logo", () => {
@@ -490,5 +530,31 @@ test.describe("Regressionsschutz: SIMIN-Logo-Asset (statischer Import statt impo
   test("F) Footer.astro rendert weiterhin <Logo", () => {
     const source = stripComments(read("src/components/Footer.astro"));
     expect(source).toMatch(/<Logo/);
+  });
+
+  test("G) Hero.astro rendert weiterhin <Logo (vorgesehener Branding-Pfad)", () => {
+    const source = stripComments(read("src/components/Hero.astro"));
+    expect(source).toMatch(/<Logo/);
+  });
+
+  test("H) BrandPromise.astro verwendet denselben kanonischen Pfad statt eines eigenen import.meta.glob", () => {
+    const source = stripComments(read("src/components/BrandPromise.astro"));
+    expect(source).not.toMatch(/import\.meta\.glob/);
+    expect(source).not.toMatch(/logoEntry/);
+    expect(source).toMatch(/withBase\(["']\/brand\/simin-logo\.png["']\)/);
+  });
+
+  test("I) Keine verbleibende import.meta.glob-Nutzung für das Logo irgendwo in src/", () => {
+    // Projektweite Suche, keine Annahme über einzelne Dateien - genau die
+    // Lücke, die im vorigen Durchgang zum erneuten Auftreten des Bugs
+    // führte (BrandPromise.astro wurde nicht mitgeprüft).
+    const globUsages: string[] = [];
+    for (const file of walkAstroAndTsFiles(join(root, "src"))) {
+      const source = stripComments(readFileSync(file, "utf-8"));
+      if (/import\.meta\.glob[^)]*simin-logo/.test(source) || (/import\.meta\.glob/.test(source) && /logo/i.test(source))) {
+        globUsages.push(file.replace(root + "/", ""));
+      }
+    }
+    expect(globUsages).toEqual([]);
   });
 });

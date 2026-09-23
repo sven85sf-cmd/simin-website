@@ -1,28 +1,27 @@
 ---
+/**
+ * Dekoratives Logo-"Seal" im Hintergrund (opacity 0.05, aria-hidden).
+ *
+ * Nutzt bewusst denselben public/-Pfad wie Logo.astro statt eines
+ * eigenen import.meta.glob: dieselbe Ursache (lokal importiertes Bild,
+ * nur aus rein serverseitig gerenderten Komponenten heraus verwendet,
+ * landet im Wix/Cloudflare-Build nicht im öffentlichen Asset-Ordner)
+ * hätte auch hier zu einer nicht erreichbaren Bild-URL geführt - siehe
+ * Logo.astro für die vollständige Herleitung.
+ */
 import SectionHeader from "@/components/SectionHeader.astro";
-import { Image } from "astro:assets";
 import { withBase } from "@/lib/path";
-
-const logoImages = import.meta.glob<{ default: ImageMetadata }>(
-  "/src/assets/logo/simin-logo.{png,svg,webp}",
-  { eager: true },
-);
-const logoEntry = Object.values(logoImages)[0];
 ---
 
 <section class="brand-promise section--tight">
-  {
-    logoEntry && (
-      <Image
-        src={logoEntry.default}
-        alt=""
-        width={900}
-        height={753}
-        class="brand-promise__seal"
-        aria-hidden="true"
-      />
-    )
-  }
+  <img
+    src={withBase("/brand/simin-logo.png")}
+    alt=""
+    width="900"
+    height="753"
+    class="brand-promise__seal"
+    aria-hidden="true"
+  />
   <div class="container brand-promise__grid" data-reveal="up">
     <SectionHeader
       eyebrow="GEBÄUDEDIENSTLEISTUNGEN MIT PERSÖNLICHER BETREUUNG"

@@ -2,20 +2,35 @@
 /**
  * Logo-Komponente.
  *
- * Verwendet das originale SIMIN-Logo (extrahiert aus dem freigegebenen
- * Herbst/Winter-Flyer-PDF, src/assets/logo/simin-logo.png) über einen
- * statischen Import - das Asset ist damit die alleinige, deterministische
- * Quelle. Bewusst KEIN import.meta.glob mehr: dessen Auflösung war im
- * Wix-Build nicht zuverlässig, wodurch überall (Header UND Footer, die
- * beide diese Komponente verwenden) stattdessen der - inzwischen ebenfalls
- * entfernte - typografische Fallback gerendert wurde. Fehlt die
- * Logo-Datei künftig wirklich, soll der Build fehlschlagen statt eines
- * stillen Ersatzlogos.
+ * FORENSISCH BEWIESENER ROOT CAUSE (siehe Commit-Historie/Abschlussbericht):
+ * Ein per `astro:assets` statisch importiertes, lokales Bild, das
+ * AUSSCHLIESSLICH aus serverseitig gerenderten, nicht client-hydrierten,
+ * nicht vorgerenderten Komponenten heraus verwendet wird (exakt der Fall
+ * hier: Logo.astro wird nur von Header/Footer/Hero verwendet, alle rein
+ * SSR, kein `client:*`, keine dieser Seiten setzt `prerender = true`),
+ * landet im Wix/Cloudflare-Adapter-Build NICHT im öffentlichen
+ * Client-Asset-Ordner (`dist/_astro/`), sondern nur im Server-Worker-
+ * Bundle selbst (`dist/_worker.js/_astro/...`). Die im HTML erzeugte
+ * `<img src="/_astro/<hash>.png">`-URL zeigt dadurch auf einen Pfad, den
+ * das Hosting öffentlich gar nicht ausliefert -> 404 -> der Browser
+ * rendert stattdessen den `alt`-Text ("Gebäudedienste SIMIN"), was exakt
+ * dem beobachteten Text-Fallback in Header UND Hero entspricht (beide
+ * nutzen dieselbe Komponente).
+ *
+ * Das Hero-HINTERGRUNDBILD ist von diesem Bug nicht betroffen, weil es
+ * (über ResponsiveImage.astro) einen normalen `public/`-Pfad als String
+ * verwendet, NICHT astro:assets - genau dieses bewährte, nachweislich
+ * funktionierende Muster wird hier für das Logo übernommen: das
+ * unveränderte Original-Logo liegt zusätzlich (Original in
+ * src/assets/logo/simin-logo.png bleibt bestehen) unter
+ * public/brand/simin-logo.png (SHA256-identisch) und wird als einfacher,
+ * deterministischer <img>-Pfad referenziert. `public/` wird von
+ * Astro IMMER unverändert 1:1 in den Root des Build-Outputs kopiert,
+ * unabhängig von SSR/Client-Rendering-Kontext - dadurch ist die
+ * öffentliche Erreichbarkeit garantiert, nicht nur vermutet.
  */
-import { Image } from "astro:assets";
 import { company } from "@/config/site";
 import { withBase } from "@/lib/path";
-import siminLogo from "@/assets/logo/simin-logo.png";
 
 interface Props {
   variant?: "light" | "dark";
@@ -37,7 +52,7 @@ const {
   aria-label={`${company.name} – Startseite`}
   data-reveal={dataReveal}
 >
-  <Image src={siminLogo} alt={company.name} width={240} height={201} />
+  <img src={withBase("/brand/simin-logo.png")} alt={company.name} width="240" height="201" />
 </a>
 
 <style>
