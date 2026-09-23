@@ -123,6 +123,23 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
         <a href={company.phone.href} class="btn btn-primary">JETZT ANRUFEN — {company.phone.display}</a>
         <a href={withBase("/")} class="btn-ghost quote-wizard__success-home">ZUR STARTSEITE</a>
       </div>
+
+      <div
+        class="quote-wizard__success quote-wizard__success--partial"
+        id="quote-partial-success"
+        role="status"
+        tabindex="-1"
+        hidden
+      >
+        <h3>IHRE ANFRAGE WURDE ÜBERMITTELT.</h3>
+        <p id="quote-partial-success-text">
+          Mindestens ein Anhang konnte jedoch nicht übertragen werden. Bitte senden Sie die betroffene(n) Datei(en)
+          erneut oder per E-Mail nach.
+        </p>
+        <p class="quote-wizard__success-alt">Sie möchten lieber direkt sprechen?</p>
+        <a href={company.phone.href} class="btn btn-primary">JETZT ANRUFEN — {company.phone.display}</a>
+        <a href={withBase("/")} class="btn-ghost quote-wizard__success-home">ZUR STARTSEITE</a>
+      </div>
     </div>
   </div>
 </section>
@@ -329,6 +346,21 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
     margin-top: 4px;
   }
 
+  /* Teilerfolg (Abschnitt 10/11): Anfrage gespeichert, aber mindestens ein
+     Anhang nicht übertragen - eigene, klar unterscheidbare (aber aus den
+     bestehenden Marken-Tokens abgeleitete) Warnfarbe statt der normalen
+     Erfolgs- oder Fehlerdarstellung. */
+  .quote-wizard__success--partial {
+    background: color-mix(in srgb, var(--color-orange) 12%, white);
+    border: 1px solid color-mix(in srgb, var(--color-orange) 35%, white);
+    border-radius: var(--radius-md);
+    padding: clamp(20px, 3vw, 28px);
+  }
+
+  .quote-wizard__success--partial h3 {
+    color: var(--color-orange-accessible);
+  }
+
   @media (min-width: 640px) {
     .quote-wizard__choices {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -354,6 +386,8 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
   const form = document.getElementById("quote-form") as HTMLFormElement | null;
   const panel = document.getElementById("quote-panel");
   const successEl = document.getElementById("quote-success");
+  const partialSuccessEl = document.getElementById("quote-partial-success");
+  const partialSuccessText = document.getElementById("quote-partial-success-text");
   const errorBanner = document.getElementById("quote-error-banner");
   const backBtn = document.getElementById("quote-back") as HTMLButtonElement | null;
   const nextBtn = document.getElementById("quote-next") as HTMLButtonElement | null;
@@ -545,7 +579,13 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
         // erkennbaren Grund als "Internetverbindung"-Problem missgedeutet
         // würde, obwohl der Server durchaus erreichbar war.
         const contentType = response.headers.get("content-type") ?? "";
-        let result: { ok?: boolean; error?: string; fieldErrors?: Record<string, string> } | null = null;
+        let result: {
+          ok?: boolean;
+          error?: string;
+          fieldErrors?: Record<string, string>;
+          attachmentsComplete?: boolean;
+          failedAttachmentNames?: string[];
+        } | null = null;
 
         if (contentType.toLowerCase().includes("application/json")) {
           try {
@@ -565,7 +605,23 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
 
         if (response.ok && result?.ok) {
           form.hidden = true;
-          if (successEl) {
+          // attachmentsComplete unterscheidet vollständigen Erfolg von
+          // Teilerfolg: die Anfrage selbst ist immer gespeichert (ok:true),
+          // aber der Nutzer darf niemals glauben, gewählte Dateien seien
+          // angekommen, wenn mindestens eine davon nicht übertragen wurde.
+          if (result.attachmentsComplete === false) {
+            if (partialSuccessText) {
+              const names = result.failedAttachmentNames ?? [];
+              partialSuccessText.textContent =
+                names.length > 0
+                  ? `Mindestens ein Anhang konnte nicht übertragen werden (${names.join(", ")}). Bitte senden Sie die betroffene(n) Datei(en) erneut oder per E-Mail nach.`
+                  : "Mindestens ein Anhang konnte nicht übertragen werden. Bitte senden Sie die betroffene(n) Datei(en) erneut oder per E-Mail nach.";
+            }
+            if (partialSuccessEl) {
+              partialSuccessEl.hidden = false;
+              partialSuccessEl.focus();
+            }
+          } else if (successEl) {
             successEl.hidden = false;
             successEl.focus();
           }

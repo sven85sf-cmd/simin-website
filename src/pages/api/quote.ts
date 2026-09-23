@@ -295,7 +295,17 @@ export const POST: APIRoute = async (context: APIContext) => {
       });
     }
 
-    return json(200, { ok: true });
+    // Die Anfrage selbst ist gespeichert (ok:true) - attachmentsComplete
+    // zeigt separat an, ob ALLE gewählten Anhänge tatsächlich übertragen
+    // wurden. Ein Nutzer darf niemals glauben, seine Dateien seien
+    // angekommen, wenn mindestens eine davon nicht übertragen werden
+    // konnte (Abschnitt 10/11) - deshalb ist dies kein Fehlerfall (502),
+    // sondern ein Teilerfolg mit explizitem Signal für das Frontend.
+    return json(200, {
+      ok: true,
+      attachmentsComplete: result.attachmentsComplete,
+      failedAttachmentNames: result.failedAttachmentNames,
+    });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(

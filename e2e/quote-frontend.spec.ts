@@ -97,7 +97,31 @@ test("Gültige JSON-Fehlerantwort (z. B. 502 WIX_DATA_ERROR) zeigt die serversei
   expect(text).not.toContain("Internetverbindung");
 });
 
-test("Erfolgreiche JSON-Antwort zeigt die Erfolgsmeldung", async ({ page }) => {
+test("Erfolgreiche JSON-Antwort (vollständig, attachmentsComplete:true) zeigt die normale Erfolgsmeldung", async ({
+  page,
+}) => {
+  await page.route("**/api/quote", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        attachmentsComplete: true,
+        failedAttachmentNames: [],
+      }),
+    }),
+  );
+
+  await fillAndReachSubmit(page);
+  await page.locator("#quote-submit").click();
+
+  await expect(page.locator("#quote-success")).toBeVisible();
+  await expect(page.locator("#quote-partial-success")).toBeHidden();
+});
+
+test("Erfolgreiche JSON-Antwort ohne attachmentsComplete-Feld (Altformat) zeigt weiterhin die normale Erfolgsmeldung", async ({
+  page,
+}) => {
   await page.route("**/api/quote", (route) =>
     route.fulfill({
       status: 200,
@@ -110,4 +134,31 @@ test("Erfolgreiche JSON-Antwort zeigt die Erfolgsmeldung", async ({ page }) => {
   await page.locator("#quote-submit").click();
 
   await expect(page.locator("#quote-success")).toBeVisible();
+});
+
+test("Teilerfolg (attachmentsComplete:false) zeigt die Warnmeldung mit den fehlgeschlagenen Dateinamen, NICHT die normale Erfolgsmeldung", async ({
+  page,
+}) => {
+  await page.route("**/api/quote", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        attachmentsComplete: false,
+        failedAttachmentNames: ["grundriss.pdf"],
+      }),
+    }),
+  );
+
+  await fillAndReachSubmit(page);
+  await page.locator("#quote-submit").click();
+
+  const partial = page.locator("#quote-partial-success");
+  await expect(partial).toBeVisible();
+  await expect(page.locator("#quote-success")).toBeHidden();
+
+  const text = await partial.textContent();
+  expect(text).toContain("grundriss.pdf");
+  expect(text).not.toContain("Internetverbindung");
 });

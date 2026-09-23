@@ -11,6 +11,9 @@ export interface SubmissionResult {
   ok: boolean;
   errorMessage?: string;
   errorCode?: "WIX_DATA_ERROR" | "WIX_MEDIA_ERROR" | "ENV_ERROR";
+  /** false, wenn der Nutzer Dateien gewählt hat und mindestens eine davon nicht übertragen werden konnte. */
+  attachmentsComplete: boolean;
+  failedAttachmentNames: string[];
 }
 
 /**
@@ -39,18 +42,24 @@ class WixDataSubmissionService implements FormSubmissionService {
         ok: false,
         errorMessage: `Ihre Anfrage konnte gerade nicht übermittelt werden. Bitte versuchen Sie es erneut oder kontaktieren Sie uns telefonisch unter ${company.phone.display}.`,
         errorCode: result.errorCode,
+        attachmentsComplete: result.attachmentsComplete,
+        failedAttachmentNames: result.failedAttachmentNames,
       };
     }
 
-    if (result.failedUploads.length > 0) {
+    if (result.failedAttachmentNames.length > 0) {
       // eslint-disable-next-line no-console
       console.error(
-        "[WixDataSubmissionService] Anfrage gespeichert, aber einzelne Dateien konnten nicht hochgeladen werden:",
-        result.failedUploads,
+        "[WixDataSubmissionService] Anfrage gespeichert, aber einzelne Dateien konnten nicht übertragen werden:",
+        result.failedAttachmentNames,
       );
     }
 
-    return { ok: true };
+    return {
+      ok: true,
+      attachmentsComplete: result.attachmentsComplete,
+      failedAttachmentNames: result.failedAttachmentNames,
+    };
   }
 }
 

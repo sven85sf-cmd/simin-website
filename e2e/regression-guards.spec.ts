@@ -107,6 +107,86 @@ test.describe("Regressionsschutz: Wix-SDK-Modulisolierung (Sektion 5 + 6)", () =
   });
 });
 
+test.describe("Regressionsschutz: Attachment-Pipeline (Wix Media Upload Root Cause)", () => {
+  test("mediaClient.ts liest file.id aus der rohen Upload-Antwort, nicht ausschließlich _id", () => {
+    const source = stripComments(read("src/lib/wix/mediaClient.ts"));
+    // Root-Cause-Fix: die rohe Upload-REST-Antwort liefert `file.id`, NICHT
+    // die getypte FileDescriptor-`_id`. `id` muss die primäre, vorrangig
+    // ausgewertete Quelle sein (id vor _id im ??-Fallback).
+    expect(source).toMatch(
+      /result\?\.file\?\.id\s*\?\?\s*result\?\.file\?\._id/,
+    );
+  });
+
+  test("mediaClient.ts konstruiert KEINE eigene wix:document:// oder wix:image://-URI mehr", () => {
+    const source = stripComments(read("src/lib/wix/mediaClient.ts"));
+    expect(source).not.toMatch(/wix:document:\/\//);
+    expect(source).not.toMatch(/wix:image:\/\//);
+  });
+
+  test("mediaClient.ts ruft getFileDescriptor auf und wartet begrenzt auf Verarbeitung (kein Endlos-Loop)", () => {
+    const source = stripComments(read("src/lib/wix/mediaClient.ts"));
+    expect(source).toMatch(/getFileDescriptor/);
+    expect(source).toMatch(/operationStatus/);
+    expect(source).toMatch(/DESCRIPTOR_POLL_ATTEMPTS/);
+    // Begrenzte, konstante Obergrenze - kein while(true) o.ä.
+    expect(source).toMatch(
+      /for\s*\(\s*let attempt = 1;\s*attempt <= DESCRIPTOR_POLL_ATTEMPTS/,
+    );
+    expect(source).not.toMatch(/while\s*\(\s*true\s*\)/);
+  });
+
+  test("mediaType kommt primär von Wix' FileDescriptor, MIME-Mapping nur als Fallback (Sektion 14)", () => {
+    const source = stripComments(read("src/lib/wix/mediaClient.ts"));
+    expect(source).toMatch(/resolveMediaType/);
+    expect(source).toMatch(/descriptor\.mediaType/);
+
+    const mappingSource = stripComments(read("src/lib/wix/attachmentTypes.ts"));
+    expect(mappingSource).toMatch(/"image\/jpeg":\s*"IMAGE"/);
+    expect(mappingSource).toMatch(/"image\/png":\s*"IMAGE"/);
+    expect(mappingSource).toMatch(/"image\/webp":\s*"IMAGE"/);
+    expect(mappingSource).toMatch(/"application\/pdf":\s*"DOCUMENT"/);
+  });
+
+  test("submissionsRepository.ts beschreibt das alte 'files'-Feld nicht mehr, sondern Automation-taugliche Primitivfelder", () => {
+    const source = stripComments(read("src/lib/wix/submissionsRepository.ts"));
+    expect(source).not.toMatch(/\bfiles:\s*uploadedFiles\b/);
+    expect(source).toMatch(/attachmentMetadata:/);
+    expect(source).toMatch(/attachmentsPresent:/);
+    expect(source).toMatch(/attachmentCount:/);
+    expect(source).toMatch(/attachmentNames:/);
+  });
+
+  test("Kein stiller Teilerfolg: attachmentsComplete/failedAttachmentNames fließen durch die gesamte Kette", () => {
+    const repoSource = stripComments(
+      read("src/lib/wix/submissionsRepository.ts"),
+    );
+    expect(repoSource).toMatch(/attachmentsComplete/);
+    expect(repoSource).toMatch(/failedAttachmentNames/);
+
+    const serviceSource = stripComments(
+      read("src/lib/forms/submissionService.ts"),
+    );
+    expect(serviceSource).toMatch(/attachmentsComplete/);
+    expect(serviceSource).toMatch(/failedAttachmentNames/);
+
+    const quoteSource = stripComments(read("src/pages/api/quote.ts"));
+    expect(quoteSource).toMatch(/attachmentsComplete/);
+    expect(quoteSource).toMatch(/failedAttachmentNames/);
+
+    const frontendSource = stripComments(
+      read("src/components/QuoteWizard.astro"),
+    );
+    expect(frontendSource).toMatch(/attachmentsComplete/);
+  });
+
+  test("Uploads bleiben privat - keine Umstellung auf öffentliche Dateien", () => {
+    const source = stripComments(read("src/lib/wix/mediaClient.ts"));
+    expect(source).toMatch(/private:\s*true/);
+    expect(source).not.toMatch(/private:\s*false/);
+  });
+});
+
 test.describe("Regressionsschutz: Flicker-Fix (Sektion 12)", () => {
   test("motion-enabled wird synchron im <head> gesetzt, nicht erst am Body-Ende", () => {
     const source = read("src/layouts/BaseLayout.astro");
