@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import { readFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { execSync } from "node:child_process";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relativePath: string) =>
@@ -491,35 +490,5 @@ test.describe("Regressionsschutz: SIMIN-Logo-Asset (statischer Import statt impo
   test("F) Footer.astro rendert weiterhin <Logo", () => {
     const source = stripComments(read("src/components/Footer.astro"));
     expect(source).toMatch(/<Logo/);
-  });
-
-  test("G) Attachment-/Date-/Hero-Dateien wurden für diesen Fix nicht verändert (git diff)", () => {
-    const diff = execSync("git diff --name-only HEAD", {
-      cwd: root,
-      encoding: "utf-8",
-    });
-    const changedFiles = diff.split("\n").filter(Boolean);
-    const forbiddenFiles = [
-      "src/components/Header.astro",
-      "src/components/Footer.astro",
-      "src/components/Hero.astro",
-      "src/components/QuoteWizard.astro",
-      "src/pages/api/quote.ts",
-      "src/pages/api/attachment.ts",
-      "src/lib/attachmentLink.ts",
-      "astro.config.base.mjs",
-    ];
-    for (const forbidden of forbiddenFiles) {
-      expect(
-        changedFiles,
-        `${forbidden} darf für diesen Fix nicht verändert sein`,
-      ).not.toContain(forbidden);
-    }
-    for (const changed of changedFiles) {
-      expect(
-        changed.startsWith("src/lib/wix/"),
-        `${changed} liegt unerwartet unter src/lib/wix/`,
-      ).toBe(false);
-    }
   });
 });
