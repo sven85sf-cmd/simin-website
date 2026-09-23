@@ -58,28 +58,14 @@ import { withBase } from "@/lib/path";
   /* :global() nötig: .hero__image wird als class-Prop an ResponsiveImage
      durchgereicht, das <img> trägt also dessen data-astro-cid, nicht das
      von Hero.astro - ohne :global() würde Astros automatisches CSS-Scoping
-     diese Selektoren nie treffen (galt zuvor auch für die
-     Cinematic-Zoom-Animation, die dadurch nie gelaufen ist). */
+     diese Selektoren nie treffen.
+     Das Hero-Hintergrundbild ist bewusst vollständig statisch: keine
+     Animation, kein transform, keine transition auf transform, kein
+     will-change - siehe Auftrag "Hero-Hintergrundbild muss vollständig
+     statisch sein". Eine frühere Cinematic-Zoom-Keyframe-Animation wurde
+     hier entfernt. */
   :global(.hero__image) {
     height: 100%;
-  }
-
-  /* Cinematic-Zoom mit leichtem vertikalem Drift: langsame, aber klar
-     spürbare Tiefenwirkung über die gesamte Betrachtungsdauer - kein
-     harter "Zoom-Effekt", aber das Bild soll sichtbar leben. Läuft nur
-     unter html.motion-enabled (siehe global.css) - ohne JS/mit
-     reduced-motion bleibt das Bild ruhig. */
-  html.motion-enabled :global(.hero__image) {
-    animation: hero-cinematic-zoom 16s var(--ease-standard) forwards;
-  }
-
-  @keyframes hero-cinematic-zoom {
-    from {
-      transform: scale(1) translateY(0);
-    }
-    to {
-      transform: scale(1.05) translateY(-14px);
-    }
   }
 
   .hero__gradient {

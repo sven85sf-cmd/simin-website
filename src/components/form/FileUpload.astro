@@ -63,8 +63,56 @@ const maxSizeMb = Math.round(MAX_FILE_SIZE_BYTES / (1024 * 1024));
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     font-size: 0.8125rem;
+  }
+
+  /* :global() nötig: die <li>-Einträge werden zur Laufzeit per JS erzeugt
+     (QuoteWizard.astro) und tragen deshalb NICHT Astros
+     Scoping-Attribut - ohne :global() würden diese Regeln nie greifen. */
+  :global(.field__filelist-item) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 6px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-ice);
+  }
+
+  :global(.field__filelist-name) {
+    font-weight: 600;
+    color: var(--color-text);
+    word-break: break-word;
+  }
+
+  :global(.field__filelist-meta) {
+    color: var(--color-simin-blue);
+    white-space: nowrap;
+  }
+
+  :global(.field__filelist-remove) {
+    margin-left: auto;
+    border: none;
+    background: none;
+    padding: 2px 4px;
+    font-family: var(--font-body);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-error);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  :global(.field__filelist-remove:hover),
+  :global(.field__filelist-remove:focus-visible) {
+    color: var(--color-navy);
+  }
+
+  :global(.field__filelist-remove:focus-visible) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
   }
 
   .field__error {

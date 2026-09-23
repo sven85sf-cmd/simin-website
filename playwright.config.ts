@@ -45,7 +45,12 @@ export default defineConfig({
     },
     {
       name: "visual-desktop",
-      testMatch: ["quote-frontend.spec.ts", "visual.spec.ts"],
+      testMatch: [
+        "quote-frontend.spec.ts",
+        "visual.spec.ts",
+        "multi-file.spec.ts",
+        "hero-static.spec.ts",
+      ],
       use: {
         ...devices["Desktop Chrome"],
         viewport: { width: 1440, height: 900 },
@@ -53,7 +58,12 @@ export default defineConfig({
     },
     {
       name: "visual-mobile",
-      testMatch: ["quote-frontend.spec.ts", "visual.spec.ts"],
+      testMatch: [
+        "quote-frontend.spec.ts",
+        "visual.spec.ts",
+        "multi-file.spec.ts",
+        "hero-static.spec.ts",
+      ],
       use: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } },
     },
   ],

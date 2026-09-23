@@ -214,3 +214,79 @@ test.describe("Regressionsschutz: Flicker-Fix (Sektion 12)", () => {
     );
   });
 });
+
+test.describe("Regressionsschutz: Hero-Hintergrundbild vollständig statisch", () => {
+  test("Keine hero-cinematic-zoom-Keyframes oder Animation/Transform mehr auf .hero__image", () => {
+    const source = stripComments(read("src/components/Hero.astro"));
+    expect(source).not.toMatch(/hero-cinematic-zoom/);
+    expect(source).not.toMatch(/@keyframes/);
+
+    // Kein animation/transform/transition-transform/will-change auf dem
+    // Hero-Bild selbst (Textreveal-Regeln auf anderen Elementen bleiben
+    // erlaubt und werden hier bewusst nicht geprüft).
+    const heroImageBlockMatch = source.match(
+      /:global\(\.hero__image\)\s*\{[^}]*\}/,
+    );
+    expect(heroImageBlockMatch).not.toBeNull();
+    const heroImageBlock = heroImageBlockMatch?.[0] ?? "";
+    expect(heroImageBlock).not.toMatch(/animation/);
+    expect(heroImageBlock).not.toMatch(/transform/);
+    expect(heroImageBlock).not.toMatch(/will-change/);
+  });
+
+  test("Text-/Logo-Reveal im Hero bleibt bestehen (nur das Hintergrundbild wurde deaktiviert)", () => {
+    const source = stripComments(read("src/components/Hero.astro"));
+    expect(source).toMatch(/hero__logo\[data-reveal\]/);
+    expect(source).toMatch(/hero__headline\[data-reveal\]/);
+    expect(source).toMatch(/hero__actions\[data-reveal\]/);
+  });
+});
+
+test.describe("Regressionsschutz: Additive Multi-File-Auswahl", () => {
+  test("QuoteWizard.astro verwaltet eine persistente selectedFiles-Liste statt fileInput.files direkt zu lesen", () => {
+    const source = stripComments(read("src/components/QuoteWizard.astro"));
+    expect(source).toMatch(/let selectedFiles: File\[\] = \[\];/);
+    expect(source).toMatch(/function addFiles/);
+    // Die Schritt-3-Validierung und der Submit dürfen NICHT mehr direkt
+    // `fileInput.files` als Quelle verwenden - das war exakt der Bug
+    // (zweite Auswahl überschreibt die erste).
+    expect(source).not.toMatch(/fileInput\?\.files/);
+    expect(source).not.toMatch(/fileInput\.files\)/);
+  });
+
+  test("Duplikaterkennung basiert auf name+size+lastModified, keine Hashing-Lösung", () => {
+    const source = stripComments(read("src/components/QuoteWizard.astro"));
+    expect(source).toMatch(
+      /a\.name === b\.name && a\.size === b\.size && a\.lastModified === b\.lastModified/,
+    );
+  });
+
+  test("Entfernen-Buttons haben ein sprechendes aria-label pro Datei", () => {
+    const source = stripComments(read("src/components/QuoteWizard.astro"));
+    expect(source).toMatch(
+      /setAttribute\("aria-label", `Datei \$\{file\.name\} entfernen`\)/,
+    );
+  });
+
+  test("Submit hängt alle selectedFiles einzeln an FormData an, nicht die native FileList", () => {
+    const source = stripComments(read("src/components/QuoteWizard.astro"));
+    expect(source).toMatch(/fd\.delete\("files"\)/);
+    expect(source).toMatch(
+      /selectedFiles\.forEach\(\(file\) => \{\s*fd\.append\("files", file, file\.name\);/,
+    );
+  });
+
+  test("Validierung verwendet weiterhin ausschließlich die bestehende validateFiles()-Funktion", () => {
+    const source = stripComments(read("src/components/QuoteWizard.astro"));
+    const validateFilesCalls = source.match(/validateFiles\(/g) ?? [];
+    expect(validateFilesCalls.length).toBeGreaterThan(0);
+    // Keine eigene Größen-/Typ-/Mengenprüfung parallel zu validateFiles.
+    expect(source).not.toMatch(/\.length > MAX_FILES/);
+  });
+
+  test("Erfolgreicher Submit setzt die Dateiauswahl zurück (kein Datei-Leak zwischen Anfragen)", () => {
+    const source = stripComments(read("src/components/QuoteWizard.astro"));
+    expect(source).toMatch(/function resetFileState/);
+    expect(source).toMatch(/resetFileState\(\);/);
+  });
+});

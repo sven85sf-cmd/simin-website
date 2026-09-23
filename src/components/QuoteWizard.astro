@@ -401,6 +401,92 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
     let currentStep = 1;
     const totalSteps = 4;
 
+    /**
+     * Persistente, additive Dateiauswahl (Root-Cause-Fix Multi-File-UX):
+     * ein natives `<input type="file" multiple">` ERSETZT bei jeder neuen
+     * Auswahl die komplette FileList - eine zweite Dialog-Öffnung
+     * überschreibt die erste. `selectedFiles` ist deshalb die alleinige
+     * Source of Truth für ausgewählte Dateien; `fileInput.files` wird nach
+     * jeder Verarbeitung eines change-Events zurückgesetzt und beim Submit
+     * NICHT mehr verwendet (siehe Submit-Handler unten).
+     */
+    let selectedFiles: File[] = [];
+
+    function isSameFile(a: File, b: File): boolean {
+      return a.name === b.name && a.size === b.size && a.lastModified === b.lastModified;
+    }
+
+    function formatFileSize(bytes: number): string {
+      if (bytes >= 1024 * 1024) {
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+      }
+      return `${Math.round(bytes / 1024)} KB`;
+    }
+
+    function fileTypeLabel(file: File): string {
+      if (file.type === "application/pdf") return "PDF";
+      if (file.type.startsWith("image/")) return "Bild";
+      return "Datei";
+    }
+
+    function renderFileList() {
+      if (!fileList) return;
+      fileList.innerHTML = "";
+
+      selectedFiles.forEach((file) => {
+        const li = document.createElement("li");
+        li.className = "field__filelist-item";
+
+        const name = document.createElement("span");
+        name.className = "field__filelist-name";
+        name.textContent = file.name;
+
+        const meta = document.createElement("span");
+        meta.className = "field__filelist-meta";
+        meta.textContent = `${formatFileSize(file.size)} · ${fileTypeLabel(file)}`;
+
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.className = "field__filelist-remove";
+        removeBtn.textContent = "Entfernen";
+        removeBtn.setAttribute("aria-label", `Datei ${file.name} entfernen`);
+        removeBtn.addEventListener("click", () => {
+          selectedFiles = selectedFiles.filter((f) => !isSameFile(f, file));
+          renderFileList();
+        });
+
+        li.append(name, meta, removeBtn);
+        fileList.appendChild(li);
+      });
+
+      const fileErrors = validateFiles(selectedFiles);
+      if (fileError) fileError.textContent = fileErrors.map((e) => e.reason).join(" ");
+    }
+
+    /**
+     * Fügt eine neue Auswahl additiv zur bestehenden Liste hinzu (statt sie
+     * zu ersetzen). Duplikate (gleicher Name + Größe + lastModified) werden
+     * übersprungen, ohne die restliche Liste zu verändern. Menge/Größe/
+     * MIME-Type werden hier NICHT geprüft/abgeschnitten - das übernimmt
+     * ausschließlich die bestehende `validateFiles()` (siehe renderFileList),
+     * damit keine zweite, abweichende Validierungslogik entsteht.
+     */
+    function addFiles(newFiles: File[]) {
+      newFiles.forEach((file) => {
+        const alreadySelected = selectedFiles.some((f) => isSameFile(f, file));
+        if (!alreadySelected) {
+          selectedFiles.push(file);
+        }
+      });
+      renderFileList();
+    }
+
+    function resetFileState() {
+      selectedFiles = [];
+      if (fileInput) fileInput.value = "";
+      renderFileList();
+    }
+
     function getFieldData(): QuoteFormData {
       const fd = new FormData(form as HTMLFormElement);
       return {
@@ -490,12 +576,9 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
         setFieldError("city", errors.city ?? "");
         if (errors.postalCode || errors.city) valid = false;
 
-        if (fileInput?.files) {
-          const files = Array.from(fileInput.files);
-          const fileErrors = validateFiles(files);
-          if (fileError) fileError.textContent = fileErrors.map((e) => e.reason).join(" ");
-          if (fileErrors.length > 0) valid = false;
-        }
+        const fileErrors = validateFiles(selectedFiles);
+        if (fileError) fileError.textContent = fileErrors.map((e) => e.reason).join(" ");
+        if (fileErrors.length > 0) valid = false;
       }
 
       if (step === 4) {
@@ -525,15 +608,11 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
     });
 
     fileInput?.addEventListener("change", () => {
-      if (!fileList) return;
-      fileList.innerHTML = "";
-      Array.from(fileInput.files ?? []).forEach((file) => {
-        const li = document.createElement("li");
-        li.textContent = `${file.name} (${Math.round(file.size / 1024)} KB)`;
-        fileList.appendChild(li);
-      });
-      const fileErrors = validateFiles(Array.from(fileInput.files ?? []));
-      if (fileError) fileError.textContent = fileErrors.map((e) => e.reason).join(" ");
+      addFiles(Array.from(fileInput.files ?? []));
+      // Zurücksetzen, damit der native Dialog beim nächsten Öffnen nicht
+      // die vorherige Auswahl anzeigt/hält - `selectedFiles` bleibt davon
+      // unberührt, da es die einzige Source of Truth ist.
+      fileInput.value = "";
     });
 
     form.addEventListener("submit", async (event) => {
@@ -549,11 +628,22 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
 
       const genericErrorMessage = "Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.";
 
+      // `new FormData(form)` würde nur die aktuelle FileList des
+      // <input>-Elements übernehmen - die ist nach obigem Reset im
+      // change-Handler leer/veraltet. `selectedFiles` ist die alleinige
+      // Source of Truth: bestehende "files"-Einträge werden entfernt,
+      // dann werden alle selectedFiles explizit angehängt.
+      const fd = new FormData(form);
+      fd.delete("files");
+      selectedFiles.forEach((file) => {
+        fd.append("files", file, file.name);
+      });
+
       let response: Response;
       try {
         response = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, "")}/api/quote`, {
           method: "POST",
-          body: new FormData(form),
+          body: fd,
         });
       } catch (networkError) {
         // fetch() selbst wirft NUR bei einem echten Netzwerkfehler (kein
@@ -605,6 +695,11 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
 
         if (response.ok && result?.ok) {
           form.hidden = true;
+          // Nach vollständigem Absenden (Erfolg wie Teilerfolg - das Formular
+          // ist in beiden Fällen ausgeblendet und wird nicht erneut gezeigt)
+          // wird der Dateizustand geleert, damit keine veraltete Auswahl
+          // zurückbleibt.
+          resetFileState();
           // attachmentsComplete unterscheidet vollständigen Erfolg von
           // Teilerfolg: die Anfrage selbst ist immer gespeichert (ok:true),
           // aber der Nutzer darf niemals glauben, gewählte Dateien seien
