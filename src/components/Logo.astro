@@ -3,13 +3,19 @@
  * Logo-Komponente.
  *
  * Verwendet das originale SIMIN-Logo (extrahiert aus dem freigegebenen
- * Herbst/Winter-Flyer-PDF, src/assets/logo/simin-logo.png). Liegt keine
- * Logodatei vor, fällt die Komponente auf einen einfachen typografischen
- * Marken-Schriftzug zurück (kein gestaltetes Ersatzlogo).
+ * Herbst/Winter-Flyer-PDF, src/assets/logo/simin-logo.png) über einen
+ * statischen Import - das Asset ist damit die alleinige, deterministische
+ * Quelle. Bewusst KEIN import.meta.glob mehr: dessen Auflösung war im
+ * Wix-Build nicht zuverlässig, wodurch überall (Header UND Footer, die
+ * beide diese Komponente verwenden) stattdessen der - inzwischen ebenfalls
+ * entfernte - typografische Fallback gerendert wurde. Fehlt die
+ * Logo-Datei künftig wirklich, soll der Build fehlschlagen statt eines
+ * stillen Ersatzlogos.
  */
 import { Image } from "astro:assets";
 import { company } from "@/config/site";
 import { withBase } from "@/lib/path";
+import siminLogo from "@/assets/logo/simin-logo.png";
 
 interface Props {
   variant?: "light" | "dark";
@@ -19,40 +25,20 @@ interface Props {
 }
 
 const {
-  variant = "dark",
   size = "header",
   class: className = "",
   "data-reveal": dataReveal,
 } = Astro.props;
-
-const logoImages = import.meta.glob<{ default: ImageMetadata }>(
-  "/src/assets/logo/simin-logo.{png,svg,webp}",
-  { eager: true },
-);
-const logoEntry = Object.values(logoImages)[0];
 ---
 
-{
-  logoEntry ? (
-    <a
-      href={withBase("/")}
-      class={`logo logo--badge logo--badge-${size} ${className}`}
-      aria-label={`${company.name} – Startseite`}
-      data-reveal={dataReveal}
-    >
-      <Image src={logoEntry.default} alt={company.name} width={240} height={201} />
-    </a>
-  ) : (
-    <a
-      href={withBase("/")}
-      class={`logo logo--type logo--${variant} ${className}`}
-      aria-label={`${company.name} – Startseite`}
-    >
-      <span class="logo__mark">SIMIN</span>
-      <span class="logo__sub">Gebäudedienste</span>
-    </a>
-  )
-}
+<a
+  href={withBase("/")}
+  class={`logo logo--badge logo--badge-${size} ${className}`}
+  aria-label={`${company.name} – Startseite`}
+  data-reveal={dataReveal}
+>
+  <Image src={siminLogo} alt={company.name} width={240} height={201} />
+</a>
 
 <style>
   .logo {
@@ -83,41 +69,5 @@ const logoEntry = Object.values(logoImages)[0];
 
   .logo--badge-hero :global(img) {
     height: clamp(88px, 9vw, 136px);
-  }
-
-  .logo__mark {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1.85rem;
-    letter-spacing: 0.02em;
-    color: var(--color-navy);
-  }
-
-  .logo--light .logo__mark {
-    color: var(--color-white);
-  }
-
-  .logo__mark::after {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    margin-left: 6px;
-    border-radius: 50%;
-    background: var(--color-orange);
-    vertical-align: middle;
-  }
-
-  .logo__sub {
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.625rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--color-simin-blue);
-  }
-
-  .logo--light .logo__sub {
-    color: var(--color-light-blue);
   }
 </style>

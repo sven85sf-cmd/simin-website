@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { execSync } from "node:child_process";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (relativePath: string) =>
@@ -453,5 +454,72 @@ test.describe("Regressionsschutz: Private Attachment Access (signierte Capabilit
     expect(source).toMatch(
       /if\s*\(!ATTACHMENT_LINK_SIGNING_SECRET\)\s*\{[\s\S]*?return\s+"";/,
     );
+  });
+});
+
+test.describe("Regressionsschutz: SIMIN-Logo-Asset (statischer Import statt import.meta.glob)", () => {
+  test("A) Logo.astro importiert simin-logo.png statisch", () => {
+    const source = stripComments(read("src/components/Logo.astro"));
+    expect(source).toMatch(
+      /import\s+siminLogo\s+from\s+["']@\/assets\/logo\/simin-logo\.png["']/,
+    );
+  });
+
+  test("B) Logo.astro verwendet KEIN import.meta.glob mehr für das Logo", () => {
+    const source = stripComments(read("src/components/Logo.astro"));
+    expect(source).not.toMatch(/import\.meta\.glob/);
+    expect(source).not.toMatch(/Object\.values\(/);
+  });
+
+  test("C) Logo.astro rendert <Image src={siminLogo} ...> deterministisch (kein Fallback-Ternary mehr)", () => {
+    const source = stripComments(read("src/components/Logo.astro"));
+    expect(source).toMatch(/<Image\s+src=\{siminLogo\}/);
+    expect(source).not.toMatch(/logoEntry/);
+  });
+
+  test("D) src/assets/logo/simin-logo.png existiert weiterhin unverändert", () => {
+    const stats = statSync(join(root, "src/assets/logo/simin-logo.png"));
+    expect(stats.isFile()).toBe(true);
+    expect(stats.size).toBeGreaterThan(0);
+  });
+
+  test("E) Header.astro rendert weiterhin <Logo", () => {
+    const source = stripComments(read("src/components/Header.astro"));
+    expect(source).toMatch(/<Logo/);
+  });
+
+  test("F) Footer.astro rendert weiterhin <Logo", () => {
+    const source = stripComments(read("src/components/Footer.astro"));
+    expect(source).toMatch(/<Logo/);
+  });
+
+  test("G) Attachment-/Date-/Hero-Dateien wurden für diesen Fix nicht verändert (git diff)", () => {
+    const diff = execSync("git diff --name-only HEAD", {
+      cwd: root,
+      encoding: "utf-8",
+    });
+    const changedFiles = diff.split("\n").filter(Boolean);
+    const forbiddenFiles = [
+      "src/components/Header.astro",
+      "src/components/Footer.astro",
+      "src/components/Hero.astro",
+      "src/components/QuoteWizard.astro",
+      "src/pages/api/quote.ts",
+      "src/pages/api/attachment.ts",
+      "src/lib/attachmentLink.ts",
+      "astro.config.base.mjs",
+    ];
+    for (const forbidden of forbiddenFiles) {
+      expect(
+        changedFiles,
+        `${forbidden} darf für diesen Fix nicht verändert sein`,
+      ).not.toContain(forbidden);
+    }
+    for (const changed of changedFiles) {
+      expect(
+        changed.startsWith("src/lib/wix/"),
+        `${changed} liegt unerwartet unter src/lib/wix/`,
+      ).toBe(false);
+    }
   });
 });
