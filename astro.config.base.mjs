@@ -22,22 +22,26 @@ export const baseConfig = {
   compressHTML: true,
 
   security: {
-    // OHNE dies validiert Astros eingebaute CSRF-Origin-Prüfung (nur für
-    // die eine on-demand-Route /api/quote relevant) den Host-Header nicht
-    // gegen die echte Produktionsdomain und fällt intern auf ein leeres
-    // "http://localhost" zurück - eine echte Formular-Anfrage vom echten
-    // Origin (https://www.gebaeudedienste-simin.de) würde dadurch IMMER
-    // mit 403 "Cross-site POST form submissions are forbidden" abgelehnt.
-    // Mit dieser Domain in der Allowlist wird der tatsächliche Host korrekt
-    // erkannt und die Origin-Prüfung funktioniert wie vorgesehen.
-    //
-    // Zusätzlich: Wix-Managed-Headless-Previews laufen auf einer von Wix
-    // generierten *.wix-site-host.com-Subdomain (siehe .wix/topology.json).
-    // Ohne diesen Eintrag würde eine Testanfrage über die Wix-Preview aus
-    // demselben Grund mit "Cross-site POST form submissions are forbidden"
-    // fehlschlagen. Als Wildcard auf Wix' eigene, dedizierte Preview-Domain
-    // beschränkt (nicht pauschal offen), da die konkrete Subdomain sich pro
-    // Deployment ändern kann.
+    // Astros eingebaute checkOrigin-CSRF-Prüfung vergleicht den
+    // Origin-Header gegen `request.url`. Hinter Wix' Reverse-Proxy/
+    // Hosting-Layer (Cloudflare Workers) spiegelt `request.url` nicht
+    // zuverlässig den echten öffentlichen Host wider, den der Browser als
+    // Origin sendet - bestätigt durch eine echte 403-Antwort "Cross-site
+    // POST form submissions are forbidden" auf der Wix-Preview. Da
+    // `allowedDomains` (siehe unten) eine ANDERE Prüfung betrifft
+    // (Vertrauen in den `X-Forwarded-Host`-Header, nicht checkOrigin),
+    // löst es dieses Problem nicht. Deshalb hier deaktiviert; der
+    // eigentliche CSRF-/Origin-Schutz für /api/quote läuft jetzt
+    // ausschließlich über die explizite Origin-Allowlist in
+    // src/pages/api/quote.ts (isAllowedOrigin()), die NICHT gegen
+    // request.url prüft und dadurch von diesem Proxy-Problem unabhängig
+    // ist.
+    checkOrigin: false,
+
+    // Betrifft NICHT checkOrigin, sondern das Vertrauen in den
+    // X-Forwarded-Host-Header (z. B. für von Astro selbst konstruierte
+    // absolute URLs) hinter einem Reverse Proxy. Bleibt aus genau diesem,
+    // separaten Grund weiterhin gesetzt.
     allowedDomains: [
       { hostname: "www.gebaeudedienste-simin.de", protocol: "https" },
       { hostname: "**.wix-site-host.com", protocol: "https" },

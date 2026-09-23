@@ -17,20 +17,40 @@ function json(status: number, body: unknown) {
   });
 }
 
-function isSameOrigin(request: Request): boolean {
+/**
+ * Explizite Origin-Allowlist für /api/quote.
+ *
+ * Astros eingebaute checkOrigin-Prüfung ist in astro.config.base.mjs
+ * deaktiviert, weil sie hinter Wix' Reverse-Proxy/Hosting-Layer gegen
+ * `request.url` vergleicht - und dessen Host dort nicht zuverlässig dem
+ * öffentlichen Host entspricht, den der Browser als Origin sendet
+ * (bestätigt: echte 403 "Cross-site POST form submissions are forbidden"
+ * auf der Wix-Preview). Diese Funktion ersetzt den CSRF-/Origin-Schutz
+ * vollständig, OHNE jemals gegen request.url zu prüfen - nur gegen eine
+ * feste Liste erlaubter, echter Origins.
+ */
+function isAllowedOrigin(request: Request): boolean {
   const origin = request.headers.get("origin");
-  if (!origin) return true; // z. B. direkte serverseitige Tests / manche Clients ohne Origin-Header
+  if (!origin) return false;
+
+  let url: URL;
   try {
-    const originUrl = new URL(origin);
-    const requestUrl = new URL(request.url);
-    return originUrl.host === requestUrl.host;
+    url = new URL(origin);
   } catch {
     return false;
   }
+
+  if (url.protocol !== "https:") return false;
+
+  if (url.hostname === "www.gebaeudedienste-simin.de" || url.hostname === "gebaeudedienste-simin.de") {
+    return true;
+  }
+
+  return url.hostname.endsWith(".wix-site-host.com");
 }
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
-  if (!isSameOrigin(request)) {
+  if (!isAllowedOrigin(request)) {
     return json(403, { ok: false, error: "Ungültige Anfrage-Herkunft." });
   }
 
