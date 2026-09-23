@@ -255,13 +255,57 @@ eingebaute CSRF-Origin-Prüfung für `POST /api/quote` validiert den
 Host-Header ohne konfigurierte `allowedDomains` nicht korrekt und lehnt
 dadurch **jede** echte Formular-Anfrage mit 403 ab. `astro.config.mjs`
 trägt deshalb die Produktionsdomain explizit ein
-(`{ hostname: "www.gebaeudedienste-simin.de", protocol: "https" }`). Wird
-die Seite unter einer anderen/zusätzlichen Domain ausgeliefert (z. B. Apex
-ohne Redirect, eigene Staging-Domain), muss diese hier ergänzt werden —
-sonst schlägt der Versand mit „Cross-site POST form submissions are
-forbidden“ fehl, obwohl alles andere korrekt konfiguriert ist. End-to-end
+(`{ hostname: "www.gebaeudedienste-simin.de", protocol: "https" }`) sowie
+zusätzlich `{ hostname: "**.wix-site-host.com", protocol: "https" }` für
+Testanfragen über die Wix-Managed-Headless-Preview (deren Subdomain sich
+pro Deployment ändert, siehe `.wix/topology.json`). Wird die Seite unter
+einer weiteren Domain ausgeliefert (z. B. Apex ohne Redirect, eigene
+Staging-Domain), muss diese hier ergänzt werden — sonst schlägt der
+Versand mit „Cross-site POST form submissions are forbidden“ fehl, obwohl
+alles andere korrekt konfiguriert ist. End-to-end
 gegen den Node-Server getestet (Validierung, Honeypot, Datei-Upload,
 Erfolg-/Fehlerzustand, Tastaturbedienung) — siehe Launch-Checkliste unten.
+
+## Wix Managed Headless — Runtime-Pakete (wichtig bei zukünftigen Dependency-Änderungen)
+
+Das SSR-Server-Bundle (`dist/server/`) lässt Framework-/Wix-SDK-Pakete
+bewusst unbundled (bare imports, z. B. `import React from "react"` in
+`dist/server/renderers.mjs`) — sie werden zur Laufzeit aus `node_modules`
+aufgelöst. Läuft der Deploy-Prozess (z. B. Wix' eigene Build-Pipeline) mit
+einer reinen Production-Installation (`npm ci --omit=dev`), gehen alle
+Pakete verloren, die nur unter `devDependencies` stehen, obwohl der
+gebaute Code sie zur Laufzeit direkt oder über einen Pfad in
+`node_modules/<paket>/...` benötigt (kein Peer-Dependency-Hoisting rettet
+das, wenn die einzige „harte" Installation eine devDependency ist).
+
+Deshalb stehen folgende Pakete bewusst unter `dependencies`, nicht
+`devDependencies`, obwohl sie so von `npm create @wix/new -- headless
+link` ursprünglich einsortiert wurden:
+
+- `react`, `react-dom` — von `dist/server/renderers.mjs` per bare import
+  benötigt; nur als `devDependencies` reproduzierte exakt den Fehler
+  „Cannot find package 'react' imported from /user-code/renderers.mjs"
+  auf der Wix-Runtime.
+- `@wix/astro`, `@wix/astro-pages` — registrieren zur Laufzeit referenzierte
+  Server-Routen (`node_modules/@wix/astro/build/dependencies/.../*.mjs`,
+  u. a. `/_wix/pages.json`, Auth-Callbacks, Payment-Links) im SSR-Manifest.
+- `@wix/media` — direkt in `src/lib/wix/submissionsRepository.ts`
+  importiert; lief bisher nur „zufällig", weil `@wix/dashboard` es
+  transitiv mitzieht — jetzt explizit deklariert.
+
+`@astrojs/react` (nur Build-Zeit-Integration, generiert `renderers.mjs`,
+wird selbst nicht zur Laufzeit importiert), `@wix/cli` (Build-/CLI-Tool)
+und `@wix/astro-wix-hosting-adapter` (aktuell nicht in `astro.config.mjs`
+eingebunden, siehe unten) bleiben zulässig unter `devDependencies`.
+
+**Offener Beobachtungspunkt (nicht verändert):** `@wix/astro-wix-hosting-adapter`
+ist installiert, aber `astro.config.mjs` verwendet weiterhin den
+`@astrojs/node`-Adapter, nicht diesen Wix/Cloudflare-Adapter. Der lokale
+Build läuft damit einwandfrei durch; ob Wix' eigene Deploy-Pipeline
+zwingend den Cloudflare-Adapter erwartet, konnte in dieser Umgebung nicht
+verifiziert werden (kein Netzwerkzugriff auf `*.wix.com`). Nicht
+eigenmächtig umgestellt, da dies laut Aufgabenstellung eine große,
+nicht anhand vorliegender Fehler begründete Architekturänderung wäre.
 
 ## Produktions-Hosting-Anforderung (P0 — Entscheidung vor Livegang nötig)
 

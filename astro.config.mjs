@@ -26,7 +26,18 @@ export default defineConfig({
     // mit 403 "Cross-site POST form submissions are forbidden" abgelehnt.
     // Mit dieser Domain in der Allowlist wird der tatsächliche Host korrekt
     // erkannt und die Origin-Prüfung funktioniert wie vorgesehen.
-    allowedDomains: [{ hostname: "www.gebaeudedienste-simin.de", protocol: "https" }],
+    //
+    // Zusätzlich: Wix-Managed-Headless-Previews laufen auf einer von Wix
+    // generierten *.wix-site-host.com-Subdomain (siehe .wix/topology.json).
+    // Ohne diesen Eintrag würde eine Testanfrage über die Wix-Preview aus
+    // demselben Grund mit "Cross-site POST form submissions are forbidden"
+    // fehlschlagen. Als Wildcard auf Wix' eigene, dedizierte Preview-Domain
+    // beschränkt (nicht pauschal offen), da die konkrete Subdomain sich pro
+    // Deployment ändern kann.
+    allowedDomains: [
+      { hostname: "www.gebaeudedienste-simin.de", protocol: "https" },
+      { hostname: "**.wix-site-host.com", protocol: "https" },
+    ],
   },
 
   build: {
@@ -44,5 +55,12 @@ export default defineConfig({
     domains: ["static.wixstatic.com"],
   },
 
-  integrations: [react(), wix(), wixPages()],
+  // robots: false, da @wix/astro sonst eine eigene /robots.txt-Route
+  // registriert, die mit der bestehenden src/pages/robots.txt.ts kollidiert
+  // ("A static route cannot be defined more than once", zuletzt als Warnung,
+  // laut Astro künftig ein Hard-Error). Wix' eigene Route proxied nur das
+  // generische Wix-robots.txt und kennt die hier gewünschte
+  // Preview-noindex-/Production-indexierbar-Logik nicht – die bestehende,
+  // vollständigere eigene Route bleibt deshalb aktiv.
+  integrations: [react(), wix({ robots: false }), wixPages()],
 });
