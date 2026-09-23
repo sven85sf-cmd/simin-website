@@ -295,12 +295,13 @@ ol {
    Motion / Reveal-System
    ============================================================
    Progressive Enhancement: Inhalte sind per Default sichtbar (kein JS,
-   kein CSS-Motion-Support -> alles lesbar). Erst wenn motion.ts das
-   IntersectionObserver-System initialisiert (und prefers-reduced-motion
-   NICHT aktiv ist), setzt es die Klasse "motion-enabled" auf <html> -
-   nur dann greifen die unsichtbaren Ausgangszustände unten. Einzelne
-   Elemente werden einmalig sichtbar, sobald sie in den Viewport
-   scrollen (Klasse "is-visible", von IntersectionObserver gesetzt). */
+   kein CSS-Motion-Support -> alles lesbar). Ein synchrones Inline-Skript
+   im <head> von BaseLayout.astro setzt "motion-enabled" auf <html> VOR
+   dem ersten Paint (und nur, wenn prefers-reduced-motion NICHT aktiv
+   ist) - nur dann greifen die unsichtbaren Ausgangszustände unten.
+   Einzelne Elemente werden einmalig sichtbar, sobald sie in den
+   Viewport scrollen (Klasse "is-visible", vom Skript am Body-Ende via
+   IntersectionObserver gesetzt). */
 
 html.motion-enabled [data-reveal] {
   opacity: 0;
@@ -326,4 +327,16 @@ html.motion-enabled [data-reveal="right"] {
 html.motion-enabled [data-reveal].is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* Fail-Safe: Falls das Reveal-Skript am Body-Ende aus irgendeinem Grund
+   nicht läuft oder nicht rechtzeitig fertig wird (Fehler, blockiertes
+   Skript, extrem langsames Netz), setzt das Head-Skript nach einem
+   Timeout die Klasse "reveal-fallback" auf <html>. Dadurch werden
+   [data-reveal]-Elemente niemals dauerhaft unsichtbar - sie erscheinen
+   im schlimmsten Fall ohne Animation, aber immer lesbar. */
+html.motion-enabled.reveal-fallback [data-reveal] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
 }

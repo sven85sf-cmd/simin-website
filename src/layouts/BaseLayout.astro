@@ -50,6 +50,43 @@ const {
       simScrollTopIfNoHash();
       window.addEventListener("pageshow", simScrollTopIfNoHash);
     </script>
+    <script is:inline>
+      /* Setzt "motion-enabled" auf <html> SYNCHRON und VOR dem ersten
+         Paint - deshalb hier im <head> als eigenständiges, blockierendes
+         Inline-Skript, nicht im Skript am Body-Ende.
+         Zuvor wurde diese Klasse erst am Body-Ende gesetzt, nachdem
+         der Browser [data-reveal]-Elemente bereits sichtbar gemalt hatte
+         (ohne motion-enabled greift keine opacity:0-Regel). Das erzeugte
+         ein sichtbares Flackern: sichtbar -> (Klasse kommt spät) plötzlich
+         unsichtbar -> nach Scroll-Trigger wieder animiert sichtbar. Mit der
+         Klasse bereits vor dem ersten Paint gesetzt, ist der unsichtbare
+         Ausgangszustand von Anfang an Teil des allerersten gemalten Frames
+         - kein Umschalten mehr sichtbar -> unsichtbar.
+         Das Skript am Body-Ende (siehe unten) setzt diese Klasse NICHT
+         erneut; es kümmert sich nur noch um Stagger-Timing und das
+         Sichtbar-Schalten ("is-visible") einzelner Elemente. */
+      (function () {
+        try {
+          var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          if (reduceMotion) return;
+
+          document.documentElement.classList.add("motion-enabled");
+
+          /* Fail-Safe: Falls das Reveal-Skript am Body-Ende aus
+             irgendeinem Grund nie läuft oder nie fertig wird (Fehler,
+             blockiertes Skript, sehr langsames Netz), dürfen
+             [data-reveal]-Elemente NIE dauerhaft unsichtbar bleiben.
+             Das Body-Skript räumt diesen Timeout selbst auf, sobald es
+             erfolgreich zu laufen beginnt. */
+          window.__revealFailSafe = window.setTimeout(function () {
+            document.documentElement.classList.add("reveal-fallback");
+          }, 4000);
+        } catch (e) {
+          /* Bei jedem Fehler hier lieber motion-enabled gar nicht setzen -
+             im Zweifel bleibt der Inhalt sofort sichtbar. */
+        }
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#07354a" />
@@ -83,12 +120,26 @@ const {
        * html.motion-enabled). Bei prefers-reduced-motion wird die Klasse
        * gar nicht erst gesetzt: keine Reveal-Sequenzen, Inhalt bleibt
        * sofort vollständig sichtbar und bedienbar.
+       *
+       * "motion-enabled" wird NICHT hier gesetzt, sondern bereits synchron
+       * vor dem ersten Paint durch ein Inline-Skript im <head> (siehe
+       * BaseLayout.astro-Kopf) - das verhindert das früher hier vorhandene
+       * Flackern (sichtbar -> unsichtbar -> animiert sichtbar). Dieses
+       * Skript liest die Klasse nur noch und kümmert sich um Stagger-Timing
+       * und das Sichtbar-Schalten einzelner Elemente.
        */
+      try {
+        if (typeof (window as unknown as { __revealFailSafe?: number }).__revealFailSafe === "number") {
+          window.clearTimeout((window as unknown as { __revealFailSafe?: number }).__revealFailSafe);
+        }
+      } catch {
+        // Fail-Safe-Aufräumen ist rein defensiv - ein Fehler hier darf den
+        // Rest des Reveal-Systems nicht verhindern.
+      }
+
       const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
       if (!reduceMotion) {
-        document.documentElement.classList.add("motion-enabled");
-
         // Stagger: Kindelemente mit [data-reveal] innerhalb eines
         // [data-stagger]-Containers erhalten eine steigende Verzögerung
         // (Default 80ms, überschreibbar via data-stagger="120").

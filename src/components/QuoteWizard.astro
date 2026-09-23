@@ -513,38 +513,84 @@ const propertyOptions = PROPERTY_TYPE_OPTIONS;
         errorBanner.textContent = "";
       }
 
+      const genericErrorMessage = "Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.";
+
+      let response: Response;
       try {
-        const response = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, "")}/api/quote`, {
+        response = await fetch(`${import.meta.env.BASE_URL.replace(/\/$/, "")}/api/quote`, {
           method: "POST",
           body: new FormData(form),
         });
-        const result = await response.json();
+      } catch (networkError) {
+        // fetch() selbst wirft NUR bei einem echten Netzwerkfehler (kein
+        // Kontakt zum Server möglich) - niemals bei einer HTTP-Fehlerantwort
+        // wie 4xx/5xx, die immer normal aufgelöst wird. Nur hier ist die
+        // "Internetverbindung"-Meldung tatsächlich zutreffend.
+        // eslint-disable-next-line no-console
+        console.error("[quote] network error", networkError instanceof Error ? networkError.message : networkError);
+        if (errorBanner) {
+          errorBanner.hidden = false;
+          errorBanner.textContent =
+            "Ihre Anfrage konnte nicht gesendet werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.";
+        }
+        submitBtn.disabled = false;
+        submitBtn.textContent = "UNVERBINDLICHE ANFRAGE SENDEN";
+        return;
+      }
 
-        if (response.ok && result.ok) {
+      try {
+        // Die Antwort wird NIEMALS blind als JSON angenommen: ein
+        // unerwarteter Fehlerpfad (Proxy-/Plattform-Fehlerseite, leerer
+        // Body o.ä.) könnte sonst hier selbst einen Fehler werfen, der ohne
+        // erkennbaren Grund als "Internetverbindung"-Problem missgedeutet
+        // würde, obwohl der Server durchaus erreichbar war.
+        const contentType = response.headers.get("content-type") ?? "";
+        let result: { ok?: boolean; error?: string; fieldErrors?: Record<string, string> } | null = null;
+
+        if (contentType.toLowerCase().includes("application/json")) {
+          try {
+            result = await response.json();
+          } catch (parseError) {
+            // eslint-disable-next-line no-console
+            console.error("[quote] JSON parse error", {
+              status: response.status,
+              contentType,
+              error: parseError instanceof Error ? parseError.message : String(parseError),
+            });
+          }
+        } else {
+          // eslint-disable-next-line no-console
+          console.error("[quote] non-JSON response", { status: response.status, contentType });
+        }
+
+        if (response.ok && result?.ok) {
           form.hidden = true;
           if (successEl) {
             successEl.hidden = false;
             successEl.focus();
           }
         } else {
-          if (result.fieldErrors) {
-            Object.entries(result.fieldErrors as Record<string, string>).forEach(([key, message]) => {
+          if (result?.fieldErrors) {
+            Object.entries(result.fieldErrors).forEach(([key, message]) => {
               setFieldError(key, message);
             });
             showStep(1);
           }
           if (errorBanner) {
             errorBanner.hidden = false;
-            errorBanner.textContent =
-              result.error ?? "Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.";
+            errorBanner.textContent = result?.error ?? genericErrorMessage;
             errorBanner.focus?.();
           }
         }
-      } catch {
+      } catch (unexpectedError) {
+        // eslint-disable-next-line no-console
+        console.error(
+          "[quote] unexpected error handling response",
+          unexpectedError instanceof Error ? unexpectedError.message : unexpectedError,
+        );
         if (errorBanner) {
           errorBanner.hidden = false;
-          errorBanner.textContent =
-            "Ihre Anfrage konnte nicht gesendet werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.";
+          errorBanner.textContent = genericErrorMessage;
         }
       } finally {
         submitBtn.disabled = false;

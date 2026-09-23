@@ -12,6 +12,8 @@
     "astro": "astro",
     "check": "astro check --config astro.config.static.mjs",
     "lint": "eslint . --ext .ts,.astro",
+    "test:e2e": "playwright test",
+    "test:regression": "playwright test --config=playwright.regression.config.ts",
     "format": "prettier --write .",
     "wix": "wix",
     "release": "wix release",

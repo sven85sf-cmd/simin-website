@@ -10,6 +10,7 @@ export interface QuoteSubmissionPayload {
 export interface SubmissionResult {
   ok: boolean;
   errorMessage?: string;
+  errorCode?: "WIX_DATA_ERROR" | "WIX_MEDIA_ERROR" | "ENV_ERROR";
 }
 
 /**
@@ -30,10 +31,14 @@ class WixDataSubmissionService implements FormSubmissionService {
 
     if (!result.ok) {
       // eslint-disable-next-line no-console
-      console.error("[WixDataSubmissionService] Anfrage konnte nicht in Wix Data gespeichert werden:", result.errorDetail);
+      console.error(
+        "[WixDataSubmissionService] Anfrage konnte nicht in Wix Data gespeichert werden:",
+        result.errorDetail,
+      );
       return {
         ok: false,
         errorMessage: `Ihre Anfrage konnte gerade nicht übermittelt werden. Bitte versuchen Sie es erneut oder kontaktieren Sie uns telefonisch unter ${company.phone.display}.`,
+        errorCode: result.errorCode,
       };
     }
 

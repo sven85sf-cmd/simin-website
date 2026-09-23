@@ -4,11 +4,20 @@
  * Für einen Single-Instance-Deploy ausreichend. Bei horizontaler Skalierung
  * (mehrere Serverinstanzen) sollte dies durch einen persistenten,
  * gemeinsam genutzten Speicher ersetzt werden (z. B. Redis).
+ *
+ * MAX_REQUESTS/WINDOW_MS bewusst fest im Code statt über `process.env` auf
+ * Modulebene konfigurierbar: `process.env` ist auf der Cloudflare-Workers-
+ * Laufzeit (Wix-Hosting-Adapter) keine zuverlässige Quelle für echte, im
+ * Wix-Dashboard gesetzte Werte (siehe astro.config.base.mjs), und ein
+ * fehlgeschlagener/undefinierter Zugriff auf Modulebene würde noch vor
+ * jedem try/catch der aufrufenden Route laufen. Es gibt aktuell keinen
+ * geschäftlichen Grund, ausgerechnet diese zwei Werte extern konfigurierbar
+ * zu machen.
  */
 const hits = new Map<string, { count: number; windowStart: number }>();
 
-const MAX_REQUESTS = Number(process.env.QUOTE_RATE_LIMIT_MAX ?? 5);
-const WINDOW_MS = Number(process.env.QUOTE_RATE_LIMIT_WINDOW_MS ?? 10 * 60 * 1000);
+const MAX_REQUESTS = 5;
+const WINDOW_MS = 10 * 60 * 1000;
 
 export function isRateLimited(key: string): boolean {
   const now = Date.now();

@@ -1,3 +1,4 @@
+import { envField } from "astro/config";
 import react from "@astrojs/react";
 import wix from "@wix/astro";
 import wixPages from "@wix/astro-pages";
@@ -61,6 +62,26 @@ export const baseConfig = {
   image: {
     remotePatterns: [],
     domains: ["static.wixstatic.com"],
+  },
+
+  // Auf Cloudflare Workers (Wix-Hosting-Adapter) hat `process.env` keine
+  // zuverlässige Verbindung zu echten, im Wix-Dashboard gesetzten
+  // Environment Variables - Cloudflare übergibt sie pro Request über ein
+  // `env`-Binding-Objekt, nicht über den Node-üblichen `process.env`.
+  // `astro:env/server` ist der offiziell von Astro/dem Cloudflare-Adapter
+  // unterstützte, adapterübergreifende Weg dafür. Collection-ID ist nicht
+  // sensibel (kein Secret), soll aber ausschließlich serverseitig lesbar
+  // sein - daher access: "public", context: "server". `optional: true`,
+  // damit ein fehlender Wert kontrolliert behandelt werden kann statt
+  // einen Build-/Validierungsfehler auszulösen.
+  env: {
+    schema: {
+      WIX_SUBMISSIONS_COLLECTION_ID: envField.string({
+        context: "server",
+        access: "public",
+        optional: true,
+      }),
+    },
   },
 
   // robots: false, da @wix/astro sonst eine eigene /robots.txt-Route
