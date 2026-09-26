@@ -1,7 +1,5 @@
 import { envField } from "astro/config";
 import react from "@astrojs/react";
-import wix from "@wix/astro";
-import wixPages from "@wix/astro-pages";
 
 /**
  * Konfiguration, die für JEDE Astro-Config-Variante identisch gilt
@@ -108,12 +106,9 @@ export const baseConfig = {
     },
   },
 
-  // robots: false, da @wix/astro sonst eine eigene /robots.txt-Route
-  // registriert, die mit der bestehenden src/pages/robots.txt.ts kollidiert
-  // ("A static route cannot be defined more than once", zuletzt als Warnung,
-  // laut Astro künftig ein Hard-Error). Wix' eigene Route proxied nur das
-  // generische Wix-robots.txt und kennt die hier gewünschte
-  // Preview-noindex-/Production-indexierbar-Logik nicht – die bestehende,
-  // vollständigere eigene Route bleibt deshalb aktiv.
-  integrations: [react(), wix({ robots: false }), wixPages()],
+  // Die Wix-Integrationen stehen bewusst NUR in astro.config.mjs: @wix/astro
+  // lehnt jedes `base` ungleich "/" ab und ruft beim Prerendern jeder Seite
+  // die Wix-OAuth-API auf - beides macht den statischen GitHub-Pages-Build
+  // unmöglich, obwohl statische Seiten keinerlei Wix-Laufzeit benötigen.
+  integrations: [react()],
 };

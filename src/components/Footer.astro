@@ -1,6 +1,6 @@
 ---
 import Logo from "@/components/Logo.astro";
-import { company, footerNav } from "@/config/site";
+import { company, footerNav, openingHours } from "@/config/site";
 import { withBase } from "@/lib/path";
 
 const year = new Date().getFullYear();
@@ -21,10 +21,12 @@ const year = new Date().getFullYear();
         <a href={company.url} rel="noopener">www.gebaeudedienste-simin.de</a>
         <div class="site-footer__hours">
           <span class="site-footer__hours-heading">Bürozeiten</span>
-          <span>Montag–Freitag</span>
-          <span>08:00–16:00 Uhr</span>
-          <span>Samstag</span>
-          <span>09:00–13:00 Uhr</span>
+          {openingHours.map((row) => (
+            <>
+              <span>{row.label}</span>
+              <span>{row.display}</span>
+            </>
+          ))}
         </div>
       </address>
     </div>

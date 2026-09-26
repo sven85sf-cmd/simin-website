@@ -52,7 +52,7 @@ export const services: Service[] = [
     metaTitle: "Gebäudereinigung Köln | Gebäudedienste SIMIN",
     metaDescription:
       "Büro-, Praxis-, Treppenhaus- und Unterhaltsreinigung sowie Glas- und Fensterreinigung für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
-    eyebrow: "GEBÄUDEREINIGUNG",
+    eyebrow: "UNSERE LEISTUNGEN",
     heroImage: "/images/service-gebaeudereinigung.webp",
     shortText:
       "Saubere und hygienisch gepflegte Räume für Wohn-, Büro-, Praxis- und Gewerbeobjekte.",
@@ -122,7 +122,7 @@ export const services: Service[] = [
     ],
     sidebarImage: {
       src: "/images/gebaeudereinigung-sidebar.webp",
-      alt: "SIMIN-Mitarbeiterin bei der professionellen Bodenreinigung im Gebäude-Eingangsbereich",
+      alt: "Professionelle Bodenreinigung im Eingangsbereich eines Gebäudes",
     },
   },
   {
@@ -134,7 +134,7 @@ export const services: Service[] = [
     metaTitle: "Objektservice & Hausmeisterservice Köln | Gebäudedienste SIMIN",
     metaDescription:
       "Objektbetreuung, Kontrollgänge, Mülltonnenbereitstellung und Kleinreparaturen für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
-    eyebrow: "OBJEKTSERVICE",
+    eyebrow: "UNSERE LEISTUNGEN",
     heroImage: "/images/service-objektservice.webp",
     shortText:
       "Persönliche Betreuung und regelmäßige Kontrollen für gepflegte Allgemeinflächen und klare Abläufe im Objekt.",
@@ -190,7 +190,7 @@ export const services: Service[] = [
     ],
     sidebarImage: {
       src: "/images/objektservice-sidebar.webp",
-      alt: "SIMIN-Mitarbeiter im Objektservice beim Wechsel eines Leuchtmittels im Gebäude-Eingangsbereich",
+      alt: "Wechsel eines Leuchtmittels im Eingangsbereich eines Gebäudes",
     },
   },
   {
@@ -202,7 +202,7 @@ export const services: Service[] = [
     metaTitle: "Außenanlagenpflege Köln | Gebäudedienste SIMIN",
     metaDescription:
       "Grünflächenpflege, Hof- und Wegepflege sowie Laubbeseitigung für Immobilien in Köln und Umgebung. Jetzt unverbindlich anfragen.",
-    eyebrow: "AUSSENANLAGENPFLEGE",
+    eyebrow: "UNSERE LEISTUNGEN",
     heroImage: "/images/service-aussenanlagen-gruen.webp",
     shortText:
       "Gepflegte Außenbereiche im Jahresverlauf – von der Grünpflege bis zur Betreuung bei Schnee und Glätte.",
@@ -244,7 +244,7 @@ export const services: Service[] = [
     ],
     sidebarImage: {
       src: "/images/aussenanlagenpflege-sidebar.webp",
-      alt: "SIMIN-Team bei der Außenanlagenpflege mit Rasenmähen, Heckenschnitt und Rasenkantentrimmen",
+      alt: "Außenanlagenpflege mit Rasenmähen, Heckenschnitt und Rasenkantenschnitt",
     },
   },
   {
@@ -256,7 +256,7 @@ export const services: Service[] = [
     metaTitle: "Winterdienst Köln | Gebäudedienste SIMIN",
     metaDescription:
       "Winterdienst für Gehwege, Höfe und Zufahrten von Immobilien in Köln und Umgebung. Vereinbarte Leistungen bei Schnee und Glätte. Jetzt anfragen.",
-    eyebrow: "WINTERDIENST",
+    eyebrow: "UNSERE LEISTUNGEN",
     heroImage: "/images/service-winterdienst.webp",
     shortText: "Betreuung Ihrer Immobilie bei Schnee und Glätte im vereinbarten Leistungsumfang.",
     homeItems: ["Schnee- und Glättebeseitigung", "Gehwege & Zufahrten", "Streudienst"],
@@ -289,7 +289,7 @@ export const services: Service[] = [
     ],
     sidebarImage: {
       src: "/images/winterdienst-sidebar.webp",
-      alt: "SIMIN-Mitarbeiter beim Winterdienst mit Schneefräse vor winterlicher Kölner Kulisse",
+      alt: "Winterdienst mit Schneefräse vor winterlicher Kölner Kulisse",
     },
   },
 ];

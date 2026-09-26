@@ -31,7 +31,36 @@ export const company = {
   url: "https://www.gebaeudedienste-simin.de/",
 } as const;
 
-export const fullAddress = `${company.address.street}, ${company.address.postalCode} ${company.address.city}`;
+/**
+ * Bürozeiten – einzige Quelle für Footer, Kontaktseite und LocalBusiness-
+ * Schema. `display` steuert die sichtbare Ausgabe, `schemaDays` die
+ * schema.org-Tage (Sonntag = geschlossen, daher nicht im Schema).
+ */
+export const openingHours = [
+  {
+    label: "Montag–Freitag",
+    display: "08:00–16:00 Uhr",
+    schemaDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    opens: "08:00",
+    closes: "16:00",
+  },
+  {
+    label: "Samstag",
+    display: "09:00–14:00 Uhr",
+    schemaDays: ["Saturday"],
+    opens: "09:00",
+    closes: "14:00",
+  },
+  {
+    label: "Sonntag",
+    display: "geschlossen",
+    schemaDays: [],
+    opens: null,
+    closes: null,
+  },
+] as const;
+
+export const fullAddress =`${company.address.street}, ${company.address.postalCode} ${company.address.city}`;
 
 /**
  * Link zu Google-Bewertungen. Solange kein verifizierter Google-Business-

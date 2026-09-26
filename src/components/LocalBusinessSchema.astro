@@ -1,10 +1,10 @@
 ---
-import { company } from "@/config/site";
+import { company, openingHours } from "@/config/site";
 
 /**
- * LocalBusiness Structured Data – ausschließlich echte, im Master-Brief
- * bestätigte Angaben. Keine Öffnungszeiten, Preisspannen oder Bewertungen,
- * da diese nicht belegt vorliegen.
+ * LocalBusiness Structured Data – ausschließlich bestätigte Angaben.
+ * Öffnungszeiten kommen aus derselben Quelle wie Footer/Kontaktseite
+ * (openingHours in site.ts). Bewusst keine Preisspannen oder Bewertungen.
  */
 
 const schema = {
@@ -27,6 +27,14 @@ const schema = {
     "@type": "City",
     name: "Köln",
   },
+  openingHoursSpecification: openingHours
+    .filter((row) => row.opens && row.closes)
+    .map((row) => ({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: row.schemaDays,
+      opens: row.opens,
+      closes: row.closes,
+    })),
 };
 ---
 

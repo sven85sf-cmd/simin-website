@@ -9,17 +9,12 @@ import { defineConfig, devices } from "@playwright/test";
  * identisch, da sie Wix-SDK-Module ausschließlich dynamisch und erst nach
  * den hier geprüften Kontrollpunkten laden.
  *
- * WICHTIG: `npm start` benötigt echte, per `npx wix env pull` bezogene
- * Wix-Zugangsdaten (WIX_CLIENT_ID etc.) - die globale Auth-Middleware von
- * `@wix/astro` (aus astro.config.base.mjs, integrations: [wix(...)])
- * versucht für JEDE Route (auch /api/quote und /api/runtime-health) einen
- * Visitor-Token beim Wix-OAuth-Endpunkt zu holen, BEVOR die eigentliche
- * Route ausgeführt wird. Ohne echte Zugangsdaten schlägt das für JEDE
- * Route fehl (nicht nur für /api/quote) - das ist eine Eigenschaft von
- * `@wix/astro` selbst, keine Regression dieses Reparaturdurchgangs. Diese
- * Tests laufen deshalb NICHT in einer offline-Sandbox ohne Wix-Session;
- * regression-guards.spec.ts (siehe playwright.regression.config.ts) prüft
- * die hier reparierten Codepfade serverlos und ohne Zugangsdaten.
+ * `npm start` läuft ohne Wix-Zugangsdaten: die Wix-Integrationen (inkl.
+ * globaler Auth-Middleware) stehen nur in astro.config.mjs, nicht in
+ * astro.config.static.mjs. Echte Wix-Aufrufe (Speichern, Upload, Download)
+ * schlagen hier kontrolliert fehl - genau das prüfen die Fehlerfall-Tests.
+ * attachment-endpoint.spec.ts erwartet den Server mit
+ * ATTACHMENT_LINK_SIGNING_SECRET=e2e-test-signing-secret-not-a-real-secret.
  */
 const PORT = 4321;
 

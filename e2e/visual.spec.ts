@@ -47,6 +47,17 @@ for (const route of ROUTES) {
       false,
     );
 
+    // Reveals sind scroll-gesteuert: Elemente unterhalb des Viewports sind
+    // bis zum Hineinscrollen bewusst unsichtbar. "Dauerhaft unsichtbar"
+    // lässt sich daher erst nach einmaligem Durchscrollen prüfen.
+    await page.evaluate(async () => {
+      for (let y = 0; y <= document.documentElement.scrollHeight; y += 300) {
+        window.scrollTo(0, y);
+        await new Promise((r) => setTimeout(r, 80));
+      }
+    });
+    await page.waitForTimeout(1500);
+
     // Nach vollständigem Laden muss motion-enabled gesetzt sein (außer bei
     // reduced-motion) und alle [data-reveal]-Elemente müssen sichtbar sein
     // - kein dauerhaft unsichtbarer Rest (Fail-Safe-Garantie).

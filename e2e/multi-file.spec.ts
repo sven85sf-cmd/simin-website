@@ -1,4 +1,7 @@
 import { test, expect } from "@playwright/test";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 /**
  * Testmatrix für die additive Multi-File-Auswahl (Root-Cause-Fix: ein
@@ -114,9 +117,14 @@ test("E) Duplikat auswählen (gleicher Name/Größe) -> nicht doppelt vorhanden"
   page,
 }) => {
   await gotoQuoteFileStep(page);
-  const file = pdfFile("grundriss.pdf", 500);
-  await fileInput(page).setInputFiles([file]);
-  await fileInput(page).setInputFiles([file]);
+  // Echte Datei auf der Platte: nur so bleibt `lastModified` zwischen zwei
+  // Auswahlen identisch (In-Memory-Puffer erhalten bei jedem
+  // setInputFiles einen neuen Zeitstempel - wie zwei verschiedene Dateien).
+  const dir = mkdtempSync(join(tmpdir(), "simin-dup-"));
+  const filePath = join(dir, "grundriss.pdf");
+  writeFileSync(filePath, pdfFile("grundriss.pdf", 500).buffer);
+  await fileInput(page).setInputFiles(filePath);
+  await fileInput(page).setInputFiles(filePath);
 
   await expect(fileListItems(page)).toHaveCount(1);
 });

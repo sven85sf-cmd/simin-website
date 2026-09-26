@@ -558,3 +558,65 @@ test.describe("Regressionsschutz: SIMIN-Logo-Asset (public/-Pfad statt astro:ass
     expect(globUsages).toEqual([]);
   });
 });
+
+test.describe("Regressionsschutz: Launch Candidate (Bürozeiten, Build-Konfiguration, Authentizität)", () => {
+  test("Bürozeiten: einzige Quelle in site.ts, Samstag 09:00–14:00, Sonntag geschlossen", () => {
+    const site = stripComments(read("src/config/site.ts"));
+    expect(site).toMatch(/label:\s*"Samstag",\s*display:\s*"09:00–14:00 Uhr"/);
+    expect(site).toMatch(/label:\s*"Sonntag",\s*display:\s*"geschlossen"/);
+    expect(site).toMatch(/label:\s*"Montag–Freitag",\s*display:\s*"08:00–16:00 Uhr"/);
+
+    for (const file of [
+      "src/components/Footer.astro",
+      "src/pages/kontakt.astro",
+      "src/components/LocalBusinessSchema.astro",
+    ]) {
+      const source = stripComments(read(file));
+      expect(source, `${file} muss openingHours verwenden`).toMatch(/openingHours/);
+      expect(source, `${file} darf keine Uhrzeiten hart codieren`).not.toMatch(/\d{2}:\d{2}/);
+    }
+    expect(stripComments(read("src/components/LocalBusinessSchema.astro"))).toMatch(
+      /openingHoursSpecification/,
+    );
+  });
+
+  test("Wix-Integrationen nur in astro.config.mjs, nicht in der gemeinsamen Basis/Static-Config", () => {
+    const base = stripComments(read("astro.config.base.mjs"));
+    const staticCfg = stripComments(read("astro.config.static.mjs"));
+    const wixCfg = stripComments(read("astro.config.mjs"));
+    expect(base).not.toMatch(/from\s+["']@wix\/astro(-pages)?["']/);
+    expect(staticCfg).not.toMatch(/from\s+["']@wix\/astro(-pages)?["']/);
+    expect(wixCfg).toMatch(/from\s+["']@wix\/astro["']/);
+    expect(wixCfg).toMatch(/from\s+["']@wix\/astro-pages["']/);
+    expect(wixCfg).toMatch(/wix\(\{\s*robots:\s*false\s*\}\)/);
+  });
+
+  test("/referenzen ist ohne echte Referenzen nicht öffentlich und nicht in der Sitemap", () => {
+    expect(stripComments(read("src/pages/referenzen.astro"))).toMatch(
+      /if\s*\(!features\.referencesPage\)\s*\{\s*return Astro\.redirect/,
+    );
+    const sitemap = stripComments(read("src/pages/sitemap.xml.ts"));
+    expect(sitemap).toMatch(/features\.referencesPage \? \["\/referenzen"\]/);
+  });
+
+  test("Keine Alt-Texte, die Marketingmotive als SIMIN-Mitarbeiter/betreute Objekte ausgeben", () => {
+    const offenders: string[] = [];
+    for (const file of walkAstroAndTsFiles(join(root, "src"))) {
+      const source = stripComments(readFileSync(file, "utf-8"));
+      if (/alt(=|:)\s*["'`][^"'`]*(SIMIN-Mitarbeiter|SIMIN-Team|betreut von|durch Gebäudedienste SIMIN)/.test(source)) {
+        offenders.push(file.replace(root + "/", ""));
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  test("TrustBar zeigt keine Sterne-Bewertung ohne verifizierte Bewertungsdaten", () => {
+    expect(read("src/components/TrustBar.astro")).not.toMatch(/★/);
+  });
+
+  test("Lange B2B-H1 bricht kontrolliert (weiche Trennstriche statt Überlauf)", () => {
+    expect(read("src/pages/fuer-hausverwaltungen.astro")).toMatch(
+      /Gebäude\\u00ADdienst\\u00ADleistungen/,
+    );
+  });
+});

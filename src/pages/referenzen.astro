@@ -5,6 +5,13 @@ import Breadcrumbs from "@/components/Breadcrumbs.astro";
 import ReferenceGrid from "@/components/ReferenceGrid.astro";
 import CTASection from "@/components/CTASection.astro";
 import { imagePositions } from "@/lib/imagePositions";
+import { features } from "@/config/site";
+import { withBase } from "@/lib/path";
+
+// Ohne echte, freigegebene Referenzen ist die Seite nicht öffentlich.
+if (!features.referencesPage) {
+  return Astro.redirect(withBase("/"), 301);
+}
 
 const title = "Referenzen | Gebäudedienste SIMIN";
 const description =

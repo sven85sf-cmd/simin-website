@@ -74,6 +74,9 @@ in **`src/config/site.ts`** (`company`-Objekt). Nirgendwo sonst hart codiert.
 Änderungen dort wirken sich automatisch auf Header, Footer, Schema.org
 (`LocalBusinessSchema.astro`), Kontaktseite, Impressum und Datenschutz aus.
 
+Bürozeiten stehen ebenso nur dort (`openingHours`) und speisen Footer,
+Kontaktseite und `openingHoursSpecification` im LocalBusiness-Schema.
+
 ## Navigation ändern
 
 - Hauptnavigation: `primaryNav` in `src/config/site.ts`
@@ -95,9 +98,9 @@ Texte, Claim und Keywords des Moduls werden ebenfalls dort gepflegt.
 ## Referenzen-Seite im Hauptmenü aktivieren
 
 Solange keine echten, dokumentierten Kundenreferenzfotos vorliegen, ist der
-Menüpunkt „Referenzen“ per Feature-Flag ausgeblendet (die Seite selbst
-bleibt unter `/referenzen` erreichbar, z. B. über den Footer, zeigt aber
-einen hochwertig gestalteten Leerzustand statt erfundener Referenzen):
+Menüpunkt „Referenzen“ per Feature-Flag ausgeblendet. Solange das Flag aus
+ist, leitet `/referenzen` per 301 auf die Startseite um und steht nicht in
+der Sitemap — es gibt keinen öffentlichen Leerzustand:
 
 ```ts
 // src/config/site.ts
@@ -303,8 +306,15 @@ Config-Dateien:**
   "standalone" })`, `output: "static"` — für alles, was explizit NICHT
   der echte Wix-Build/-Preview ist.
 - **`astro.config.base.mjs`**: gemeinsame Basis (site/base/security/
-  build/image/integrations), von beiden obigen Dateien per Spread
-  übernommen, damit sie nicht auseinanderlaufen.
+  build/image/env, Integration nur React), von beiden obigen Dateien per
+  Spread übernommen, damit sie nicht auseinanderlaufen.
+- Die Wix-Integrationen (`@wix/astro`, `@wix/astro-pages`) stehen
+  ausschließlich in `astro.config.mjs`. `@wix/astro` lehnt jedes `base`
+  ungleich `"/"` ab und ruft beim Prerendern jeder Seite die Wix-OAuth-API
+  auf — mit ihnen in der gemeinsamen Basis war der statische
+  GitHub-Pages-Build unmöglich. `npm start`, `npm run check` und
+  `build:unsafe` brauchen dadurch keine Wix-Zugangsdaten mehr; für echte
+  Wix-Aufrufe lokal `npm run dev` (= `wix dev`) verwenden.
 - `package.json`: `start`, `check` und `build:unsafe` rufen jetzt explizit
   `--config astro.config.static.mjs` auf; `dev`, `build` und `preview`
   (die drei `wix …`-Kommandos) bleiben unverändert und lesen dadurch
@@ -411,7 +421,7 @@ PREVIEW_BASE_PATH=/simin-website npm run build:unsafe
 **Wichtig:** hier ausdrücklich `build:unsafe` (reines `astro build`), nicht
 `build` (= `wix build`) — Letzteres würde versuchen, den Wix-CLI-Build samt
 Wix-Netzwerkzugriff auszuführen, den ein reiner statischer GitHub-Pages-Export
-nicht braucht und nicht haben soll. `astro.config.mjs` liest `PREVIEW_BASE_PATH` nur für diesen Sonderfall;
+nicht braucht und nicht haben soll. `astro.config.base.mjs` liest `PREVIEW_BASE_PATH` nur für diesen Sonderfall;
 ohne die Variable bleibt `base` immer `"/"` — die Produktionsseite unter
 `https://www.gebaeudedienste-simin.de/` ist davon nicht betroffen. Der
 zentrale `withBase()`-Helper (`src/lib/path.ts`) hängt den Unterordner-Pfad
@@ -431,8 +441,11 @@ Preview-Sonderregel, die in Produktion aktiv werden könnte.
 keine Anfrage absenden (kein Node-Server für `/api/quote` auf GitHub Pages).
 
 Um die Vorschau nach Änderungen zu aktualisieren: `dist/client` mit
-`PREVIEW_BASE_PATH` bauen, den Inhalt in den `gh-pages`-Branch committen
-und pushen (siehe Kommentare in `astro.config.mjs`/`BaseLayout.astro`).
+`PREVIEW_BASE_PATH` bauen und den `gh-pages`-Branch **vollständig** durch
+diesen Inhalt ersetzen (alte Dateien vorher entfernen, keine Mischstände),
+plus eine leere `.nojekyll`-Datei; committen und pushen. GitHub Pages
+veröffentlicht den Branch anschließend automatisch
+(Workflow „pages-build-deployment“).
 
 ## Accessibility-Hinweise
 
@@ -451,6 +464,12 @@ und pushen (siehe Kommentare in `astro.config.mjs`/`BaseLayout.astro`).
   strukturelle Platzhalter auf Basis der bestätigten Unternehmensdaten und
   sind deutlich mit „RECHTSTEXT VOR LIVEGANG PRÜFEN“ markiert. Vor
   Veröffentlichung durch rechtlich geprüfte Fassungen ersetzen/ergänzen.
+- **Datenschutzerklärung an Wix anpassen (rechtlich prüfen lassen)**: Die
+  Abschnitte 3 (Hosting), 5 (Cookies), 8 (E-Mail-Versand), 9 (Empfänger)
+  und 10 (Drittland) sagen noch, Hosting-/E-Mail-Anbieter stünden „noch
+  nicht fest“ bzw. würden „ergänzt“. Tatsächlich laufen Hosting, Speicherung
+  der Anfragen (Wix Data), Datei-Uploads (Wix Media) und Benachrichtigung
+  über Wix. Diese Texte wurden bewusst nicht eigenmächtig umgeschrieben.
 - **Formularbackend** produktiv konfigurieren (siehe oben).
 - **Höher aufgelöste Fotografie** für Objektservice und Außenanlagen/
   Grünflächen ergänzen, sobald vorhanden — die aktuellen Motive stammen aus
@@ -467,8 +486,8 @@ und pushen (siehe Kommentare in `astro.config.mjs`/`BaseLayout.astro`).
   Google-Business-Profil-Dashboard ersetzen (siehe TODO-Kommentar dort).
 - **Referenzen**: Es liegen aktuell keine echten, dokumentierten
   Kundenreferenzfotos vor (die Flyer-Motive sind allgemeine Marketingmotive,
-  keine Projektbelege). Sektion zeigt deshalb einen Leerzustand, Menüpunkt
-  ist ausgeblendet (`features.referencesPage`). Sobald echte Referenzfotos
+  keine Projektbelege). Menüpunkt ist ausgeblendet und `/referenzen` leitet
+  auf die Startseite um (`features.referencesPage`). Sobald echte Referenzfotos
   freigegeben sind: in `ReferenceGrid.astro` (`references`-Array) ergänzen
   und Flag auf `true` setzen.
 - Analytics/Tracking ist bewusst **nicht** eingebunden (siehe Master-Brief

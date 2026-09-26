@@ -1,5 +1,7 @@
 import { defineConfig } from "astro/config";
 import wixHostingAdapter from "@wix/astro-wix-hosting-adapter";
+import wix from "@wix/astro";
+import wixPages from "@wix/astro-pages";
 
 import { baseConfig } from "./astro.config.base.mjs";
 
@@ -42,4 +44,8 @@ export default defineConfig({
   ...baseConfig,
   output: "server",
   adapter: wixHostingAdapter(),
+  // robots: false, da @wix/astro sonst eine eigene /robots.txt-Route
+  // registriert, die mit src/pages/robots.txt.ts kollidiert. Die eigene
+  // Route kennt die Preview-noindex-/Production-Logik und bleibt aktiv.
+  integrations: [...baseConfig.integrations, wix({ robots: false }), wixPages()],
 });

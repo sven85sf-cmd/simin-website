@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { company } from "@/config/site";
+import { company, features } from "@/config/site";
 
 export const prerender = true;
 
@@ -11,7 +11,7 @@ const paths = [
   "/winterdienst-koeln",
   "/fuer-hausverwaltungen",
   "/ueber-uns",
-  "/referenzen",
+  ...(features.referencesPage ? ["/referenzen"] : []),
   "/angebot",
   "/kontakt",
   "/herbst-winter",

@@ -2,7 +2,7 @@
 import { googleBusinessUrl } from "@/config/site";
 
 const items = [
-  { label: "GOOGLE-BEWERTUNGEN ANSEHEN", href: googleBusinessUrl, stars: true },
+  { label: "GOOGLE-BEWERTUNGEN ANSEHEN", href: googleBusinessUrl },
   { label: "PERSÖNLICHER ANSPRECHPARTNER" },
   { label: "KÖLN & UMGEBUNG" },
   { label: "MEHRERE LEISTUNGEN AUS EINER HAND" },
@@ -16,7 +16,6 @@ const items = [
         <li class="trust-bar__item" data-reveal="up">
           {item.href ? (
             <a href={item.href} target="_blank" rel="noopener noreferrer" class="trust-bar__link">
-              <span class="trust-bar__stars" aria-hidden="true">★★★★★</span>
               <span>{item.label}</span>
             </a>
           ) : (
@@ -86,11 +85,6 @@ const items = [
 
   .trust-bar__link:hover {
     color: var(--color-light-blue);
-  }
-
-  .trust-bar__stars {
-    color: var(--color-orange);
-    letter-spacing: 2px;
   }
 
   @media (max-width: 767px) {
