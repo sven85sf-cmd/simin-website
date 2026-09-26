@@ -614,9 +614,29 @@ test.describe("Regressionsschutz: Launch Candidate (Bürozeiten, Build-Konfigura
     expect(read("src/components/TrustBar.astro")).not.toMatch(/★/);
   });
 
-  test("Lange B2B-H1 bricht kontrolliert (weiche Trennstriche statt Überlauf)", () => {
-    expect(read("src/pages/fuer-hausverwaltungen.astro")).toMatch(
-      /Gebäude\\u00ADdienst\\u00ADleistungen/,
+  test("Datenschutzerklärung: finaler Wix-Stand, keine Platzhalter-Formulierungen", () => {
+    const source = read("src/pages/datenschutz.astro");
+    expect(source).not.toMatch(/noch nicht (abschließend )?fest|wird ergänzt|ergänzt, sobald|künftig|Platzhalter|festzulegen/i);
+    expect(source).toMatch(/Wix\.com Ltd\./);
+    expect(source).toMatch(/wixSession/);
+    expect(source).toMatch(/Art\. 28 DSGVO/);
+    expect(source).toMatch(/Wix Media/);
+    expect(source).not.toMatch(/Adelen/);
+  });
+
+  test("Hero-H1: keine automatische Silbentrennung, Schriftgröße nach längstem Wort begrenzt", () => {
+    const pageHero = stripComments(read("src/components/PageHero.astro"));
+    expect(pageHero).toMatch(/\.page-hero__headline\s*\{[^}]*hyphens:\s*manual/);
+    expect(pageHero).toMatch(/--hero-longest-word/);
+    expect(pageHero).toMatch(/min\(var\(--fs-h1\),\s*calc\(100cqi \/ \(var\(--hero-longest-word\) \* 0\.43\)\)\)/);
+    expect(pageHero).toMatch(/container-type:\s*inline-size/);
+    expect(stripComments(read("src/components/Hero.astro"))).toMatch(
+      /\.hero__headline\s*\{[^}]*hyphens:\s*manual/,
     );
+    for (const file of walkAstroAndTsFiles(join(root, "src"))) {
+      expect(readFileSync(file, "utf-8"), `${file} darf keine weichen Trennstriche enthalten`).not.toMatch(
+        /\\u00AD|\u00AD|&shy;/,
+      );
+    }
   });
 });

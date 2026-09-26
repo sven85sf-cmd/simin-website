@@ -16,6 +16,10 @@ interface Props {
 }
 
 const { eyebrow, headline, text, placeholderLabel, src, imagePosition, reveal = false } = Astro.props;
+
+// Längstes Wort (in Zeichen) begrenzt die Schriftgröße, damit kein Begriff
+// umbrochen oder getrennt werden muss (siehe .page-hero__headline).
+const longestWord = Math.max(...headline.split(/\s+/).map((word) => Array.from(word).length));
 ---
 
 <section class="page-hero">
@@ -36,7 +40,13 @@ const { eyebrow, headline, text, placeholderLabel, src, imagePosition, reveal = 
   </div>
   <div class="container page-hero__content" data-stagger={reveal ? "120" : undefined}>
     <p class="eyebrow eyebrow--orange-on-dark" data-reveal={reveal ? "up" : undefined}>{eyebrow}</p>
-    <h1 class="page-hero__headline" data-reveal={reveal ? "up" : undefined}>{headline}</h1>
+    <h1
+      class="page-hero__headline"
+      style={`--hero-longest-word: ${longestWord}`}
+      data-reveal={reveal ? "up" : undefined}
+    >
+      {headline}
+    </h1>
     {text && <p class="page-hero__text" data-reveal={reveal ? "up" : undefined}>{text}</p>}
   </div>
 </section>
@@ -72,13 +82,21 @@ const { eyebrow, headline, text, placeholderLabel, src, imagePosition, reveal = 
     width: 100%;
     min-width: 0;
     padding-block: 48px;
-    max-width: 760px;
+    max-width: 880px;
+    container-type: inline-size;
   }
 
+  /* Deutsche Komposita ("Hausmeisterservice", "Gebäudedienstleistungen")
+     werden nie getrennt: keine automatische Silbentrennung, stattdessen
+     wird die Schrift so begrenzt, dass das längste Wort in die Textbreite
+     passt. 0.43em ≈ gemessene Durchschnittsbreite pro Zeichen von Barlow
+     Condensed 700 (0.39–0.42em) plus Reserve. */
   .page-hero__headline {
     font-size: var(--fs-h1);
+    font-size: min(var(--fs-h1), calc(100cqi / (var(--hero-longest-word) * 0.43)));
     color: var(--color-white);
     margin-top: 12px;
+    hyphens: manual;
   }
 
   .page-hero__text {

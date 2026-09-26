@@ -460,16 +460,13 @@ veröffentlicht den Branch anschließend automatisch
 
 ## Offene Punkte vor Livegang
 
-- **RECHTSTEXTE PRÜFEN**: Impressum und Datenschutzerklärung sind
-  strukturelle Platzhalter auf Basis der bestätigten Unternehmensdaten und
-  sind deutlich mit „RECHTSTEXT VOR LIVEGANG PRÜFEN“ markiert. Vor
-  Veröffentlichung durch rechtlich geprüfte Fassungen ersetzen/ergänzen.
-- **Datenschutzerklärung an Wix anpassen (rechtlich prüfen lassen)**: Die
-  Abschnitte 3 (Hosting), 5 (Cookies), 8 (E-Mail-Versand), 9 (Empfänger)
-  und 10 (Drittland) sagen noch, Hosting-/E-Mail-Anbieter stünden „noch
-  nicht fest“ bzw. würden „ergänzt“. Tatsächlich laufen Hosting, Speicherung
-  der Anfragen (Wix Data), Datei-Uploads (Wix Media) und Benachrichtigung
-  über Wix. Diese Texte wurden bewusst nicht eigenmächtig umgeschrieben.
+- **Rechtstexte**: Impressum und Datenschutzerklärung sind auf Basis der
+  bestätigten Unternehmensdaten und des tatsächlichen technischen Setups
+  finalisiert. Eine anwaltliche Prüfung vor Livegang bleibt empfehlenswert.
+- **Datenschutzerklärung**: beschreibt den tatsächlichen Wix-Betrieb (Hosting,
+  Cookie „wixSession“, Wix Data, private Uploads in Wix Media, Benachrichtigung
+  per Wix-Automation, Auftragsverarbeitung, Drittland). Bei Änderungen am
+  Setup (z. B. Analyse-Tools, weitere Dienste) entsprechend anpassen.
 - **Formularbackend** produktiv konfigurieren (siehe oben).
 - **Höher aufgelöste Fotografie** für Objektservice und Außenanlagen/
   Grünflächen ergänzen, sobald vorhanden — die aktuellen Motive stammen aus
