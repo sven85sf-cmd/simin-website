@@ -8,6 +8,11 @@ statt Winterdienst-Schwerpunkt), ergänzt zwei neue Bildmotive für
 Objektservice und Außenanlagen/Grünflächen und entfernt die Empty-State-
 Sektionen (Referenzen/Kundenstimmen) von der produktiven Startseite.
 
+## Gemeinsamer KI-Workspace
+
+Projektregeln und Übergaben: [docs/workspace/README.md](docs/workspace/README.md).
+Der aktuelle Prüfstand steht in [STATUS.md](docs/workspace/STATUS.md).
+
 ## Inhalt
 
 - [Schnellstart](#schnellstart)
@@ -20,21 +25,23 @@ Sektionen (Referenzen/Kundenstimmen) von der produktiven Startseite.
 - [Logo austauschen](#logo-austauschen)
 - [SEO-Meta ändern](#seo-meta-ändern)
 - [Formularbackend (Angebotsassistent) konfigurieren](#formularbackend-angebotsassistent-konfigurieren)
-- [Produktions-Hosting-Anforderung](#produktions-hosting-anforderung-p0--entscheidung-vor-livegang-nötig)
+- [Produktions-Hosting](#produktions-hosting-wix)
 - [GitHub-Pages-Vorschau](#github-pages-vorschau)
 - [Accessibility-Hinweise](#accessibility-hinweise)
 - [Offene Punkte vor Livegang](#offene-punkte-vor-livegang)
 - [Launch-Checkliste](#launch-checkliste)
-- [Finaler Selbstaudit](#finaler-selbstaudit)
+- [Historischer Selbstaudit](#historischer-selbstaudit)
 
 ## Schnellstart
 
 ```bash
-npm install
-npm run dev       # Dev-Server unter http://localhost:4321
-npm run build     # Typecheck + Produktions-Build nach dist/
-npm run preview   # Produktions-Build lokal ausliefern
-npm run check     # Nur Astro/TS-Typecheck
+npm ci --ignore-scripts
+npm start         # Lokaler Astro-Server ohne Wix-Anmeldung
+npm run check     # Astro/TS-Typecheck
+npm run test:regression # Serverlose Regressionstests
+npm run dev       # Wix-Entwicklung mit passender Wix-Umgebung
+npm run build     # Wix-Build (Typecheck separat ausführen)
+npm run preview   # Wix-Vorschau
 ```
 
 Node.js 20+ wird empfohlen.
@@ -186,7 +193,7 @@ Der Angebotsassistent sendet serverseitig an `POST /api/quote`
 (`src/pages/api/quote.ts`). Validierung (client- und serverseitig),
 Honeypot-Spamschutz, einfaches Rate-Limiting und Datei-Validierung
 (Größe, Anzahl, Erweiterung, Magic-Byte-Prüfung des tatsächlichen
-Dateiinhalts) sind unverändert produktionsfertig implementiert.
+Dateiinhalts) sind implementiert; die produktive Integration wird separat geprüft.
 
 **Architektur (Wix-native, kein externer Mailanbieter):**
 
@@ -215,11 +222,14 @@ Eintrag in dieser Collection" reagiert.
    „SIMIN Angebotsanfragen", mit Feldern passend zum in
    `src/lib/wix/submissionsRepository.ts` geschriebenen Datensatz
    (`service`, `propertyType`, `postalCode`, `city`, `description`,
-   `name`, `company`, `phone`, `email`, `files`, `submittedAt`). Das
-   Feld `files` muss den Feldtyp **„Mehrere Dokumente"** verwenden — der
-   Code schreibt dort ein Array nativer Wix-Dokumentreferenzen
-   (`wix:document://v1/<fileId>/<filename>`, siehe `uploadFile()` in
-   `submissionsRepository.ts`), keine JSON-Objekte und keine Klartext-URLs.
+   `name`, `company`, `phone`, `email`, `submittedAt`). Das
+   HTTP-Dateifeld `files` ist vom gespeicherten CMS-Modell zu unterscheiden.
+   Der aktuelle Code schreibt **nicht mehr in das alte CMS-Feld `files`**.
+   Stattdessen verwendet er `attachmentMetadata` (Array), `attachmentsPresent`
+   (Boolean), `attachmentCount` (Number), `attachmentNames` (Text) und
+   `attachmentAccessLinks` (Text). `submittedAt` wird als Date geschrieben.
+   Maßgeblich ist `src/lib/wix/submissionsRepository.ts`.
+   Das alte Feld bleibt für vorhandene Daten bestehen.
 2. Die Collection-ID als `WIX_SUBMISSIONS_COLLECTION_ID` setzen
    (`.env.example` kopieren nach `.env`).
 3. Eine Automation einrichten: Trigger „Neuer Eintrag" auf dieser
@@ -253,21 +263,18 @@ genutzten Speicher ersetzen (`src/lib/forms/rateLimit.ts`); prüfen, ob die
 Wix-Hosting-Laufzeit hierfür bereits einen geeigneteren nativen Schutz
 bietet.
 
-**Wichtig — `security.allowedDomains` (astro.config.mjs):** Astros
-eingebaute CSRF-Origin-Prüfung für `POST /api/quote` validiert den
-Host-Header ohne konfigurierte `allowedDomains` nicht korrekt und lehnt
-dadurch **jede** echte Formular-Anfrage mit 403 ab. `astro.config.mjs`
-trägt deshalb die Produktionsdomain explizit ein
-(`{ hostname: "www.gebaeudedienste-simin.de", protocol: "https" }`) sowie
-zusätzlich `{ hostname: "**.wix-site-host.com", protocol: "https" }` für
-Testanfragen über die Wix-Managed-Headless-Preview (deren Subdomain sich
-pro Deployment ändert, siehe `.wix/topology.json`). Wird die Seite unter
-einer weiteren Domain ausgeliefert (z. B. Apex ohne Redirect, eigene
-Staging-Domain), muss diese hier ergänzt werden — sonst schlägt der
-Versand mit „Cross-site POST form submissions are forbidden“ fehl, obwohl
-alles andere korrekt konfiguriert ist. End-to-end
-gegen den Node-Server getestet (Validierung, Honeypot, Datei-Upload,
-Erfolg-/Fehlerzustand, Tastaturbedienung) — siehe Launch-Checkliste unten.
+**Origin-Schutz und Forwarded-Host sind getrennt:**
+`astro.config.base.mjs` setzt `checkOrigin: false`; der API-Endpunkt prüft
+stattdessen eine explizite Origin-Allowlist in `src/pages/api/quote.ts`.
+`security.allowedDomains` steuert separat das Vertrauen in Forwarded-Host-Header.
+Bei zusätzlichen Domains beide Mechanismen anhand ihrer jeweiligen Funktion
+prüfen; nicht blind die eingebaute Origin-Prüfung erneut einschalten.
+
+**Private Anhänge:** `ATTACHMENT_LINK_SIGNING_SECRET` wird ausschließlich als
+serverseitiges Geheimnis hinterlegt. `ATTACHMENT_LINK_TTL_HOURS` steuert die
+Gültigkeit (Vorgabe 168 Stunden). Die Automation muss `attachmentAccessLinks`
+ausgeben; kurzlebige Wix-Download-URLs werden erst beim Öffnen erzeugt.
+Kein Geheimnis und kein ausgegebener Zugriffslink gehört in dieses Repository.
 
 ## Wix Managed Headless — Adapter & Runtime-Pakete (wichtig bei zukünftigen Änderungen)
 
@@ -331,8 +338,8 @@ um den zuvor vermuteten Rückfall-Mechanismus direkt zu reproduzieren):
 "react"`-Zeilen und **0** bare `@astrojs/react`-Referenzen — React ist
 vollständig inline gebündelt.
 
-`react()`, `wix({ robots: false })`, `wixPages()` bleiben in beiden
-Config-Dateien unverändert aktiv (Teil von `astro.config.base.mjs`).
+`react()` steht in der gemeinsamen Basis. `wix({ robots: false })` und
+`wixPages()` stehen ausschließlich in `astro.config.mjs`.
 
 Zusätzlich stehen folgende Pakete jetzt unter `dependencies`, nicht mehr
 `devDependencies` (wie sie ursprünglich vom Linking-Prozess einsortiert
@@ -358,52 +365,20 @@ Build-Zeit `renderers.mjs` und wird selbst nie zur Laufzeit importiert.
 `@wix/cli` (Build-/CLI-Tool) bleibt ebenfalls zulässig unter
 `devDependencies`.
 
-## Produktions-Hosting-Anforderung (P0 — Entscheidung vor Livegang nötig)
+## Produktions-Hosting (Wix)
 
-**Dieses Setup benötigt zwingend einen Node.js-fähigen Hosting-Host für
-`https://www.gebaeudedienste-simin.de/` — reines statisches
-„Dateien hochladen"-Webhosting reicht NICHT aus, damit der
-Angebotsassistent tatsächlich senden kann.**
+Die aktuelle Produktionskonfiguration verwendet **Wix Managed Headless** mit
+`wixHostingAdapter()` und `output: "server"` in `astro.config.mjs`.
+Der Adapter baut für die Cloudflare-Workers-Laufzeit von Wix. Ein zusätzlicher
+Node.js-Hostingvertrag ist für diese Architektur nicht erforderlich.
 
-Hintergrund: `astro.config.mjs` verwendet `output: "static"` mit dem
-`@astrojs/node`-Adapter (`mode: "standalone"`). `npm run build` erzeugt
-dadurch zwei getrennte Ausgaben:
+`astro.config.static.mjs` mit Node-Standalone-Adapter und `output: "static"`
+ist die getrennte Variante für lokale Entwicklung, Typecheck und statische Vorschau.
+Sie beschreibt nicht die Produktionsarchitektur. Ein erfolgreicher statischer Build
+beweist weder Wix-Persistenz noch Automation oder E-Mail-Zustellung.
 
-- `dist/client/` — die vollständig statische Website (alle Seiten außer
-  dem Formular-Endpunkt). Kann auf jedem beliebigen Webspace/CDN
-  ausgeliefert werden.
-- `dist/server/entry.mjs` — ein eigenständiger Node.js-Server, der
-  **ausschließlich** für `POST /api/quote` (`src/pages/api/quote.ts`,
-  `export const prerender = false`) benötigt wird. Alle anderen Seiten
-  sind vollständig vorgerendert und benötigen diesen Server nicht.
-
-Läuft die Produktionsdomain auf klassischem statischem Shared-Hosting
-(z. B. reinem FTP-Upload ohne Node-Laufzeitumgebung, wie bei vielen
-günstigen Webspace-Paketen üblich), sieht die Website optisch und
-strukturell vollständig funktionsfähig aus — **aber jede
-Formular-Anfrage schlägt fehl**, weil `dist/server/entry.mjs` nirgendwo
-läuft und `/api/quote` schlicht nicht erreichbar ist.
-
-Damit der Angebotsassistent produktiv senden kann, braucht es eines von:
-
-1. Einen Host, der `node dist/server/entry.mjs` dauerhaft als Prozess
-   ausführen kann (z. B. ein vServer/VPS oder ein Node-fähiger
-   Anbieter) — dieser Server liefert dann sowohl die statischen Seiten
-   als auch `/api/quote` aus einem Prozess.
-2. Eine getrennte Architektur: `dist/client/` weiterhin klassisch
-   statisch ausliefern, `/api/quote` separat als eigene
-   Node-/Serverless-Funktion beim jeweiligen Hosting-Anbieter
-   bereitstellen (z. B. dessen Node-/Funktions-Angebot, falls
-   vorhanden).
-
-**Dies ist ausdrücklich eine Entscheidung des Auftraggebers** (abhängig
-vom bereits gebuchten oder geplanten Hosting-Vertrag) und wurde in
-diesem Reparaturlauf bewusst nicht eigenmächtig durch einen
-Plattformwechsel vorweggenommen. Vor Livegang klären: Unterstützt das
-vorgesehene Hosting für `www.gebaeudedienste-simin.de` eine
-Node.js-Laufzeitumgebung? Falls nein, ist Weg 2 oder ein Wechsel zu
-einem Node-fähigen Anbieter nötig, bevor das Formular produktiv
-funktioniert.
+Build, Live-Konfiguration und tatsächliche Veröffentlichung getrennt prüfen:
+`npm run check`, `npm run build`, bei autorisierter Veröffentlichung `npm run release`.
 
 ## GitHub-Pages-Vorschau
 
@@ -493,9 +468,11 @@ veröffentlicht den Branch anschließend automatisch
 
 ## Launch-Checkliste
 
-Alles hier Aufgeführte ist technisch vorbereitet und strukturell sauber
-abgesichert, aber **noch nicht produktiv scharf geschaltet** bzw. hängt von
-echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
+Checkliste für die Live-Verifikation; offene Kästchen belegen keinen aktuellen Fehler,
+sondern benötigen einen aktuellen Nachweis aus Wix bzw. dem produktiven Test.
+
+Die folgenden Punkte müssen gegen den aktuellen Betriebsstand geprüft werden;
+historische Checklisten ersetzen keine Kontrolle im produktiven System.
 
 **Rechtliches**
 - [ ] Impressum final rechtlich geprüft (`src/pages/impressum.astro`)
@@ -505,11 +482,8 @@ echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
 - [ ] ggf. Handelsregister / USt-ID / zuständige Aufsichtsbehörde ergänzt (nur falls zutreffend)
 
 **Hosting**
-- [ ] Bestätigt: das vorgesehene Hosting für `www.gebaeudedienste-simin.de`
-      unterstützt eine Node.js-Laufzeitumgebung (nicht nur statisches
-      Webspace) — siehe Abschnitt „Produktions-Hosting-Anforderung“ oben.
-      Ohne das läuft `/api/quote` in Produktion nicht, unabhängig davon,
-      wie gut das Mail-Backend konfiguriert ist.
+- [ ] Wix-Build und tatsächliche Veröffentlichung unter der Produktionsdomain nachgewiesen.
+- [ ] Produktive Laufzeit getrennt von der statischen GitHub-Pages-Vorschau geprüft.
 
 **Formular**
 - [ ] Wix-Data-Collection „SIMIN Angebotsanfragen" im Dashboard angelegt,
@@ -520,10 +494,9 @@ echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
 - [ ] echte End-to-End-Testanfrage durchgeführt: Datensatz im Dashboard
       sichtbar, Dateien im Media Manager abrufbar, Benachrichtigungsmail
       angekommen — **bisher nicht getestet**, siehe Hinweis oben
-- [ ] `security.allowedDomains` in `astro.config.mjs` enthält die tatsächlich
-      ausgelieferte(n) Produktionsdomain(s) — **ohne passenden Eintrag
-      schlägt jede Formular-Anfrage mit 403 fehl**, siehe Abschnitt
-      „Formularbackend“ oben
+- [ ] Origin-Allowlist in `src/pages/api/quote.ts` gegen die tatsächlich
+      verwendeten Produktionsdomains geprüft. `security.allowedDomains` in
+      `astro.config.base.mjs` regelt separat das Vertrauen in Forwarded-Host-Header
 - [ ] Datenschutzhinweis am Formular vorhanden — **bereits vorhanden**
       (Checkbox + Link zu `/datenschutz` in Schritt 4 des Angebotsassistenten)
 
@@ -548,7 +521,11 @@ echten, außerhalb dieses Repositories liegenden Angaben/Diensten ab.
 - [ ] Mobile final geprüft (echte Geräte, nicht nur Viewport-Simulation)
 - [ ] Kontaktangaben final geprüft (Telefon/E-Mail/Adresse in `src/config/site.ts`)
 
-## Finaler Selbstaudit
+## Historischer Selbstaudit
+
+Die folgenden Angaben stammen aus früheren Entwicklungsständen und sind keine
+aktuelle Live-Abnahme. Maßgeblich für neue Arbeiten ist der datierte
+[Workspace-Status](docs/workspace/STATUS.md).
 
 **DESIGN**
 - Mobile: BESTANDEN (390/375/360px geprüft, kein horizontales Scrollen, Sticky-Bar korrekt aus-/eingeblendet)

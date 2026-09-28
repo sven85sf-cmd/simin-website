@@ -28,7 +28,8 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${PORT}`,
   },
   webServer: {
-    command: "npm run start",
+    // Bind explicitly to the IPv4 address used by baseURL and readiness checks.
+    command: "npm run start -- --host 127.0.0.1",
     url: `http://127.0.0.1:${PORT}/favicon.ico`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
